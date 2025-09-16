@@ -1,0 +1,37 @@
+root = true
+
+[*.cs]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+# C# Code Style
+# Qualify members
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+
+# var preferences
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+# Expression-bodied members
+csharp_style_expression_bodied_methods = false:none
+csharp_style_expression_bodied_properties = true:suggestion
+
+# Using directives
+csharp_using_directive_placement = outside_namespace:suggestion
+
+# Null checking
+csharp_style_throw_expression = true:suggestion
+
+# Pattern matching
+csharp_style_pattern_local_over_anonymous_function = true:suggestion
+
+# File header (optional placeholder)
+file_header_template = 

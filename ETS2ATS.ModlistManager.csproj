@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>ETS2ATS.ModlistManager</AssemblyName>
+    <RootNamespace>ETS2ATS.ModlistManager</RootNamespace>
+    <Version>0.1.0</Version>
+    <Authors>Community</Authors>
+    <Company></Company>
+    <Copyright>Copyright © 2025</Copyright>
+  <PackageProjectUrl>https://github.com/rohere58/ETS2ATS.ModlistManager</PackageProjectUrl>
+  <RepositoryUrl>https://github.com/rohere58/ETS2ATS.ModlistManager</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Tools mitnehmen -->
+    <Content Include="ModlistManager\Tools\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Alles unter ModlistManager\Resources nach bin\...\Resources kopieren -->
+  <ItemGroup>
+    <Content Include="ModlistManager\Resources\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Resources\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ModlistManager\Resources\Languages\lang.de.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ModlistManager\Resources\Languages\lang.en.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
+
