@@ -139,28 +139,45 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             try
             {
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                // Mögliche Hauptpfade analog zu GetModlistsRootForGame
-                var roots = new List<string>
+                var nestedRoot = Path.Combine(baseDir, "ModlistManager", "modlists");
+                var legacyRoot = Path.Combine(baseDir, "modlists"); // frühere Versionen legten diesen an
+
+                // Migration Hinweis:
+                // Ab Version 0.1.7 werden Modlisten ausschließlich unter <Base>/ModlistManager/modlists erwartet.
+                // Frühere Builds erstellten <Base>/modlists. Beim ersten Start nach Update werden Inhalte
+                // (Top-Level Dateien + erste Ebene Unterordner) best-effort verschoben. Der alte Ordner bleibt
+                // bewusst erhalten (kein automatisches Löschen), um manuelle Rücksicherung zu ermöglichen.
+                // Sollte der Nutzer beide Strukturen parallel nutzen, wird nur die verschachtelte aktiv durchsucht.
+
+                // 1) Migration: Wenn legacy existiert UND nested nicht, verschieben
+                if (Directory.Exists(legacyRoot) && !Directory.Exists(nestedRoot))
                 {
-                    Path.Combine(baseDir, "ModlistManager", "modlists"),
-                    Path.Combine(baseDir, "modlists")
-                };
-                foreach (var r in roots.ToList())
-                {
-                    if (!Directory.Exists(r)) continue; // existierendes Grundverzeichnis respektieren
-                    // Wenn vorhanden, spätere Pfadergänzungen darauf aufbauen
+                    try
+                    {
+                        Directory.CreateDirectory(nestedRoot);
+                        foreach (var dir in Directory.GetDirectories(legacyRoot, "*", SearchOption.TopDirectoryOnly))
+                        {
+                            var name = Path.GetFileName(dir);
+                            var target = Path.Combine(nestedRoot, name);
+                            if (!Directory.Exists(target)) Directory.Move(dir, target);
+                        }
+                        foreach (var file in Directory.GetFiles(legacyRoot, "*", SearchOption.TopDirectoryOnly))
+                        {
+                            var name = Path.GetFileName(file);
+                            var target = Path.Combine(nestedRoot, name);
+                            if (!File.Exists(target)) File.Move(file, target);
+                        }
+                        // Optional: Legacy leeren, aber nicht löschen falls Benutzer dort noch etwas erwartet
+                    }
+                    catch { /* Migration best-effort */ }
                 }
-                // Falls keiner existiert: ersten Pfad anlegen
-                if (!roots.Any(Directory.Exists))
-                {
-                    Directory.CreateDirectory(roots[1]); // simpler: direkt baseDir/modlists
-                }
-                // Jetzt sicherstellen: ETS2 / ATS Unterordner vorhanden
-                var activeRoot = roots.First(Directory.Exists);
-                Directory.CreateDirectory(Path.Combine(activeRoot, "ETS2"));
-                Directory.CreateDirectory(Path.Combine(activeRoot, "ATS"));
+
+                // 2) Sicherstellen, dass nestedRoot existiert
+                Directory.CreateDirectory(nestedRoot);
+                Directory.CreateDirectory(Path.Combine(nestedRoot, "ETS2"));
+                Directory.CreateDirectory(Path.Combine(nestedRoot, "ATS"));
             }
-            catch { }
+            catch { /* still ignore, UI soll nicht crashen */ }
         }
 
         // Einfache, designerfreundliche Renderer

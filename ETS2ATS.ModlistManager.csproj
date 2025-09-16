@@ -48,18 +48,9 @@
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
-  <!-- Modlists Basisordner (falls leer) mitnehmen -->
+  <!-- Modlists jetzt unter ModlistManager/modlists -->
   <ItemGroup>
-    <Content Include="modlists\**\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-    </Content>
-    <!-- Explizite Platzhalter für leere Unterordner, damit sie im Repo und Publish erscheinen -->
-    <Content Include="modlists\ETS2\.gitkeep">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-    </Content>
-    <Content Include="modlists\ATS\.gitkeep">
+    <Content Include="ModlistManager\modlists\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
