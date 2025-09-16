@@ -19,6 +19,25 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - Noch nichts
 
+## [0.1.3] - 2025-09-17
+### Fixed
+- Release Packaging: Leere Strukturordner `modlists/ETS2` und `modlists/ATS` erscheinen nun zuverlässig im ZIP (Platzhalter `.gitkeep` + Content Einträge)
+- Release Workflow: Fehlende Ressourcen (z.B. `SII_Decrypt.exe`) werden jetzt vor dem Zipping erkannt (Verify-Step)
+
+### Changed
+- Build/Dev: Dokumentation im csproj zu Platzhalterordnern ergänzt
+
+### Internal
+- Added CI safety check to fail fast if expected tool / folders are missing
+
+## [0.1.2] - 2025-09-16
+### Fixed
+- Release: Vollständiges `modlists/` Verzeichnis jetzt im ZIP (Auto-Erstellung der Unterordner bei Start)
+- Tools: Sicher gestellt, dass `SII_Decrypt.exe` immer in Publish enthalten ist (`Always` Copy)
+
+### Changed
+- Interne Pfad-Initialisierung (`EnsureModlistsDirectories()`) für robusteren First-Run
+
 ## [0.1.1] - 2025-09-16
 ### Fixed
 - FAQ: Links wurden als reiner Text angezeigt (doppeltes HTML-Escaping entfernt)
@@ -40,6 +59,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/rohere58/ETS2ATS.ModlistManager/releases/tag/v0.1.0
