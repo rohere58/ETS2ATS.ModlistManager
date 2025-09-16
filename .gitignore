@@ -1,0 +1,41 @@
+# Visual Studio / .NET
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# NuGet
+*.nupkg
+# Paket Cache
+packages/
+
+# Logs
+*.log
+
+# Generated
+**/Properties/Resources.Designer.cs
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Misc
+Thumbs.db
+Desktop.ini
+*.orig
+
+# Publish output
+dist/
+publish/
