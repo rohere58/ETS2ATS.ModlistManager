@@ -74,35 +74,47 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         {
             try
             {
-                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                // Reihenfolge: Markdown bevorzugen
-                string[] mdCandidates = new[]
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                // Kandidatenlisten aufbauen (Markdown priorisiert)
+                var mdList = new System.Collections.Generic.List<string>();
+                void AddMd(string relative)
                 {
-                    Path.Combine(baseDir, "ModlistManager", "Resources", $"faq.{_langCode}.md"),
-                    Path.Combine(baseDir, "ModlistManager", "Resources", "faq.en.md")
-                };
-                foreach (var md in mdCandidates)
+                    mdList.Add(Path.Combine(baseDir, relative));
+                }
+                // Häufige Layouts: nach Publish können Ressourcen direkt unter Resources oder weiter unter ModlistManager/Resources liegen
+                AddMd($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.{_langCode}.md");
+                AddMd($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.en.md");
+                AddMd($"Resources{Path.DirectorySeparatorChar}faq.{_langCode}.md");
+                AddMd($"Resources{Path.DirectorySeparatorChar}faq.en.md");
+                AddMd($"faq.{_langCode}.md");
+                AddMd("faq.en.md");
+
+                foreach (var candidate in mdList)
                 {
-                    if (File.Exists(md))
+                    if (File.Exists(candidate))
                     {
-                        string mdText = File.ReadAllText(md);
-                        string html = RenderMarkdownToHtml(mdText, IsDarkTheme());
+                        var mdText = File.ReadAllText(candidate);
+                        var html = RenderMarkdownToHtml(mdText, IsDarkTheme());
                         _browser.DocumentText = html;
                         return;
                     }
                 }
 
-                // Fallback: TXT
-                string[] txtCandidates = new[]
+                // TXT Fallback analog
+                var txtList = new System.Collections.Generic.List<string>();
+                void AddTxt(string relative) => txtList.Add(Path.Combine(baseDir, relative));
+                AddTxt($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.{_langCode}.txt");
+                AddTxt($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.en.txt");
+                AddTxt($"Resources{Path.DirectorySeparatorChar}faq.{_langCode}.txt");
+                AddTxt($"Resources{Path.DirectorySeparatorChar}faq.en.txt");
+                AddTxt($"faq.{_langCode}.txt");
+                AddTxt("faq.en.txt");
+
+                foreach (var candidate in txtList)
                 {
-                    Path.Combine(baseDir, "ModlistManager", "Resources", $"faq.{_langCode}.txt"),
-                    Path.Combine(baseDir, "ModlistManager", "Resources", "faq.en.txt")
-                };
-                foreach (var c in txtCandidates)
-                {
-                    if (File.Exists(c))
+                    if (File.Exists(candidate))
                     {
-                        _rtb.Text = File.ReadAllText(c);
+                        _rtb.Text = File.ReadAllText(candidate);
                         _rtb.SelectionStart = 0;
                         _rtb.SelectionLength = 0;
                         _rtb.Visible = true;
@@ -110,7 +122,13 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                         return;
                     }
                 }
+
+                // Diagnose: welche Pfade wurden versucht? (nur in Debug)
+                #if DEBUG
+                _rtb.Text = "(FAQ file not found.)\nTried (md):\n" + string.Join("\n", mdList) + "\n---\nTried (txt):\n" + string.Join("\n", txtList);
+                #else
                 _rtb.Text = "(FAQ file not found.)";
+                #endif
                 _rtb.Visible = true;
                 _browser.Visible = false;
             }
@@ -187,9 +205,9 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 if (string.IsNullOrWhiteSpace(raw)) { sb.Append("<p></p>"); continue; }
                 var trimmed = raw.Trim();
                 // Headings
-                if (trimmed.StartsWith("### ")) { var txt = trimmed.Substring(4); var slug = GetSlugFor(headingList, 3, txt); sb.Append("<h3 id='"+slug+"'>").Append(EscapeHtml(ParseInline(txt))).Append("</h3>"); continue; }
-                if (trimmed.StartsWith("## ")) { var txt = trimmed.Substring(3); var slug = GetSlugFor(headingList, 2, txt); sb.Append("<h2 id='"+slug+"'>").Append(EscapeHtml(ParseInline(txt))).Append("</h2>"); continue; }
-                if (trimmed.StartsWith("# ")) { var txt = trimmed.Substring(2); var slug = GetSlugFor(headingList, 1, txt); sb.Append("<h1 id='"+slug+"'>").Append(EscapeHtml(ParseInline(txt))).Append("</h1>"); continue; }
+                if (trimmed.StartsWith("### ")) { var txt = trimmed.Substring(4); var slug = GetSlugFor(headingList, 3, txt); sb.Append("<h3 id='"+slug+"'>").Append(ParseInline(txt)).Append("</h3>"); continue; }
+                if (trimmed.StartsWith("## ")) { var txt = trimmed.Substring(3); var slug = GetSlugFor(headingList, 2, txt); sb.Append("<h2 id='"+slug+"'>").Append(ParseInline(txt)).Append("</h2>"); continue; }
+                if (trimmed.StartsWith("# ")) { var txt = trimmed.Substring(2); var slug = GetSlugFor(headingList, 1, txt); sb.Append("<h1 id='"+slug+"'>").Append(ParseInline(txt)).Append("</h1>"); continue; }
                 if (trimmed == "---" || trimmed == "***" || trimmed == "___") { sb.Append("<hr/>"); continue; }
                 if (trimmed.StartsWith("- ") || trimmed.StartsWith("* "))
                 {
@@ -207,11 +225,11 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     }
                     sb.Append("<ul>");
                     foreach (var it in items)
-                        sb.Append("<li>").Append(EscapeHtml(ParseInline(it))).Append("</li>");
+                        sb.Append("<li>").Append(ParseInline(it)).Append("</li>");
                     sb.Append("</ul>");
                     continue;
                 }
-                sb.Append("<p>").Append(EscapeHtml(ParseInline(trimmed))).Append("</p>");
+                sb.Append("<p>").Append(ParseInline(trimmed)).Append("</p>");
             }
 
             sb.Append("</body></html>");

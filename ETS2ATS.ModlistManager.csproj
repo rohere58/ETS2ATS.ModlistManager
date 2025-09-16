@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ETS2ATS.ModlistManager</AssemblyName>
     <RootNamespace>ETS2ATS.ModlistManager</RootNamespace>
-    <Version>0.1.0</Version>
+  <Version>0.1.1</Version>
     <Authors>Community</Authors>
     <Company></Company>
     <Copyright>Copyright © 2025</Copyright>
@@ -22,6 +22,7 @@
     <!-- Tools mitnehmen -->
     <Content Include="ModlistManager\Tools\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 
@@ -30,6 +31,7 @@
     <Content Include="ModlistManager\Resources\**\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>Resources\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 
@@ -43,9 +45,19 @@
   <ItemGroup>
     <Content Include="ModlistManager\Resources\Languages\lang.de.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
     <Content Include="ModlistManager\Resources\Languages\lang.en.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Modlists Basisordner (falls leer) mitnehmen -->
+  <ItemGroup>
+    <Content Include="modlists\README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 

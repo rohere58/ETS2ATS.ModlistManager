@@ -19,6 +19,15 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - Noch nichts
 
+## [0.1.1] - 2025-09-16
+### Fixed
+- FAQ: Links wurden als reiner Text angezeigt (doppeltes HTML-Escaping entfernt)
+- FAQ: Robuste Pfadsuche für Markdown / TXT nach Publish (mehrere Kandidatenverzeichnisse)
+- Release-ZIP: `SII_Decrypt.exe` und `modlists/` fehlten (Publish-Konfiguration erweitert)
+
+### Changed
+- Minor: HTML/CSS für FAQ Rendering leicht bereinigt
+
 ## [0.1.0] - 2025-09-16
 ### Added
 - Grundfunktionalität: Modlisten erstellen, laden, teilen
@@ -31,5 +40,6 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/rohere58/ETS2ATS.ModlistManager/releases/tag/v0.1.0
