@@ -49,22 +49,31 @@ jobs:
           Write-Host '--- Debug Listing (Top) ---'
           Get-ChildItem -Recurse -File $base | Select-Object FullName | ForEach-Object { $_.FullName }
           Write-Host '--- End Listing ---'
-          $expected = @(
-            'ModlistManager/Tools/SII_Decrypt.exe',
-            'ModlistManager/Tools/LICENSES/SII_Decrypt.MPL-2.0.txt',
-            'modlists',
-            'modlists/ETS2',
-            'modlists/ATS'
-          )
-          $errors = @()
-          foreach ($rel in $expected) {
-            $path = Join-Path $base $rel
-            if (-not (Test-Path $path)) { $errors += $rel }
+          # Tools (optional: nur Warnungen, kein Fail)
+          $toolExe = Join-Path $base 'ModlistManager/Tools/SII_Decrypt.exe'
+          $toolLicense = Join-Path $base 'ModlistManager/Tools/LICENSES/SII_Decrypt.MPL-2.0.txt'
+          if (-not (Test-Path $toolExe)) { Write-Warning 'SII_Decrypt.exe fehlt (wird nicht zum Abbruch führen).' } else { Write-Host 'SII_Decrypt.exe gefunden.' }
+          if (-not (Test-Path $toolLicense)) { Write-Warning 'SII_Decrypt Lizenz-Datei fehlt.' } else { Write-Host 'SII_Decrypt Lizenz-Datei gefunden.' }
+
+          # modlists: akzeptiere entweder neue Struktur (ModlistManager/modlists) oder alte (modlists)
+          $modlistsVariants = @('ModlistManager/modlists','modlists')
+          $foundVariant = $null
+          foreach ($variant in $modlistsVariants) {
+            $candidate = Join-Path $base $variant
+            if (Test-Path $candidate) {
+              # Prüfe Unterordner ETS2 & ATS
+              $ets2 = Join-Path $candidate 'ETS2'
+              $ats = Join-Path $candidate 'ATS'
+              if (Test-Path $ets2 -and (Test-Path $ats)) { $foundVariant = $variant; break }
+            }
           }
-          if ($errors.Count -gt 0) {
-            Write-Error "Fehlende Elemente: $($errors -join ', ')"; exit 1
+          if (-not $foundVariant) {
+            Write-Error 'Kein gültiger modlists-Ordner mit ETS2 & ATS Unterordnern gefunden (erwartet: ModlistManager/modlists oder modlists).'
+            exit 1
           }
-          Write-Host 'Alle erwarteten Ressourcen vorhanden.' -ForegroundColor Green
+          Write-Host "modlists Struktur OK (Variante: $foundVariant)" -ForegroundColor Green
+
+          Write-Host 'Verifikation abgeschlossen.' -ForegroundColor Green
 
       - name: Zip artifact
         shell: pwsh

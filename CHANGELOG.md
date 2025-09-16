@@ -19,6 +19,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - Noch nichts
 
+## [0.1.8] - 2025-09-17
+### Changed
+- CI: Release-Workflow Verifikation entschärft (Tool optional, akzeptiert alte und neue modlists-Pfadvarianten)
+
+### Fixed
+- Verhindert unnötige Release-Abbrüche wenn nur das optionale Tool fehlt
+
 ## [0.1.7] - 2025-09-17
 ### Changed
 - Modlisten-Pfad vereinheitlicht: Nutzung nur noch unter `ModlistManager/modlists` (Migration & Flatten-Logik)
@@ -96,7 +103,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.4...v0.1.5
