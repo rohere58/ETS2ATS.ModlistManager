@@ -6,6 +6,9 @@ on:
       - 'v*.*.*'
   workflow_dispatch:
 
+permissions:
+  contents: write   # notwendig, um Releases anzulegen und Assets hochzuladen
+
 jobs:
   build-release:
     runs-on: windows-latest
@@ -18,26 +21,78 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Verify tag matches csproj version
+        shell: pwsh
+        run: |
+          $tag = ($env:GITHUB_REF -replace 'refs/tags/','')
+          if ($tag -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') { Write-Error "Tag Format ungültig: $tag"; exit 1 }
+          $expected = $tag.Substring(1)
+          [xml]$xml = Get-Content ./ETS2ATS.ModlistManager.csproj
+          $projVer = ($xml.Project.PropertyGroup | Where-Object { $_.Version }).Version
+          if (-not $projVer) { Write-Error 'Keine <Version> im csproj gefunden'; exit 1 }
+          Write-Host "Tag Version:    $expected"
+          Write-Host "Projekt Version: $projVer"
+          if ($projVer -ne $expected) { Write-Error "Versions-Mismatch: csproj=$projVer, tag=$expected"; exit 1 }
+          Write-Host 'Versionen konsistent.' -ForegroundColor Green
+
       - name: Restore
         run: dotnet restore ./ETS2ATS.ModlistManager.csproj
 
       - name: Publish self-contained single-file (win-x64)
         run: dotnet publish ./ETS2ATS.ModlistManager.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/sc/win-x64
 
+      - name: Verify packaged resources
+        shell: pwsh
+        run: |
+          Write-Host '==> Verifiziere erwartete Dateien'
+          $base = 'publish/sc/win-x64'
+          $expected = @(
+            'ModlistManager/Tools/SII_Decrypt.exe',
+            'ModlistManager/Tools/LICENCES/SII_Decrypt.MPL-2.0.txt',
+            'modlists',
+            'modlists/ETS2',
+            'modlists/ATS'
+          )
+          $errors = @()
+          foreach ($rel in $expected) {
+            $path = Join-Path $base $rel
+            if (-not (Test-Path $path)) { $errors += $rel }
+          }
+          if ($errors.Count -gt 0) {
+            Write-Error "Fehlende Elemente: $($errors -join ', ')"; exit 1
+          }
+          Write-Host 'Alle erwarteten Ressourcen vorhanden.' -ForegroundColor Green
+
       - name: Zip artifact
         shell: pwsh
         run: |
-          Compress-Archive -Path publish/sc/win-x64/* -DestinationPath modlist-manager-self-contained-win-x64.zip
+          $tag = ($env:GITHUB_REF -replace 'refs/tags/','')
+          $zipName = "modlist-manager-$tag-self-contained-win-x64.zip"
+          Compress-Archive -Path publish/sc/win-x64/* -DestinationPath $zipName
+          echo "ZIP_NAME=$zipName" >> $Env:GITHUB_ENV
+
+      - name: Generate SHA256 checksum
+        shell: pwsh
+        run: |
+          if (-not $env:ZIP_NAME) { Write-Error 'ZIP_NAME env nicht gesetzt'; exit 1 }
+          $hash = (Get-FileHash $env:ZIP_NAME -Algorithm SHA256).Hash.ToLower()
+          $outFile = "$($env:ZIP_NAME).sha256"
+          "$hash  $($env:ZIP_NAME)" | Out-File -FilePath $outFile -Encoding ASCII -NoNewline
+          Write-Host "Checksumme: $hash"
+          echo "SHA256_FILE=$outFile" >> $Env:GITHUB_ENV
 
       - name: Upload artifact (optional)
         uses: actions/upload-artifact@v4
         with:
           name: self-contained-zip
-          path: modlist-manager-self-contained-win-x64.zip
+          path: ${{ env.ZIP_NAME }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: modlist-manager-self-contained-win-x64.zip
+          files: |
+            ${{ env.ZIP_NAME }}
+            ${{ env.SHA256_FILE }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

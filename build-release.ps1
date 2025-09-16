@@ -47,6 +47,13 @@ $zipPath = Join-Path $dist ("modlist-manager-$Version-self-contained-win-x64.zip
 Write-Host "==> Erzeuge ZIP" -ForegroundColor Yellow
 Compress-Archive -Path (Join-Path $publishRoot 'sc' '*') -DestinationPath $zipPath
 
+# SHA256 Checksumme erzeugen
+Write-Host "==> Erzeuge SHA256" -ForegroundColor Yellow
+$hash = (Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLower()
+$hashFile = "$zipPath.sha256"
+"$hash  $(Split-Path -Leaf $zipPath)" | Out-File -FilePath $hashFile -Encoding ASCII -NoNewline
+Write-Host "SHA256: $hash" -ForegroundColor Green
+
 Write-Host "==> Fertig" -ForegroundColor Green
 Write-Host "Ausgabe:" -ForegroundColor Green
 Get-ChildItem $dist | Format-Table -AutoSize
