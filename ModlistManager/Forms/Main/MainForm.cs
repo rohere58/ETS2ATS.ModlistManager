@@ -148,6 +148,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 // (Top-Level Dateien + erste Ebene Unterordner) best-effort verschoben. Der alte Ordner bleibt
                 // bewusst erhalten (kein automatisches Löschen), um manuelle Rücksicherung zu ermöglichen.
                 // Sollte der Nutzer beide Strukturen parallel nutzen, wird nur die verschachtelte aktiv durchsucht.
+                // Eine historische Zwischenstufe konnte einen doppelten Pfad <Base>/ModlistManager/modlists/modlists erzeugen;
+                // dieser wird nicht mehr benötigt und kann (wie im Repo bereinigt) entfernt werden.
 
                 // 1) Migration: Wenn legacy existiert UND nested nicht, verschieben
                 if (Directory.Exists(legacyRoot) && !Directory.Exists(nestedRoot))
@@ -176,6 +178,29 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 Directory.CreateDirectory(nestedRoot);
                 Directory.CreateDirectory(Path.Combine(nestedRoot, "ETS2"));
                 Directory.CreateDirectory(Path.Combine(nestedRoot, "ATS"));
+
+                // 3) Flatten: Falls durch alte Migration ein Unterordner "modlists" innerhalb von nestedRoot existiert, Inhalte hochheben und löschen
+                try
+                {
+                    var accidental = Path.Combine(nestedRoot, "modlists");
+                    if (Directory.Exists(accidental))
+                    {
+                        foreach (var dir in Directory.GetDirectories(accidental, "*", SearchOption.TopDirectoryOnly))
+                        {
+                            var name = Path.GetFileName(dir);
+                            var target = Path.Combine(nestedRoot, name);
+                            if (!Directory.Exists(target)) Directory.Move(dir, target);
+                        }
+                        foreach (var file in Directory.GetFiles(accidental, "*", SearchOption.TopDirectoryOnly))
+                        {
+                            var name = Path.GetFileName(file);
+                            var target = Path.Combine(nestedRoot, name);
+                            if (!File.Exists(target)) File.Move(file, target);
+                        }
+                        try { Directory.Delete(accidental, true); } catch { }
+                    }
+                }
+                catch { }
             }
             catch { /* still ignore, UI soll nicht crashen */ }
         }
