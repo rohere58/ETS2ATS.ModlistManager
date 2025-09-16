@@ -118,6 +118,9 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 try { AutoDecryptProfilesForSelectedGame(); } catch { }
                 try { LoadModlistNamesForSelectedGame(); } catch { }
 
+                // Sicherstellen, dass Basisordner für Modlisten existieren
+                try { EnsureModlistsDirectories(); } catch { }
+
                 // Grid-Events
                 this.gridMods.RowPostPaint += GridMods_RowPostPaint;
                 this.gridMods.CellContentClick += GridMods_CellContentClick;
@@ -129,6 +132,35 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 // Footer-Notiz (Modlistenbeschreibung) speichern mit Debounce
                 try { this.txtModInfo.TextChanged += TxtModInfo_TextChanged; } catch { }
             }
+        }
+
+        private void EnsureModlistsDirectories()
+        {
+            try
+            {
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                // Mögliche Hauptpfade analog zu GetModlistsRootForGame
+                var roots = new List<string>
+                {
+                    Path.Combine(baseDir, "ModlistManager", "modlists"),
+                    Path.Combine(baseDir, "modlists")
+                };
+                foreach (var r in roots.ToList())
+                {
+                    if (!Directory.Exists(r)) continue; // existierendes Grundverzeichnis respektieren
+                    // Wenn vorhanden, spätere Pfadergänzungen darauf aufbauen
+                }
+                // Falls keiner existiert: ersten Pfad anlegen
+                if (!roots.Any(Directory.Exists))
+                {
+                    Directory.CreateDirectory(roots[1]); // simpler: direkt baseDir/modlists
+                }
+                // Jetzt sicherstellen: ETS2 / ATS Unterordner vorhanden
+                var activeRoot = roots.First(Directory.Exists);
+                Directory.CreateDirectory(Path.Combine(activeRoot, "ETS2"));
+                Directory.CreateDirectory(Path.Combine(activeRoot, "ATS"));
+            }
+            catch { }
         }
 
         // Einfache, designerfreundliche Renderer
