@@ -39,3 +39,5 @@ Desktop.ini
 # Publish output
 dist/
 publish/
+publish_test*/
+*.sha256
