@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ETS2ATS.ModlistManager</AssemblyName>
     <RootNamespace>ETS2ATS.ModlistManager</RootNamespace>
-  <Version>0.1.1</Version>
+  <Version>0.1.3</Version>
     <Authors>Community</Authors>
     <Company></Company>
     <Copyright>Copyright © 2025</Copyright>
@@ -56,6 +56,15 @@
   <!-- Modlists Basisordner (falls leer) mitnehmen -->
   <ItemGroup>
     <Content Include="modlists\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <!-- Explizite Platzhalter für leere Unterordner, damit sie im Repo und Publish erscheinen -->
+    <Content Include="modlists\ETS2\.gitkeep">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="modlists\ATS\.gitkeep">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
