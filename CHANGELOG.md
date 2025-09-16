@@ -21,7 +21,15 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [0.1.5] - 2025-09-17
 ### Added
-- (Noch nichts)\n\n### Changed\n- (Noch nichts)\n\n### Fixed\n- (Noch nichts)\n\n## [0.1.4] - 2025-09-17
+- (Noch nichts)
+
+### Changed
+- (Noch nichts)
+
+### Fixed
+- (Noch nichts)
+
+## [0.1.4] - 2025-09-17
 ### Added
 - (Noch nichts)
 
@@ -71,9 +79,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]:
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.5...HEAD
 [0.1.5]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.4...v0.1.5
- https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.5...HEAD
 [0.1.4]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.1...v0.1.2

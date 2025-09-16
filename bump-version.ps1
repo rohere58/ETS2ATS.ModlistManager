@@ -94,7 +94,18 @@ if ($AddSection) {
     if ($changelogContent -match "## \[$target\]") {
         Write-Warning "Sektion für $target existiert bereits – überspringe AddSection." 
     } else {
-        $section = "## [$target] - $date`n### Added`n- (Noch nichts)\n\n### Changed\n- (Noch nichts)\n\n### Fixed\n- (Noch nichts)\n\n"
+  # Sektion als Here-String, damit keine literalen \n Sequenzen im Ergebnis landen
+  $section = @"\n## [$target] - $date
+### Added
+- (Noch nichts)
+
+### Changed
+- (Noch nichts)
+
+### Fixed
+- (Noch nichts)
+
+"@
         # Neue Sektion direkt vor der letzten existierenden Version (nach Unreleased Block) einfügen
         $patternFirstVersion = '(?ms)^## \[[0-9]+\.[0-9]+\.[0-9]+\]' 
         $match = [regex]::Match($changelogContent, $patternFirstVersion)

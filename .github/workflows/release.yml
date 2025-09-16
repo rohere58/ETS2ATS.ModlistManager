@@ -46,9 +46,12 @@ jobs:
         run: |
           Write-Host '==> Verifiziere erwartete Dateien'
           $base = 'publish/sc/win-x64'
+          Write-Host '--- Debug Listing (Top) ---'
+          Get-ChildItem -Recurse -File $base | Select-Object FullName | ForEach-Object { $_.FullName }
+          Write-Host '--- End Listing ---'
           $expected = @(
             'ModlistManager/Tools/SII_Decrypt.exe',
-            'ModlistManager/Tools/LICENCES/SII_Decrypt.MPL-2.0.txt',
+            'ModlistManager/Tools/LICENSES/SII_Decrypt.MPL-2.0.txt',
             'modlists',
             'modlists/ETS2',
             'modlists/ATS'
