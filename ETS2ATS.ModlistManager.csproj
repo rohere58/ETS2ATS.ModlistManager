@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ETS2ATS.ModlistManager</AssemblyName>
     <RootNamespace>ETS2ATS.ModlistManager</RootNamespace>
-  <Version>0.1.8</Version>
+  <Version>0.1.9</Version>
     <Authors>Community</Authors>
     <Company>
     </Company>
@@ -17,13 +17,11 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
   </PropertyGroup>
-  <ItemGroup>
-    <!-- Tools mitnehmen -->
-    <Content Include="ModlistManager\Tools\**\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
+  <!-- Entfernt: Externe Tools (z.B. SII_Decrypt.exe) werden nicht mehr mit ausgeliefert.
+       Nutzer platzieren das Tool bei Bedarf manuell unter:
+       - ModlistManager/Tools/SII_Decrypt.exe oder
+       - Tools/SII_Decrypt.exe (Fallback)
+       (Historischer Eintrag war hier als <Content Include="ModlistManager\Tools\**\*" ...>) -->
   <!-- Alles unter ModlistManager\Resources nach bin\...\Resources kopieren -->
   <ItemGroup>
     <Content Include="ModlistManager\Resources\**\*.*">

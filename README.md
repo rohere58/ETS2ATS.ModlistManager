@@ -105,8 +105,7 @@ Beispiel (auszug):
       ats.png
       (optional: logo.png -> überschreibt ETS2 Standard)
     ...
-  Tools/
-    SII_Decrypt.exe
+  (optional) ModlistManager/Tools/  <- Externes Zusatztool (SII_Decrypt.exe) falls manuelle profile.sii Entschlüsselung gewünscht
 ```
 
 ## Modlisten & Begleitdateien
@@ -165,7 +164,7 @@ dotnet run --project .\ETS2ATS.ModlistManager.csproj
 
 ## Lizenz / Hinweise
 - Hauptprojekt: Mozilla Public License 2.0 (siehe `LICENSE` im Repository)
-- Mitgeliefertes Tool `SII_Decrypt.exe` unterliegt eigener Lizenz (siehe `Tools/LICENCES/`)
+- Optionales externes Tool `SII_Decrypt.exe` (nicht mehr gebündelt) unterliegt eigener Lizenz; bei Bedarf unter `ModlistManager/Tools/` platzieren
 - ETS2 & ATS sind Marken von SCS Software – dieses Projekt steht in **keiner** offiziellen Verbindung
 - Beiträge (PRs) gelten als unter MPL-2.0 bereitgestellt
 
@@ -327,7 +326,7 @@ dotnet run --project .\ETS2ATS.ModlistManager.csproj
 
 ## License / Notices
 - Main project licensed under Mozilla Public License 2.0 (see `LICENSE`)
-- Bundled tool `SII_Decrypt.exe` has its own license (see `Tools/LICENCES/`)
+- Optional external tool `SII_Decrypt.exe` (no longer bundled) has its own license; place it manually in `ModlistManager/Tools/` if needed
 - ETS2 & ATS are trademarks of SCS Software – no affiliation
 - Contributions are accepted under MPL-2.0
 

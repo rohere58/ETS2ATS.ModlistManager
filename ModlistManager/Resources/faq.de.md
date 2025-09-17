@@ -35,7 +35,7 @@ Willkommen zur **FAQ**. Diese Datei unterstützt *Markdown* und ein automatische
 	Resources/             <- Logos, Sprache
 		Logos/
 		Languages/
-	Tools/                 <- Externe Tools (z.B. SII_Decrypt.exe)
+	(optional) Tools/      <- Externes Zusatztool (SII_Decrypt.exe) falls manuell genutzt
 ```
 Updates: EXE ersetzen. Eigene Dateien bleiben erhalten.
 
