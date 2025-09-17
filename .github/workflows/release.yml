@@ -49,12 +49,6 @@ jobs:
           Write-Host '--- Debug Listing (Top) ---'
           Get-ChildItem -Recurse -File $base | Select-Object FullName | ForEach-Object { $_.FullName }
           Write-Host '--- End Listing ---'
-          # Tools (optional: nur Warnungen, kein Fail)
-          $toolExe = Join-Path $base 'ModlistManager/Tools/SII_Decrypt.exe'
-          $toolLicense = Join-Path $base 'ModlistManager/Tools/LICENSES/SII_Decrypt.MPL-2.0.txt'
-          if (-not (Test-Path $toolExe)) { Write-Warning 'SII_Decrypt.exe fehlt (wird nicht zum Abbruch führen).' } else { Write-Host 'SII_Decrypt.exe gefunden.' }
-          if (-not (Test-Path $toolLicense)) { Write-Warning 'SII_Decrypt Lizenz-Datei fehlt.' } else { Write-Host 'SII_Decrypt Lizenz-Datei gefunden.' }
-
           # modlists: akzeptiere entweder neue Struktur (ModlistManager/modlists) oder alte (modlists)
           $modlistsVariants = @('ModlistManager/modlists','modlists')
           $foundVariant = $null

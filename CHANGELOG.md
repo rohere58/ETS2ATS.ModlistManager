@@ -11,13 +11,23 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - (Geplant) Markdown im Notizfeld
 
 ### Geändert
-- Noch nichts
+- (Geplant) –
 
 ### Entfernt
-- Noch nichts
+- (Geplant) –
 
 ### Behoben
 - Noch nichts
+
+## [0.1.9] - 2025-09-17
+### Removed
+- Entferntes Bundling von `SII_Decrypt.exe` (rechtliche / Distributions-Klarheit)
+
+### Changed
+- Release Workflow vereinfacht (Tool-Prüfungen komplett gestrichen)
+
+### Notes
+- Nutzer platzieren optional `SII_Decrypt.exe` manuell unter `ModlistManager/Tools/` oder `Tools/`
 
 ## [0.1.8] - 2025-09-17
 ### Changed
@@ -103,7 +113,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.5...v0.1.6

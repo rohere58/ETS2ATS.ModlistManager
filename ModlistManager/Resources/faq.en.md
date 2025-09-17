@@ -35,7 +35,7 @@ Welcome to the **FAQ**. This document supports *Markdown* and automatic table of
 	Resources/             <- Logos, languages
 		Logos/
 		Languages/
-	Tools/                 <- External helpers (SII_Decrypt.exe)
+	(optional) Tools/      <- External helper (SII_Decrypt.exe) if manually used
 ```
 Updates: replace the EXE; user files stay.
 
