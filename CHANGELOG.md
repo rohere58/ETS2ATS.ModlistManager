@@ -17,7 +17,15 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - (Geplant) –
 
 ### Behoben
-- Noch nichts
+- (Geplant) –
+
+## [0.1.10] - 2025-09-17
+### Fixed
+- CI: Release Workflow PowerShell Syntaxfehler in Ressourcen-Prüfung behoben (Test-Path -and Klammerung)
+- CI: Robustere Environment Variable Setzung (Add-Content statt echo >>) für ZIP/Checksum Variablen
+
+### Changed
+- Interner Build-Prozess stabilisiert für Releases ohne externes Tool
 
 ## [0.1.9] - 2025-09-17
 ### Removed
@@ -113,7 +121,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.6...v0.1.7

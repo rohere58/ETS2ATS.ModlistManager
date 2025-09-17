@@ -58,7 +58,7 @@ jobs:
               # Prüfe Unterordner ETS2 & ATS
               $ets2 = Join-Path $candidate 'ETS2'
               $ats = Join-Path $candidate 'ATS'
-              if (Test-Path $ets2 -and (Test-Path $ats)) { $foundVariant = $variant; break }
+              if ((Test-Path $ets2) -and (Test-Path $ats)) { $foundVariant = $variant; break }
             }
           }
           if (-not $foundVariant) {
@@ -75,7 +75,7 @@ jobs:
           $tag = ($env:GITHUB_REF -replace 'refs/tags/','')
           $zipName = "modlist-manager-$tag-self-contained-win-x64.zip"
           Compress-Archive -Path publish/sc/win-x64/* -DestinationPath $zipName
-          echo "ZIP_NAME=$zipName" >> $Env:GITHUB_ENV
+          Add-Content -Path $Env:GITHUB_ENV -Value "ZIP_NAME=$zipName"
 
       - name: Generate SHA256 checksum
         shell: pwsh
@@ -85,7 +85,7 @@ jobs:
           $outFile = "$($env:ZIP_NAME).sha256"
           "$hash  $($env:ZIP_NAME)" | Out-File -FilePath $outFile -Encoding ASCII -NoNewline
           Write-Host "Checksumme: $hash"
-          echo "SHA256_FILE=$outFile" >> $Env:GITHUB_ENV
+          Add-Content -Path $Env:GITHUB_ENV -Value "SHA256_FILE=$outFile"
 
       - name: Upload artifact (optional)
         uses: actions/upload-artifact@v4
