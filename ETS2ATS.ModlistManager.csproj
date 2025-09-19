@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ETS2ATS.ModlistManager</AssemblyName>
     <RootNamespace>ETS2ATS.ModlistManager</RootNamespace>
-  <Version>0.1.10</Version>
+    <Version>0.1.12</Version>
     <Authors>Community</Authors>
     <Company>
     </Company>
@@ -22,12 +22,21 @@
        - ModlistManager/Tools/SII_Decrypt.exe oder
        - Tools/SII_Decrypt.exe (Fallback)
        (Historischer Eintrag war hier als <Content Include="ModlistManager\Tools\**\*" ...>) -->
-  <!-- Alles unter ModlistManager\Resources nach bin\...\Resources kopieren -->
+  <!-- Ressourcen kopieren (allgemein) -->
   <ItemGroup>
     <Content Include="ModlistManager\Resources\**\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>Resources\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <!-- Sprachdateien zusätzlich an den von LanguageService erwarteten Pfad kopieren:
+       bin/.../ModlistManager/Resources/Languages/lang.<code>.json -->
+  <ItemGroup>
+    <Content Include="ModlistManager\Resources\Languages\lang.*.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+      <TargetPath>ModlistManager\Resources\Languages\%(Filename)%(Extension)</TargetPath>
     </Content>
   </ItemGroup>
   <ItemGroup>
@@ -36,20 +45,11 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="ModlistManager\Resources\Languages\lang.de.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-    </Content>
-    <Content Include="ModlistManager\Resources\Languages\lang.en.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
+  <!-- Einzelne Sprachdatei-Einträge nicht mehr nötig (siehe Block oben) -->
   <!-- Modlists jetzt unter ModlistManager/modlists -->
   <ItemGroup>
     <Content Include="ModlistManager\modlists\**\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
