@@ -19,6 +19,19 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.12] - 2025-09-19
+### Geändert
+- Info-Spalte speichert nun kanonisch unter dem Package-Token (nicht mehr unter Modnamen)
+- Laden der Kurzinfos: Priorität Token > Modname > volles Package (Legacy-Fallback)
+- Build: Modlists Copy-Policy auf PreserveNewest (verhindert versehentliches Überschreiben)
+
+### Hinzugefügt
+- Diagnose-Logs beim Speichern zeigen den geschriebenen info.json-Pfad
+- VS Code Launch-Profile zum Starten der EXE aus bin (inkl. "no build")
+
+### Behoben
+- Persistenz-Diskrepanz zwischen EXE-Start und IDE-Start (durch einheitliche Laufumgebung + Copy-Policy)
+
 ## [0.1.10] - 2025-09-17
 ### Fixed
 - CI: Release Workflow PowerShell Syntaxfehler in Ressourcen-Prüfung behoben (Test-Path -and Klammerung)
@@ -121,7 +134,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.12...HEAD
+[0.1.12]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.7...v0.1.8
