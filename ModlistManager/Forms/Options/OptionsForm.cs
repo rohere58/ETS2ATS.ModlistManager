@@ -45,12 +45,27 @@ namespace ETS2ATS.ModlistManager.Forms.Options
 
         private void InitCombos()
         {
-            // Sprache
-            cbLanguage.DisplayMember = "Text";
-            cbLanguage.ValueMember = "Value";
-            cbLanguage.Items.Clear();
-            cbLanguage.Items.Add(new { Text = "Deutsch (de)", Value = "de" });
-            cbLanguage.Items.Add(new { Text = "English (en)", Value = "en" });
+            // Sprache dynamisch aus allen verfügbaren Sprachdateien
+            try
+            {
+                var langs = new System.Collections.Generic.List<LanguageService.LanguageInfo>(_langService.EnumerateAvailableLanguages());
+                if (langs.Count == 0)
+                {
+                    langs.Add(new LanguageService.LanguageInfo { Code = "de", Name = "Deutsch (de)", Path = string.Empty });
+                    langs.Add(new LanguageService.LanguageInfo { Code = "en", Name = "English (en)", Path = string.Empty });
+                }
+                cbLanguage.DataSource = langs;
+                cbLanguage.DisplayMember = nameof(LanguageService.LanguageInfo.Name);
+                cbLanguage.ValueMember = nameof(LanguageService.LanguageInfo.Code);
+            }
+            catch
+            {
+                cbLanguage.Items.Clear();
+                cbLanguage.DisplayMember = "Text";
+                cbLanguage.ValueMember = "Value";
+                cbLanguage.Items.Add(new { Text = "Deutsch (de)", Value = "de" });
+                cbLanguage.Items.Add(new { Text = "English (en)", Value = "en" });
+            }
 
             // Theme
             cbTheme.Items.Clear();
@@ -67,11 +82,7 @@ namespace ETS2ATS.ModlistManager.Forms.Options
         {
             // Sprache
             var langCode = _settings.Current.Language ?? "de";
-            for (int i = 0; i < cbLanguage.Items.Count; i++)
-            {
-                dynamic it = cbLanguage.Items[i]!;
-                if ((string)it.Value == langCode) { cbLanguage.SelectedIndex = i; break; }
-            }
+            try { cbLanguage.SelectedValue = langCode; } catch { }
             if (cbLanguage.SelectedIndex < 0) cbLanguage.SelectedIndex = 0;
             SelectedLanguageCode = ExtractSelectedLang();
 
@@ -121,6 +132,7 @@ namespace ETS2ATS.ModlistManager.Forms.Options
             {
                 if (_suppressCascade) return;
                 SelectedPreferredGame = (cbPreferredGame.SelectedItem as string) ?? "ETS2";
+
                 PreferredGameChangedLive?.Invoke(SelectedPreferredGame);
             };
             chkConfirmBeforeAdopt.CheckedChanged += (s, e) =>
@@ -140,6 +152,12 @@ namespace ETS2ATS.ModlistManager.Forms.Options
                 AtsPath = string.IsNullOrWhiteSpace(txtAtsPath.Text) ? null : txtAtsPath.Text;
                 PathsChangedLive?.Invoke(Ets2Path ?? "", AtsPath ?? "");
             };
+
+            // New: modlists browse buttons
+            if (btnBrowseEts2Modlists != null)
+                btnBrowseEts2Modlists.Click += (s, e) => BrowseInto(txtEts2Modlists);
+            if (btnBrowseAtsModlists != null)
+                btnBrowseAtsModlists.Click += (s, e) => BrowseInto(txtAtsModlists);
         }
 
         private void ApplyLanguageToControls()
@@ -151,11 +169,14 @@ namespace ETS2ATS.ModlistManager.Forms.Options
             lblAtsPath.Text = _langService["Options.AtsPath"];
             btnBrowseEts2.Text = _langService["Options.Browse"];
             btnBrowseAts.Text = _langService["Options.Browse"];
+            if (lblEts2Modlists != null) lblEts2Modlists.Text = _langService["Options.Ets2ModlistsPath"];
+            if (lblAtsModlists != null) lblAtsModlists.Text = _langService["Options.AtsModlistsPath"];
+            if (btnBrowseEts2Modlists != null) btnBrowseEts2Modlists.Text = _langService["Options.Browse"];
+            if (btnBrowseAtsModlists != null) btnBrowseAtsModlists.Text = _langService["Options.Browse"];
             btnOK.Text = _langService["Common.OK"];
             btnCancel.Text = _langService["Common.Cancel"];
             chkConfirmBeforeAdopt.Text = _langService["Options.ConfirmBeforeAdopt"];
         }
-
         private void BrowseInto(TextBox target)
         {
             using var dlg = new FolderBrowserDialog();
@@ -181,18 +202,19 @@ namespace ETS2ATS.ModlistManager.Forms.Options
 
             // In Settings schreiben
             _settings.Current.ConfirmBeforeAdopt = ConfirmBeforeAdopt;
+            // New: persist modlists paths (nullable when empty)
+            if (txtEts2Modlists != null)
+                _settings.Current.Ets2ModlistsPath = string.IsNullOrWhiteSpace(txtEts2Modlists.Text) ? null : txtEts2Modlists.Text.Trim();
+            if (txtAtsModlists != null)
+                _settings.Current.AtsModlistsPath = string.IsNullOrWhiteSpace(txtAtsModlists.Text) ? null : txtAtsModlists.Text.Trim();
             DialogResult = DialogResult.OK;
             Close();
         }
 
         private string ExtractSelectedLang()
         {
-            if (cbLanguage.SelectedIndex >= 0)
-            {
-                dynamic it = cbLanguage.Items[cbLanguage.SelectedIndex]!;
-                return (string)it.Value;
-            }
-            return "de";
+            var v = cbLanguage.SelectedValue?.ToString();
+            return string.IsNullOrWhiteSpace(v) ? "de" : v!;
         }
     }
 }

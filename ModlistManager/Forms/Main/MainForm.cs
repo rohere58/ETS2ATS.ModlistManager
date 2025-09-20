@@ -136,73 +136,64 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
         private void EnsureModlistsDirectories()
         {
+            // Neue Strategie: Modlisten gehören in den Spielordner (Installationsverzeichnis)/modlists bzw. Dokumente/<Game>/modlists.
+            // Diese Methode sorgt je Spiel für das Anlegen des Zielordners und kopiert Demo-Dateien nur beim ersten Start (keine Überschreibungen).
+            try { EnsureModlistsDirectoryForGame("ets2"); } catch { }
+            try { EnsureModlistsDirectoryForGame("ats"); } catch { }
+        }
+
+        private void EnsureModlistsDirectoryForGame(string norm)
+        {
             try
             {
-                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                var nestedRoot = Path.Combine(baseDir, "ModlistManager", "modlists");
-                var legacyRoot = Path.Combine(baseDir, "modlists"); // frühere Versionen legten diesen an
+                var root = GetModlistsRootForGame(norm);
+                if (string.IsNullOrWhiteSpace(root)) return;
+                try { Directory.CreateDirectory(root); } catch { }
 
-                // Migration Hinweis:
-                // Ab Version 0.1.7 werden Modlisten ausschließlich unter <Base>/ModlistManager/modlists erwartet.
-                // Frühere Builds erstellten <Base>/modlists. Beim ersten Start nach Update werden Inhalte
-                // (Top-Level Dateien + erste Ebene Unterordner) best-effort verschoben. Der alte Ordner bleibt
-                // bewusst erhalten (kein automatisches Löschen), um manuelle Rücksicherung zu ermöglichen.
-                // Sollte der Nutzer beide Strukturen parallel nutzen, wird nur die verschachtelte aktiv durchsucht.
-                // Eine historische Zwischenstufe konnte einen doppelten Pfad <Base>/ModlistManager/modlists/modlists erzeugen;
-                // dieser wird nicht mehr benötigt und kann (wie im Repo bereinigt) entfernt werden.
+                // Nur initial befüllen, wenn noch keine Modlisten (*.txt) existieren
+                bool hasTxt = false;
+                try { hasTxt = Directory.EnumerateFiles(root, "*.txt", SearchOption.TopDirectoryOnly).Any(); } catch { }
+                if (hasTxt) return;
 
-                // 1) Migration: Wenn legacy existiert UND nested nicht, verschieben
-                if (Directory.Exists(legacyRoot) && !Directory.Exists(nestedRoot))
+                foreach (var demo in GetDemoSeedCandidates(norm))
                 {
                     try
                     {
-                        Directory.CreateDirectory(nestedRoot);
-                        foreach (var dir in Directory.GetDirectories(legacyRoot, "*", SearchOption.TopDirectoryOnly))
-                        {
-                            var name = Path.GetFileName(dir);
-                            var target = Path.Combine(nestedRoot, name);
-                            if (!Directory.Exists(target)) Directory.Move(dir, target);
-                        }
-                        foreach (var file in Directory.GetFiles(legacyRoot, "*", SearchOption.TopDirectoryOnly))
+                        if (!Directory.Exists(demo)) continue;
+                        if (!Directory.EnumerateFiles(demo, "*.txt", SearchOption.TopDirectoryOnly).Any()) continue;
+
+                        foreach (var file in Directory.EnumerateFiles(demo, "*", SearchOption.TopDirectoryOnly))
                         {
                             var name = Path.GetFileName(file);
-                            var target = Path.Combine(nestedRoot, name);
-                            if (!File.Exists(target)) File.Move(file, target);
-                        }
-                        // Optional: Legacy leeren, aber nicht löschen falls Benutzer dort noch etwas erwartet
-                    }
-                    catch { /* Migration best-effort */ }
-                }
+                            if (string.IsNullOrWhiteSpace(name)) continue;
+                            if (name.Equals("links.json", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var target = Path.Combine(root, name);
+                                if (!File.Exists(target))
+                                {
+                                    try { File.Copy(file, target, overwrite: false); } catch { }
+                                }
+                                continue;
+                            }
 
-                // 2) Sicherstellen, dass nestedRoot existiert
-                Directory.CreateDirectory(nestedRoot);
-                Directory.CreateDirectory(Path.Combine(nestedRoot, "ETS2"));
-                Directory.CreateDirectory(Path.Combine(nestedRoot, "ATS"));
-
-                // 3) Flatten: Falls durch alte Migration ein Unterordner "modlists" innerhalb von nestedRoot existiert, Inhalte hochheben und löschen
-                try
-                {
-                    var accidental = Path.Combine(nestedRoot, "modlists");
-                    if (Directory.Exists(accidental))
-                    {
-                        foreach (var dir in Directory.GetDirectories(accidental, "*", SearchOption.TopDirectoryOnly))
-                        {
-                            var name = Path.GetFileName(dir);
-                            var target = Path.Combine(nestedRoot, name);
-                            if (!Directory.Exists(target)) Directory.Move(dir, target);
+                            var ext = Path.GetExtension(name);
+                            if (ext.Equals(".txt", StringComparison.OrdinalIgnoreCase) ||
+                                ext.Equals(".note", StringComparison.OrdinalIgnoreCase) ||
+                                ext.Equals(".json", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var target = Path.Combine(root, name);
+                                if (!File.Exists(target))
+                                {
+                                    try { File.Copy(file, target, overwrite: false); } catch { }
+                                }
+                            }
                         }
-                        foreach (var file in Directory.GetFiles(accidental, "*", SearchOption.TopDirectoryOnly))
-                        {
-                            var name = Path.GetFileName(file);
-                            var target = Path.Combine(nestedRoot, name);
-                            if (!File.Exists(target)) File.Move(file, target);
-                        }
-                        try { Directory.Delete(accidental, true); } catch { }
+                        break; // erster geeigneter Seed genügt
                     }
+                    catch { }
                 }
-                catch { }
             }
-            catch { /* still ignore, UI soll nicht crashen */ }
+            catch { }
         }
 
         // Einfache, designerfreundliche Renderer
@@ -286,9 +277,14 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             if (root == null) return;
 
             // Controls mit Tag
-            if (root.Tag is string key && !string.IsNullOrWhiteSpace(key))
+            // WICHTIG: Die Notiz-Textbox (txtModInfo) enthält benutzerdefinierten Inhalt
+            // und darf nicht durch die Lokalisierung überschrieben werden.
+            if (!object.ReferenceEquals(root, txtModInfo))
             {
-                try { root.Text = _lang[key]; } catch { }
+                if (root.Tag is string key && !string.IsNullOrWhiteSpace(key))
+                {
+                    try { root.Text = _lang[key]; } catch { }
+                }
             }
 
             // DataGridView-Spalten
@@ -374,6 +370,9 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             try { this.headerBanner.Title = _lang["MainForm.Title"]; } catch { }
             try { this.headerBanner.Subtitle = _lang["MainForm.Header.Subtitle"]; } catch { }
             try { this.headerBanner.Invalidate(); } catch { }
+
+            // Platzhalter für Notiz-Textbox setzen (aber Inhalt niemals überschreiben)
+            try { if (txtModInfo != null) txtModInfo.PlaceholderText = T("MainForm.ModInfo.Input", "Notiz zur Modliste …"); } catch { }
         }
 
         // Aktualisiert das Spiel-Logo im Footer entsprechend des gewählten Spiels
@@ -536,6 +535,10 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     UpdateGameLogo(dlg.SelectedPreferredGame);
                     try { this.headerBanner.GameCode = dlg.SelectedPreferredGame; } catch { }
                     LoadProfilesForSelectedGame();
+                    // Neueinstellung der Modlistenpfade übernehmen
+                    try { EnsureModlistsDirectoryForGame("ets2"); } catch { }
+                    try { EnsureModlistsDirectoryForGame("ats"); } catch { }
+                    try { LoadModlistNamesForSelectedGame(); } catch { }
                 }
                 catch { }
             }
@@ -616,7 +619,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
                 // Laden, aktualisieren, speichern
                 var map = LoadInfoMapFor(modlistPath) ?? new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-                string key = !string.IsNullOrWhiteSpace(modName) ? modName! : (pkg ?? string.Empty);
+                // Ab jetzt: Schlüssel = Paket-Token (links vom '|'); Modname nur Legacy-Fallback beim Lesen
+                string key = !string.IsNullOrWhiteSpace(pkg) ? pkg! : (modName ?? string.Empty);
                 if (string.IsNullOrWhiteSpace(key)) return;
 
                 if (string.IsNullOrWhiteSpace(text))
@@ -641,43 +645,65 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         // --- Modlisten laden ---
         private string GetModlistsRootForGame(string norm)
         {
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            var sub = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? "ETS2" : "ATS";
+            // 0) Benutzerdefinierte Pfade aus den Einstellungen
+            try
+            {
+                var custom = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? _settings.Current.Ets2ModlistsPath : _settings.Current.AtsModlistsPath;
+                if (!string.IsNullOrWhiteSpace(custom)) return custom!;
+            }
+            catch { }
+
             var candidates = new List<string>();
-            // 1) Bevorzugt: BaseDir/ModlistManager/modlists (App in Paketierung oder dev)
-            candidates.Add(Path.Combine(baseDir, "ModlistManager", "modlists", sub));
-            // 2) Binär-BaseDir/modlists
-            candidates.Add(Path.Combine(baseDir, "modlists", sub));
-            // 3) Elternordner hochlaufen (Entwicklungsumgebung): <repo>/modlists und <repo>/ModlistManager/modlists
-            string? dir = baseDir;
-            for (int i = 0; i < 6 && !string.IsNullOrEmpty(dir); i++)
+            // 1) Dokumente/<Game>/modlists (Standard)
+            try
             {
-                var parent = Path.GetDirectoryName(dir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-                if (string.IsNullOrEmpty(parent)) break;
-                candidates.Add(Path.Combine(parent, "ModlistManager", "modlists", sub));
-                candidates.Add(Path.Combine(parent, "modlists", sub));
-                dir = parent;
+                var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                var gameFolder = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? "Euro Truck Simulator 2" : "American Truck Simulator";
+                candidates.Add(Path.Combine(docs, gameFolder, "modlists"));
             }
-
-            // 1) Bevorzugt: Ein Ordner, der bereits mindestens eine .txt enthält
-            foreach (var c in candidates)
+            catch { }
+            // 2) Spiel-Installationsverzeichnis/modlists
+            try
             {
-                try
+                var install = FindGameInstallDir(norm);
+                if (!string.IsNullOrWhiteSpace(install)) candidates.Add(Path.Combine(install!, "modlists"));
+            }
+            catch { }
+            // 3) Fallback: App-Verzeichnis (Kompatibilität / erste Nutzung)
+            try
+            {
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var sub = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? "ETS2" : "ATS";
+                candidates.Add(Path.Combine(baseDir, "ModlistManager", "modlists", sub));
+                candidates.Add(Path.Combine(baseDir, "modlists", sub));
+            }
+            catch { }
+
+            return candidates.First();
+        }
+
+        private IEnumerable<string> GetDemoSeedCandidates(string norm)
+        {
+            var list = new List<string>();
+            try
+            {
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var sub = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? "ETS2" : "ATS";
+                list.Add(Path.Combine(baseDir, "ModlistManager", "modlists", sub));
+                list.Add(Path.Combine(baseDir, "modlists", sub));
+                // Elternordner hochlaufen (Dev-Szenario)
+                string? dir = baseDir;
+                for (int i = 0; i < 6 && !string.IsNullOrEmpty(dir); i++)
                 {
-                    if (Directory.Exists(c) && Directory.EnumerateFiles(c, "*.txt", SearchOption.TopDirectoryOnly).Any())
-                        return c;
+                    var parent = Path.GetDirectoryName(dir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                    if (string.IsNullOrEmpty(parent)) break;
+                    list.Add(Path.Combine(parent, "ModlistManager", "modlists", sub));
+                    list.Add(Path.Combine(parent, "modlists", sub));
+                    dir = parent;
                 }
-                catch { }
             }
-
-            // 2) Sonst: der erste existierende Ordner
-            foreach (var c in candidates)
-            {
-                try { if (Directory.Exists(c)) return c; } catch { }
-            }
-
-            // 3) Fallback: erster Kandidat (wird ggf. später erstellt)
-            return candidates[0];
+            catch { }
+            return list.Distinct(StringComparer.OrdinalIgnoreCase);
         }
 
         private sealed class ModlistItem
@@ -1155,13 +1181,18 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     if (gridMods.Columns.Contains("colInfo"))
                     {
                         string? infoText = null;
-                        if (!string.IsNullOrWhiteSpace(e.ModName))
-                        {
-                            infoMap.TryGetValue(e.ModName, out infoText);
-                        }
-                        else if (!string.IsNullOrWhiteSpace(e.Package))
+                        // Neu: Vorrang für Paket-Token; Modname nur Legacy-Fallback
+                        if (!string.IsNullOrWhiteSpace(e.Package))
                         {
                             infoMap.TryGetValue(e.Package, out infoText);
+                            if (string.IsNullOrWhiteSpace(infoText) && !string.IsNullOrWhiteSpace(e.ModName))
+                            {
+                                infoMap.TryGetValue(e.ModName, out infoText);
+                            }
+                        }
+                        else if (!string.IsNullOrWhiteSpace(e.ModName))
+                        {
+                            infoMap.TryGetValue(e.ModName, out infoText);
                         }
                         row.Cells["colInfo"].Value = infoText ?? string.Empty;
                     }
@@ -1938,29 +1969,53 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
         private static (string Package, string ModName) TryParseModlistLine(string line)
         {
-            // Robust: erst '|' dann ';' dann Tab dann " - "
-            static (string, string)? SplitBy(string s, string sep)
+            if (string.IsNullOrWhiteSpace(line)) return (string.Empty, string.Empty);
+
+            // 1) Extrahiere ggf. den Inhalt in Anführungszeichen: active_mods[0]: "pkg|mod"
+            var s = line.Trim();
+            int q1 = s.IndexOf('"');
+            int q2 = s.LastIndexOf('"');
+            if (q1 >= 0 && q2 > q1)
             {
-                int p = s.IndexOf(sep, StringComparison.Ordinal);
+                s = s.Substring(q1 + 1, q2 - q1 - 1);
+            }
+
+            s = s.Trim();
+
+            // 2) Bevorzugt '|' als Trennzeichen (pkg|modname)
+            int pipe = s.IndexOf('|');
+            if (pipe > 0)
+            {
+                var left = s.Substring(0, pipe).Trim().Trim('"');
+                var right = s.Substring(pipe + 1).Trim().Trim('"');
+                return (left, right);
+            }
+
+            // 3) Legacy-Fallbacks: ';' / Tab / " - "
+            static (string, string)? SplitBy(string str, string sep)
+            {
+                int p = str.IndexOf(sep, StringComparison.Ordinal);
                 if (p <= 0) return null;
-                var left = s.Substring(0, p).Trim();
-                var right = s.Substring(p + sep.Length).Trim();
+                var left = str.Substring(0, p).Trim();
+                var right = str.Substring(p + sep.Length).Trim();
                 if (left.Length == 0 && right.Length == 0) return null;
                 return (left, right);
             }
 
             (string, string)? r = null;
-            r ??= SplitBy(line, "|");
-            r ??= SplitBy(line, ";");
-            r ??= SplitBy(line, "\t");
-            r ??= SplitBy(line, " - ");
+            r ??= SplitBy(s, ";");
+            r ??= SplitBy(s, "\t");
+            r ??= SplitBy(s, " - ");
 
-            if (r is null)
+            if (r is not null)
             {
-                // Fallback: alles als ModName
-                return (string.Empty, line);
+                var left = r.Value.Item1.Trim('"');
+                var right = r.Value.Item2.Trim('"');
+                return (left, right);
             }
-            return (r.Value.Item1, r.Value.Item2);
+
+            // 4) Kein erkennbarer Trenner: verwende die gesamte Zeile für beide Spalten
+            return (s.Trim('"'), s.Trim('"'));
         }
 
         private void ClearModsGrid()
@@ -2114,6 +2169,24 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 importModlistItem.Click += ImportModlist_Click;
             }
 
+            // Optional: Dynamischer Menüpunkt zum Setzen des Modlisten-Ordners pro Spiel
+            try
+            {
+                var miModlists = TryFindMenuItemByName(menuStrip1, "miModlists") as ToolStripMenuItem;
+                if (miModlists != null)
+                {
+                    // bereits vorhanden? Dann neu anhängen, falls nicht da
+                    var existing = miModlists.DropDownItems.Cast<ToolStripItem>().FirstOrDefault(i => string.Equals(i.Name, "miModSetFolder", StringComparison.OrdinalIgnoreCase));
+                    if (existing == null)
+                    {
+                        var miSet = new ToolStripMenuItem { Name = "miModSetFolder", Text = T("MainForm.Menu.Modlists.SetFolder", "Modlisten-Ordner wählen…") };
+                        miSet.Click += (_, __) => ChooseAndSaveModlistsFolderForCurrentGame();
+                        miModlists.DropDownItems.Insert(0, miSet);
+                    }
+                }
+            }
+            catch { }
+
             // Footer: Undo-Link verdrahten
             if (linkUndo != null)
             {
@@ -2126,6 +2199,32 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             if (miRemoveLink != null) { miRemoveLink.Click -= MiRemoveLink_Click; miRemoveLink.Click += MiRemoveLink_Click; }
             if (miAddLinkPerList != null) { miAddLinkPerList.Click -= MiAddLinkPerList_Click; miAddLinkPerList.Click += MiAddLinkPerList_Click; }
             if (miRemoveLinkPerList != null) { miRemoveLinkPerList.Click -= MiRemoveLinkPerList_Click; miRemoveLinkPerList.Click += MiRemoveLinkPerList_Click; }
+        }
+
+        private void ChooseAndSaveModlistsFolderForCurrentGame()
+        {
+            try
+            {
+                var code = (cbGame.SelectedItem as GameItem)?.Code ?? "ETS2";
+                var norm = NormalizeGameCode(code);
+                using var fbd = new FolderBrowserDialog();
+                fbd.Description = norm == "ets2" ? T("MainForm.Choose.Modlists.Ets2", "Zielordner für ETS2-Modlisten wählen") : T("MainForm.Choose.Modlists.Ats", "Zielordner für ATS-Modlisten wählen");
+                var current = GetModlistsRootForGame(norm);
+                if (!string.IsNullOrWhiteSpace(current) && Directory.Exists(current)) fbd.SelectedPath = current;
+                if (fbd.ShowDialog(this) != DialogResult.OK) return;
+
+                var chosen = fbd.SelectedPath;
+                if (norm == "ets2") _settings.Current.Ets2ModlistsPath = chosen; else _settings.Current.AtsModlistsPath = chosen;
+                _settings.Save();
+
+                // Ordner anlegen und initial befüllen (nur wenn leer)
+                try { Directory.CreateDirectory(chosen); } catch { }
+                EnsureModlistsDirectoryForGame(norm);
+
+                // UI aktualisieren
+                LoadModlistNamesForSelectedGame();
+            }
+            catch { }
         }
 
         private void GridMods_CellMouseDown(object? sender, DataGridViewCellMouseEventArgs e)
@@ -3801,12 +3900,13 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             if (total > 0) ShowStatus($"{decrypted}/{total} profile.sii entschlüsselt");
         }
 
-        private System.Windows.Forms.Timer? _statusTimer;
-        private void ShowStatus(string message, int milliseconds = 4000)
+    private System.Windows.Forms.Timer? _statusTimer;
+    private void ShowStatus(string message, int milliseconds = 4000)
         {
             try
             {
-                if (lblStatus != null) lblStatus.Text = message ?? string.Empty;
+        // Zeige Meldungen ausschließlich im Logfenster, um Doppelanzeigen und abgeschnittenen Text zu vermeiden
+        if (lblStatus != null) lblStatus.Text = string.Empty;
                 AppendLog(message);
                 _statusTimer ??= new System.Windows.Forms.Timer();
                 _statusTimer.Stop();
@@ -3823,7 +3923,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             try
             {
                 _statusTimer?.Stop();
-                if (lblStatus != null) lblStatus.Text = string.Empty;
+                if (lblStatus != null) lblStatus.Text = string.Empty; // bleibt leer
             }
             catch { }
         }
