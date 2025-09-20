@@ -436,7 +436,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             txtModInfo.ScrollBars = ScrollBars.Vertical;
             txtModInfo.Size = new Size(952, 81);
             txtModInfo.TabIndex = 1;
-            txtModInfo.Tag = "MainForm.ModInfo.Input";
+            // Kein Tag für txtModInfo – enthält benutzerdefinierten Inhalt, darf nicht lokalisiert werden
             // 
             // footerRightPanel
             // 

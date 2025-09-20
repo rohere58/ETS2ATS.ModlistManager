@@ -19,6 +19,18 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.13] - 2025-09-20
+### Behoben
+- Notiz im Footer (txtModInfo) wird nicht mehr von der Lokalisierung überschrieben und korrekt in `<ModlistName>.note` gespeichert/geladen
+- Doppelte/trunkierte Statusanzeigen entfernt: Meldungen erscheinen nur noch im Log-Bereich
+
+### Geändert
+- Lokalisierungslogik: Englische Basis wird überlagert; Verzeichnis-Priorität bevorzugt jetzt `Resources\Languages` vor `Languages` und gepackten Ressourcen
+- Verbesserte Parsing-Logik für Grid: `Package` zeigt Text vor `|`, `Modname` zeigt Text nach `|` (inkl. Quotes-Handling für active_mods)
+
+### Hinzugefügt
+- Platzhaltertext im Notizfeld (übersetzt), ohne Benutzerinhalt zu verändern
+
 ## [0.1.12] - 2025-09-19
 ### Geändert
 - Info-Spalte speichert nun kanonisch unter dem Package-Token (nicht mehr unter Modnamen)
@@ -134,7 +146,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.12...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.13...HEAD
+[0.1.13]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.9...v0.1.10

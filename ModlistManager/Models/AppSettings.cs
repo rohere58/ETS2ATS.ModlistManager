@@ -8,6 +8,9 @@ namespace ETS2ATS.ModlistManager.Models
 
         public string? Ets2ProfilesPath { get; set; }         // optional
         public string? AtsProfilesPath  { get; set; }         // optional
+        // Benutzerdefinierte Modlisten-Pfade (optional je Spiel)
+        public string? Ets2ModlistsPath { get; set; }         // optional: <Ziel>/modlists für ETS2
+        public string? AtsModlistsPath  { get; set; }         // optional: <Ziel>/modlists für ATS
         public string? Ets2WorkshopContentOverride { get; set; } // optional: direkte Angabe von steamapps/workshop/content/227300
         public string? AtsWorkshopContentOverride  { get; set; } // optional: direkte Angabe von steamapps/workshop/content/270880
 
