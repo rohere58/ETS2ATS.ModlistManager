@@ -12,6 +12,10 @@
 
 > Ein schlanker Windows (.NET 8 / WinForms) Helfer zum Erstellen, Verwalten und Teilen von Modlisten für **Euro Truck Simulator 2** und **American Truck Simulator**.
 
+> Hinweis/Notice: Wenn du Version 0.1.14 verwendest, aktualisiere bitte auf 0.1.15 (kritischer Fix für Optionen → Modlisten-Pfade).
+> If you are on 0.1.14, please update to 0.1.15 (critical fix for Options → modlists paths).
+> Direktdownload/Direct download: https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.15/ETS2ATS.ModlistManager_v0.1.15_win-x64.zip
+
 ## Inhaltsverzeichnis / Table of Contents
 **Deutsch**
 - [Funktionen](#funktionen)
