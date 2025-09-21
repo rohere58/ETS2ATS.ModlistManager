@@ -19,6 +19,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.15] - 2025-09-21
+### Behoben
+- Schwere Regression: In den Optionen wurden die neuen Felder für Modlisten-Pfade nicht mit bestehenden Einstellungen vorbelegt. Ein Klick auf „OK“ setzte dadurch vorhandene benutzerdefinierte Modlistenverzeichnisse unbeabsichtigt auf null zurück. Die Felder werden nun in `LoadFromSettings()` korrekt aus den Settings initialisiert.
+
 ## [0.1.14] - 2025-09-21
 ### Geändert
 - Live-Theme-Vorschau: Header-Banner passt sich jetzt sofort bei Wechsel Light/Dark im Optionen-Dialog an und ist nach dem Übernehmen korrekt gestylt.
@@ -158,6 +162,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
 [Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.14...HEAD
+[0.1.15]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.11...v0.1.12
