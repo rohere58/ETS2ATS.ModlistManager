@@ -71,7 +71,7 @@ Wer viele Profile / Modsets (Konvois, verschiedene Savegames, Test-Konfiguration
 ```
 
 ## Installation (Benutzer)
-1. Release (ZIP) herunterladen: [Direktdownload v0.1.14 (win-x64)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.14/ETS2ATS.ModlistManager_v0.1.14_win-x64.zip)
+1. Release (ZIP) herunterladen: [Direktdownload v0.1.15 (win-x64)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.15/ETS2ATS.ModlistManager_v0.1.15_win-x64.zip)
 2. ZIP in einen beliebigen Ordner entpacken (z.B. `D:\Tools\ModlistManager`)
 3. `ETS2ATS.ModlistManager.exe` starten
 4. (Optional) Benutzerrechte: Stelle sicher, dass der Ordner beschreibbar ist (für Modlisten-Dateien)
@@ -234,7 +234,7 @@ Managing many profiles / convoys / experimental mod setups becomes messy. This t
 ```
 
 ## Installation (Users)
-1. Download release (ZIP): [Direct download v0.1.14 (win-x64)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.14/ETS2ATS.ModlistManager_v0.1.14_win-x64.zip)
+1. Download release (ZIP): [Direct download v0.1.15 (win-x64)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.15/ETS2ATS.ModlistManager_v0.1.15_win-x64.zip)
 2. Extract to any folder (e.g. `D:\Tools\ModlistManager`)
 3. Launch `ETS2ATS.ModlistManager.exe`
 4. Ensure folder is writable (for modlist files)

@@ -161,7 +161,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.14...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.15...HEAD
 [0.1.15]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.12...v0.1.13
