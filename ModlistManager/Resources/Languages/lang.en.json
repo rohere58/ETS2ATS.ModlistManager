@@ -185,6 +185,11 @@
   "MainForm.Grid.LinkRemoved": "Link removed",
   "MainForm.Grid.LinkRemoveFailed": "Failed to remove link: ",
   "MainForm.Grid.LinkNotFound": "No link found for this entry"
+  ,
+  "SiiDecrypt.Hint.Title": "SII Decrypt missing",
+  "SiiDecrypt.Hint.Message": "To create or adopt modlists, SII_Decrypt.exe is required. Please place it in the following folder:",
+  "SiiDecrypt.Hint.ExpectedPath": "Expected path:",
+  "SiiDecrypt.Hint.DontShow": "Don't show this again"
 }
 
 

@@ -15,5 +15,11 @@ namespace ETS2ATS.ModlistManager.Models
         public string? AtsWorkshopContentOverride  { get; set; } // optional: direkte Angabe von steamapps/workshop/content/270880
 
         public bool ConfirmBeforeAdopt { get; set; } = true;  // Bestätigung vor „Modliste übernehmen“
+
+        // Zeigt den einmaligen Hinweis an, dass SII_Decrypt.exe manuell in ModlistManager\Tools abgelegt werden muss
+        public bool HasShownSiiDecryptHint { get; set; } = false;
+
+        // Neues Flag: Unterdrücke künftige Hinweise explizit (vom Benutzer gewählt)
+        public bool SiiDecryptDontShowAgain { get; set; } = false;
     }
 }

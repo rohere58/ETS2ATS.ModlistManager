@@ -19,6 +19,17 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.14] - 2025-09-21
+### Geändert
+- Live-Theme-Vorschau: Header-Banner passt sich jetzt sofort bei Wechsel Light/Dark im Optionen-Dialog an und ist nach dem Übernehmen korrekt gestylt.
+- Menü „Modlisten“: Eintrag „Modlistenordner wählen…“ korrekt lokalisiert und wird bei Sprachwechseln live aktualisiert.
+
+### Hinzugefügt
+- Lokalisierungen (DE/EN) für SII_Decrypt-Hinweisdialog (Titel, Text, Pfadlabel, Checkbox).
+
+### Behoben
+- Hinweis-Logik: Dialog zu SII_Decrypt.exe wird nur noch unterdrückt, wenn „Nicht mehr anzeigen“ explizit gewählt wurde.
+
 ## [0.1.13] - 2025-09-20
 ### Behoben
 - Notiz im Footer (txtModInfo) wird nicht mehr von der Lokalisierung überschrieben und korrekt in `<ModlistName>.note` gespeichert/geladen
@@ -146,7 +157,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.13...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.14...HEAD
+[0.1.14]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.10...v0.1.11

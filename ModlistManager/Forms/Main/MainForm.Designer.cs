@@ -318,7 +318,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             colModName.FillWeight = 160F;
             colModName.HeaderText = "Modname";
             colModName.Name = "colModName";
-            colModName.ReadOnly = true;
+            colModName.ReadOnly = false;
             // 
             // colInfo
             // 
