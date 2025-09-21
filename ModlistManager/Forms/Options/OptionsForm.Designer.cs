@@ -11,6 +11,8 @@ namespace ETS2ATS.ModlistManager.Forms.Options
         private Label lblPreferredGame;
         private Label lblEts2Path;
         private Label lblAtsPath;
+    private Label lblEts2Modlists;
+    private Label lblAtsModlists;
 
         private ComboBox cbLanguage;
         private ComboBox cbTheme;
@@ -18,9 +20,13 @@ namespace ETS2ATS.ModlistManager.Forms.Options
 
         private TextBox txtEts2Path;
         private Button btnBrowseEts2;
+    private TextBox txtEts2Modlists;
+    private Button btnBrowseEts2Modlists;
 
         private TextBox txtAtsPath;
         private Button btnBrowseAts;
+    private TextBox txtAtsModlists;
+    private Button btnBrowseAtsModlists;
 
         private FlowLayoutPanel panelButtons;
         private Button btnOK;
@@ -54,7 +60,7 @@ namespace ETS2ATS.ModlistManager.Forms.Options
 
             // layout
             layout.ColumnCount = 3;
-            layout.RowCount = 7;
+            layout.RowCount = 9;
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));           // Label
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));      // Input
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));           // Browse/Spacer
@@ -90,6 +96,20 @@ namespace ETS2ATS.ModlistManager.Forms.Options
             lblAtsPath.TextAlign = ContentAlignment.MiddleLeft;
             lblAtsPath.Anchor = AnchorStyles.Left;
 
+            lblEts2Modlists = new Label();
+            lblEts2Modlists.Name = "lblEts2Modlists";
+            lblEts2Modlists.Text = "ETS2-Modlisten Ordner";
+            lblEts2Modlists.Tag = "Options.Ets2ModlistsPath";
+            lblEts2Modlists.TextAlign = ContentAlignment.MiddleLeft;
+            lblEts2Modlists.Anchor = AnchorStyles.Left;
+
+            lblAtsModlists = new Label();
+            lblAtsModlists.Name = "lblAtsModlists";
+            lblAtsModlists.Text = "ATS-Modlisten Ordner";
+            lblAtsModlists.Tag = "Options.AtsModlistsPath";
+            lblAtsModlists.TextAlign = ContentAlignment.MiddleLeft;
+            lblAtsModlists.Anchor = AnchorStyles.Left;
+
             // Checkbox: Bestätigung vor Übernehmen
             chkConfirmBeforeAdopt = new CheckBox();
             chkConfirmBeforeAdopt.Text = "Bestätigung vor Übernehmen";
@@ -110,20 +130,46 @@ namespace ETS2ATS.ModlistManager.Forms.Options
             txtEts2Path.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             txtAtsPath.Anchor  = AnchorStyles.Left | AnchorStyles.Right;
 
+            txtEts2Modlists = new TextBox();
+            txtEts2Modlists.Name = "txtEts2Modlists";
+            txtEts2Modlists.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+
+            txtAtsModlists = new TextBox();
+            txtAtsModlists.Name = "txtAtsModlists";
+            txtAtsModlists.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+
             // Browse-Buttons: nie abgeschnitten
-            btnBrowseEts2.Text = "Durchsuchen�";
+            btnBrowseEts2.Text = "Durchsuchen…";
             btnBrowseEts2.Tag = "Options.Browse";
             btnBrowseEts2.AutoSize = true;
             btnBrowseEts2.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             btnBrowseEts2.MinimumSize = new Size(110, 0);  // Sicherheitsnetz
             btnBrowseEts2.Anchor = AnchorStyles.Left;
 
-            btnBrowseAts.Text = "Durchsuchen�";
+            btnBrowseAts.Text = "Durchsuchen…";
             btnBrowseAts.Tag = "Options.Browse";
             btnBrowseAts.AutoSize = true;
             btnBrowseAts.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             btnBrowseAts.MinimumSize = new Size(110, 0);   // Sicherheitsnetz
             btnBrowseAts.Anchor = AnchorStyles.Left;
+
+            btnBrowseEts2Modlists = new Button();
+            btnBrowseEts2Modlists.Name = "btnBrowseEts2Modlists";
+            btnBrowseEts2Modlists.Text = "Durchsuchen…";
+            btnBrowseEts2Modlists.Tag = "Options.Browse";
+            btnBrowseEts2Modlists.AutoSize = true;
+            btnBrowseEts2Modlists.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnBrowseEts2Modlists.MinimumSize = new Size(110, 0);
+            btnBrowseEts2Modlists.Anchor = AnchorStyles.Left;
+
+            btnBrowseAtsModlists = new Button();
+            btnBrowseAtsModlists.Name = "btnBrowseAtsModlists";
+            btnBrowseAtsModlists.Text = "Durchsuchen…";
+            btnBrowseAtsModlists.Tag = "Options.Browse";
+            btnBrowseAtsModlists.AutoSize = true;
+            btnBrowseAtsModlists.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnBrowseAtsModlists.MinimumSize = new Size(110, 0);
+            btnBrowseAtsModlists.Anchor = AnchorStyles.Left;
 
             // Buttons
             panelButtons.FlowDirection = FlowDirection.RightToLeft;
@@ -167,6 +213,16 @@ namespace ETS2ATS.ModlistManager.Forms.Options
             layout.Controls.Add(btnBrowseAts, 2, r++);
             layout.SetColumnSpan(txtAtsPath, 1);
 
+            layout.Controls.Add(lblEts2Modlists, 0, r);
+            layout.Controls.Add(txtEts2Modlists, 1, r);
+            layout.Controls.Add(btnBrowseEts2Modlists, 2, r++);
+            layout.SetColumnSpan(txtEts2Modlists, 1);
+
+            layout.Controls.Add(lblAtsModlists, 0, r);
+            layout.Controls.Add(txtAtsModlists, 1, r);
+            layout.Controls.Add(btnBrowseAtsModlists, 2, r++);
+            layout.SetColumnSpan(txtAtsModlists, 1);
+
             // Checkbox über gesamte Breite
             layout.Controls.Add(chkConfirmBeforeAdopt, 0, r);
             layout.SetColumnSpan(chkConfirmBeforeAdopt, 3);
@@ -182,8 +238,8 @@ namespace ETS2ATS.ModlistManager.Forms.Options
             MinimizeBox = false;
             MaximizeBox = false;
             FormBorderStyle = FormBorderStyle.FixedDialog;
-            ClientSize = new Size(630, 280);   // vorher: 590
-            MinimumSize = new Size(630, 280);  // MinSize, damit nichts einklappt
+            ClientSize = new Size(630, 330);
+            MinimumSize = new Size(630, 330);
             AutoScaleMode = AutoScaleMode.Dpi;
 
             ResumeLayout(false);

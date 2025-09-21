@@ -121,6 +121,9 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 // Sicherstellen, dass Basisordner für Modlisten existieren
                 try { EnsureModlistsDirectories(); } catch { }
 
+                // Einmaliger Hinweis: SII_Decrypt.exe nicht mehr gebündelt – bitte in ModlistManager\\Tools ablegen
+                try { ShowSiiDecryptHintIfMissing(); } catch { }
+
                 // Grid-Events
                 this.gridMods.RowPostPaint += GridMods_RowPostPaint;
                 this.gridMods.CellContentClick += GridMods_CellContentClick;
@@ -134,75 +137,99 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             }
         }
 
-        private void EnsureModlistsDirectories()
+        private void ShowSiiDecryptHintIfMissing()
         {
             try
             {
+                // Nur unterdrücken, wenn der Nutzer explizit "nicht mehr anzeigen" gewählt hat
+                if (_settings.Current.SiiDecryptDontShowAgain) return;
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                var nestedRoot = Path.Combine(baseDir, "ModlistManager", "modlists");
-                var legacyRoot = Path.Combine(baseDir, "modlists"); // frühere Versionen legten diesen an
+                var toolsDir = Path.Combine(baseDir, "ModlistManager", "Tools");
+                var exePath = Path.Combine(toolsDir, "SII_Decrypt.exe");
+                if (!File.Exists(exePath))
+                {
+                    using var dlg = new ETS2ATS.ModlistManager.Forms.Common.SiiDecryptHintForm(exePath);
+                    try { dlg.Text = T("SiiDecrypt.Hint.Title", "SII_Decrypt.exe erforderlich"); } catch { }
+                    try { dlg.lblMessage.Text = T("SiiDecrypt.Hint.Message", "Hinweis: Ab dieser Version wird SII_Decrypt.exe nicht mehr mitgeliefert. Bitte lege die Datei manuell in den Ordner 'ModlistManager\\\\Tools' neben der Anwendung ab."); } catch { }
+                    try { dlg.lblPathLabel.Text = T("SiiDecrypt.Hint.ExpectedPath", "Erwarteter Pfad:"); } catch { }
+                    try { dlg.chkDontShow.Text = T("SiiDecrypt.Hint.DontShow", "Diesen Hinweis nicht mehr anzeigen"); } catch { }
+                    dlg.ShowDialog(this);
+                    // Merke, dass wir den Hinweis mindestens einmal gezeigt haben (informativ)
+                    _settings.Current.HasShownSiiDecryptHint = true;
+                    if (dlg.DontShowAgain)
+                    {
+                        _settings.Current.SiiDecryptDontShowAgain = true;
+                        _settings.Save();
+                    }
+                }
+                else
+                {
+                    // Datei vorhanden → kein Hinweis nötig; keine Unterdrückungs-Flags setzen
+                }
+            }
+            catch { }
+        }
 
-                // Migration Hinweis:
-                // Ab Version 0.1.7 werden Modlisten ausschließlich unter <Base>/ModlistManager/modlists erwartet.
-                // Frühere Builds erstellten <Base>/modlists. Beim ersten Start nach Update werden Inhalte
-                // (Top-Level Dateien + erste Ebene Unterordner) best-effort verschoben. Der alte Ordner bleibt
-                // bewusst erhalten (kein automatisches Löschen), um manuelle Rücksicherung zu ermöglichen.
-                // Sollte der Nutzer beide Strukturen parallel nutzen, wird nur die verschachtelte aktiv durchsucht.
-                // Eine historische Zwischenstufe konnte einen doppelten Pfad <Base>/ModlistManager/modlists/modlists erzeugen;
-                // dieser wird nicht mehr benötigt und kann (wie im Repo bereinigt) entfernt werden.
+        private void EnsureModlistsDirectories()
+        {
+            // Neue Strategie: Modlisten gehören in den Spielordner (Installationsverzeichnis)/modlists bzw. Dokumente/<Game>/modlists.
+            // Diese Methode sorgt je Spiel für das Anlegen des Zielordners und kopiert Demo-Dateien nur beim ersten Start (keine Überschreibungen).
+            try { EnsureModlistsDirectoryForGame("ets2"); } catch { }
+            try { EnsureModlistsDirectoryForGame("ats"); } catch { }
+        }
 
-                // 1) Migration: Wenn legacy existiert UND nested nicht, verschieben
-                if (Directory.Exists(legacyRoot) && !Directory.Exists(nestedRoot))
+        private void EnsureModlistsDirectoryForGame(string norm)
+        {
+            try
+            {
+                var root = GetModlistsRootForGame(norm);
+                if (string.IsNullOrWhiteSpace(root)) return;
+                try { Directory.CreateDirectory(root); } catch { }
+
+                // Nur initial befüllen, wenn noch keine Modlisten (*.txt) existieren
+                bool hasTxt = false;
+                try { hasTxt = Directory.EnumerateFiles(root, "*.txt", SearchOption.TopDirectoryOnly).Any(); } catch { }
+                if (hasTxt) return;
+
+                foreach (var demo in GetDemoSeedCandidates(norm))
                 {
                     try
                     {
-                        Directory.CreateDirectory(nestedRoot);
-                        foreach (var dir in Directory.GetDirectories(legacyRoot, "*", SearchOption.TopDirectoryOnly))
-                        {
-                            var name = Path.GetFileName(dir);
-                            var target = Path.Combine(nestedRoot, name);
-                            if (!Directory.Exists(target)) Directory.Move(dir, target);
-                        }
-                        foreach (var file in Directory.GetFiles(legacyRoot, "*", SearchOption.TopDirectoryOnly))
+                        if (!Directory.Exists(demo)) continue;
+                        if (!Directory.EnumerateFiles(demo, "*.txt", SearchOption.TopDirectoryOnly).Any()) continue;
+
+                        foreach (var file in Directory.EnumerateFiles(demo, "*", SearchOption.TopDirectoryOnly))
                         {
                             var name = Path.GetFileName(file);
-                            var target = Path.Combine(nestedRoot, name);
-                            if (!File.Exists(target)) File.Move(file, target);
-                        }
-                        // Optional: Legacy leeren, aber nicht löschen falls Benutzer dort noch etwas erwartet
-                    }
-                    catch { /* Migration best-effort */ }
-                }
+                            if (string.IsNullOrWhiteSpace(name)) continue;
+                            if (name.Equals("links.json", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var target = Path.Combine(root, name);
+                                if (!File.Exists(target))
+                                {
+                                    try { File.Copy(file, target, overwrite: false); } catch { }
+                                }
+                                continue;
+                            }
 
-                // 2) Sicherstellen, dass nestedRoot existiert
-                Directory.CreateDirectory(nestedRoot);
-                Directory.CreateDirectory(Path.Combine(nestedRoot, "ETS2"));
-                Directory.CreateDirectory(Path.Combine(nestedRoot, "ATS"));
-
-                // 3) Flatten: Falls durch alte Migration ein Unterordner "modlists" innerhalb von nestedRoot existiert, Inhalte hochheben und löschen
-                try
-                {
-                    var accidental = Path.Combine(nestedRoot, "modlists");
-                    if (Directory.Exists(accidental))
-                    {
-                        foreach (var dir in Directory.GetDirectories(accidental, "*", SearchOption.TopDirectoryOnly))
-                        {
-                            var name = Path.GetFileName(dir);
-                            var target = Path.Combine(nestedRoot, name);
-                            if (!Directory.Exists(target)) Directory.Move(dir, target);
+                            var ext = Path.GetExtension(name);
+                            if (ext.Equals(".txt", StringComparison.OrdinalIgnoreCase) ||
+                                ext.Equals(".note", StringComparison.OrdinalIgnoreCase) ||
+                                ext.Equals(".json", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var target = Path.Combine(root, name);
+                                if (!File.Exists(target))
+                                {
+                                    try { File.Copy(file, target, overwrite: false); } catch { }
+                                }
+                            }
                         }
-                        foreach (var file in Directory.GetFiles(accidental, "*", SearchOption.TopDirectoryOnly))
-                        {
-                            var name = Path.GetFileName(file);
-                            var target = Path.Combine(nestedRoot, name);
-                            if (!File.Exists(target)) File.Move(file, target);
-                        }
-                        try { Directory.Delete(accidental, true); } catch { }
+                        break; // erster geeigneter Seed genügt
                     }
+                    catch { }
                 }
-                catch { }
             }
-            catch { /* still ignore, UI soll nicht crashen */ }
+            catch { }
         }
 
         // Einfache, designerfreundliche Renderer
@@ -286,9 +313,14 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             if (root == null) return;
 
             // Controls mit Tag
-            if (root.Tag is string key && !string.IsNullOrWhiteSpace(key))
+            // WICHTIG: Die Notiz-Textbox (txtModInfo) enthält benutzerdefinierten Inhalt
+            // und darf nicht durch die Lokalisierung überschrieben werden.
+            if (!object.ReferenceEquals(root, txtModInfo))
             {
-                try { root.Text = _lang[key]; } catch { }
+                if (root.Tag is string key && !string.IsNullOrWhiteSpace(key))
+                {
+                    try { root.Text = _lang[key]; } catch { }
+                }
             }
 
             // DataGridView-Spalten
@@ -374,6 +406,9 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             try { this.headerBanner.Title = _lang["MainForm.Title"]; } catch { }
             try { this.headerBanner.Subtitle = _lang["MainForm.Header.Subtitle"]; } catch { }
             try { this.headerBanner.Invalidate(); } catch { }
+
+            // Platzhalter für Notiz-Textbox setzen (aber Inhalt niemals überschreiben)
+            try { if (txtModInfo != null) txtModInfo.PlaceholderText = T("MainForm.ModInfo.Input", "Notiz zur Modliste …"); } catch { }
         }
 
         // Aktualisiert das Spiel-Logo im Footer entsprechend des gewählten Spiels
@@ -536,6 +571,10 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     UpdateGameLogo(dlg.SelectedPreferredGame);
                     try { this.headerBanner.GameCode = dlg.SelectedPreferredGame; } catch { }
                     LoadProfilesForSelectedGame();
+                    // Neueinstellung der Modlistenpfade übernehmen
+                    try { EnsureModlistsDirectoryForGame("ets2"); } catch { }
+                    try { EnsureModlistsDirectoryForGame("ats"); } catch { }
+                    try { LoadModlistNamesForSelectedGame(); } catch { }
                 }
                 catch { }
             }
@@ -595,45 +634,89 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             }
         }
 
-        // Bearbeitung der Kurzinfo persistieren
+        // Bearbeitung der Kurzinfo/Modname persistieren
         private void GridMods_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
             try
             {
                 if (e.RowIndex < 0) return;
                 var col = gridMods.Columns[e.ColumnIndex];
-                if (col == null || col.Name != "colInfo") return; // nur Info-Spalte
-                // Nutze die aktuell geladene Modlisten-Datei, nicht die evtl. bereits geänderte Auswahl
-                var modlistPath = _currentModlistPath;
-                if (string.IsNullOrWhiteSpace(modlistPath))
+                if (col == null) return;
+                try { gridMods.CommitEdit(DataGridViewDataErrorContexts.Commit); } catch { }
+                try { gridMods.EndEdit(); } catch { }
+
+                // Modname-Spalte editierbar und speichert Änderungen in <Modlistname>.json
+                if (col.Name == "colModName")
+                {
+                    var modlistPath = _currentModlistPath;
+                    if (string.IsNullOrWhiteSpace(modlistPath))
+                    {
+                        if (cbModlist?.SelectedItem is not ModlistItem it || string.IsNullOrWhiteSpace(it.Path)) return;
+                        modlistPath = it.Path;
+                    }
+                    var pkg = gridMods.Rows[e.RowIndex].Cells["colPackage"].Value?.ToString()?.Trim();
+                    var cellName = gridMods.Rows[e.RowIndex].Cells["colModName"];
+                    var modName = (cellName?.EditedFormattedValue ?? cellName?.Value)?.ToString()?.Trim();
+                    if (string.IsNullOrWhiteSpace(pkg)) return;
+
+                    // Laden, aktualisieren, speichern (strukturierte Map: Package -> {modname, info})
+                    var map = LoadInfoMapFor(modlistPath) ?? new Dictionary<string, ModMeta>(StringComparer.CurrentCultureIgnoreCase);
+                    if (!map.TryGetValue(pkg, out var meta))
+                    {
+                        meta = new ModMeta();
+                        map[pkg] = meta;
+                    }
+                    meta.ModName = string.IsNullOrWhiteSpace(modName) ? null : modName;
+                    // Key entfernen, wenn beide Werte leer sind
+                    if (string.IsNullOrWhiteSpace(meta.ModName) && string.IsNullOrWhiteSpace(meta.Info))
+                    {
+                        map.Remove(pkg);
+                    }
+                    SaveInfoMapFor(modlistPath, map);
+                    try { ShowStatus($"Modname gespeichert: {modName} für Package: {pkg}"); } catch { }
+                    return;
+                }
+
+                // Info-Spalte wie bisher
+                if (col.Name != "colInfo") return; // nur Info-Spalte
+                var modlistPathInfo = _currentModlistPath;
+                if (string.IsNullOrWhiteSpace(modlistPathInfo))
                 {
                     if (cbModlist?.SelectedItem is not ModlistItem it || string.IsNullOrWhiteSpace(it.Path)) return;
-                    modlistPath = it.Path;
+                    modlistPathInfo = it.Path;
                 }
-                var modName = gridMods.Rows[e.RowIndex].Cells["colModName"].Value?.ToString()?.Trim();
-                var pkg = gridMods.Rows[e.RowIndex].Cells["colPackage"].Value?.ToString()?.Trim();
-                var text = gridMods.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString() ?? string.Empty;
+                var pkgInfo = gridMods.Rows[e.RowIndex].Cells["colPackage"].Value?.ToString()?.Trim();
+                var cellInfo = gridMods.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                var text = (cellInfo?.EditedFormattedValue ?? cellInfo?.Value)?.ToString() ?? string.Empty;
 
                 // Laden, aktualisieren, speichern
-                var map = LoadInfoMapFor(modlistPath) ?? new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-                string key = !string.IsNullOrWhiteSpace(modName) ? modName! : (pkg ?? string.Empty);
+                var mapInfo = LoadInfoMapFor(modlistPathInfo) ?? new Dictionary<string, ModMeta>(StringComparer.CurrentCultureIgnoreCase);
+                string key = pkgInfo ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(key)) return;
+
+                if (!mapInfo.TryGetValue(key, out var metaInfo))
+                {
+                    metaInfo = new ModMeta();
+                    mapInfo[key] = metaInfo;
+                }
 
                 if (string.IsNullOrWhiteSpace(text))
                 {
-                    // leere Eingabe entfernt den Eintrag
-                    map.Remove(key);
-                    // Statusmeldung: Info entfernt
+                    // leere Eingabe entfernt die Info (Key nur löschen, wenn keine ModName-Override vorhanden)
+                    metaInfo.Info = null;
+                    if (string.IsNullOrWhiteSpace(metaInfo.ModName))
+                    {
+                        mapInfo.Remove(key);
+                    }
                     try { ShowStatus(T("MainForm.Info.Removed", "Kurzinfo entfernt") + ": " + key); } catch { }
                 }
                 else
                 {
-                    map[key] = text;
-                    // Statusmeldung: Info gespeichert
+                    metaInfo.Info = text;
                     try { ShowStatus(T("MainForm.Info.Saved", "Kurzinfo gespeichert") + ": " + key); } catch { }
                 }
 
-                SaveInfoMapFor(modlistPath, map);
+                SaveInfoMapFor(modlistPathInfo, mapInfo);
             }
             catch { }
         }
@@ -641,43 +724,72 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         // --- Modlisten laden ---
         private string GetModlistsRootForGame(string norm)
         {
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            var sub = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? "ETS2" : "ATS";
+            // 0) Benutzerdefinierte Pfade aus den Einstellungen
+            try
+            {
+                var custom = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? _settings.Current.Ets2ModlistsPath : _settings.Current.AtsModlistsPath;
+                if (!string.IsNullOrWhiteSpace(custom)) return custom!;
+            }
+            catch { }
+
             var candidates = new List<string>();
-            // 1) Bevorzugt: BaseDir/ModlistManager/modlists (App in Paketierung oder dev)
-            candidates.Add(Path.Combine(baseDir, "ModlistManager", "modlists", sub));
-            // 2) Binär-BaseDir/modlists
-            candidates.Add(Path.Combine(baseDir, "modlists", sub));
-            // 3) Elternordner hochlaufen (Entwicklungsumgebung): <repo>/modlists und <repo>/ModlistManager/modlists
-            string? dir = baseDir;
-            for (int i = 0; i < 6 && !string.IsNullOrEmpty(dir); i++)
+            // 1) Dokumente/<Game>/modlists (Standard)
+            try
             {
-                var parent = Path.GetDirectoryName(dir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-                if (string.IsNullOrEmpty(parent)) break;
-                candidates.Add(Path.Combine(parent, "ModlistManager", "modlists", sub));
-                candidates.Add(Path.Combine(parent, "modlists", sub));
-                dir = parent;
+                var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                var gameFolder = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? "Euro Truck Simulator 2" : "American Truck Simulator";
+                candidates.Add(Path.Combine(docs, gameFolder, "modlists"));
             }
-
-            // 1) Bevorzugt: Ein Ordner, der bereits mindestens eine .txt enthält
-            foreach (var c in candidates)
+            catch { }
+            // 2) Spiel-Installationsverzeichnis/modlists
+            try
             {
-                try
+                var install = FindGameInstallDir(norm);
+                if (!string.IsNullOrWhiteSpace(install)) candidates.Add(Path.Combine(install!, "modlists"));
+            }
+            catch { }
+            // 3) Fallback: App-Verzeichnis (Kompatibilität / erste Nutzung)
+            try
+            {
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var sub = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? "ETS2" : "ATS";
+                candidates.Add(Path.Combine(baseDir, "ModlistManager", "modlists", sub));
+                candidates.Add(Path.Combine(baseDir, "modlists", sub));
+            }
+            catch { }
+
+            return candidates.First();
+        }
+
+        private IEnumerable<string> GetDemoSeedCandidates(string norm)
+        {
+            var list = new List<string>();
+            try
+            {
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var sub = norm.Equals("ets2", StringComparison.OrdinalIgnoreCase) ? "ETS2" : "ATS";
+                list.Add(Path.Combine(baseDir, "ModlistManager", "modlists", sub));
+                list.Add(Path.Combine(baseDir, "modlists", sub));
+                // Elternordner hochlaufen (Dev-Szenario)
+                string? dir = baseDir;
+                for (int i = 0; i < 6 && !string.IsNullOrEmpty(dir); i++)
                 {
-                    if (Directory.Exists(c) && Directory.EnumerateFiles(c, "*.txt", SearchOption.TopDirectoryOnly).Any())
-                        return c;
+                    var parent = Path.GetDirectoryName(dir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                    if (string.IsNullOrEmpty(parent)) break;
+                    list.Add(Path.Combine(parent, "ModlistManager", "modlists", sub));
+                    list.Add(Path.Combine(parent, "modlists", sub));
+                    dir = parent;
                 }
-                catch { }
             }
+            catch { }
+            return list.Distinct(StringComparer.OrdinalIgnoreCase);
+        }
 
-            // 2) Sonst: der erste existierende Ordner
-            foreach (var c in candidates)
-            {
-                try { if (Directory.Exists(c)) return c; } catch { }
-            }
-
-            // 3) Fallback: erster Kandidat (wird ggf. später erstellt)
-            return candidates[0];
+        // Struktur für persistierte Metadaten: pro Package optional ModName-Override und Kurzinfo
+        private sealed class ModMeta
+        {
+            public string? ModName { get; set; }
+            public string? Info { get; set; }
         }
 
         private sealed class ModlistItem
@@ -793,8 +905,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
             // Links-Mapping laden (global + modlist-spezifisch)
             var linkMap = LoadLinkMapFor(it.Path);
-            // Kurzinfos (per Modliste) laden
-            var infoMap = LoadInfoMapFor(it.Path) ?? new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+            // Kurzinfos + Modname-Overrides (per Modliste) laden
+            var infoMap = LoadInfoMapFor(it.Path) ?? new Dictionary<string, ModMeta>(StringComparer.CurrentCultureIgnoreCase);
             // Zusätzliche normalisierte Map (nur wenn Links vorhanden)
             Dictionary<string, string>? linkMapNorm = null;
             static string NormalizeKey(string s)
@@ -1151,17 +1263,37 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                         row.Cells["colUrl"].Value = url ?? string.Empty;
                     }
 
+                    // Modname-Override aus JSON (nur per Package-Key)
+                    if (gridMods.Columns.Contains("colModName"))
+                    {
+                        if (!string.IsNullOrWhiteSpace(e.Package) && infoMap.TryGetValue(e.Package, out var metaName) && !string.IsNullOrWhiteSpace(metaName.ModName))
+                        {
+                            row.Cells["colModName"].Value = metaName.ModName;
+                        }
+                    }
+
                     // Info-Spalte (Kurzinfo) aus per‑Liste JSON
                     if (gridMods.Columns.Contains("colInfo"))
                     {
                         string? infoText = null;
-                        if (!string.IsNullOrWhiteSpace(e.ModName))
+                        // Vorrang: Package; Fallback: Modname (Legacy-Keys)
+                        if (!string.IsNullOrWhiteSpace(e.Package))
                         {
-                            infoMap.TryGetValue(e.ModName, out infoText);
+                            if (infoMap.TryGetValue(e.Package, out var metaPkg) && !string.IsNullOrWhiteSpace(metaPkg.Info))
+                            {
+                                infoText = metaPkg.Info;
+                            }
+                            else if (!string.IsNullOrWhiteSpace(e.ModName) && infoMap.TryGetValue(e.ModName, out var metaByName) && !string.IsNullOrWhiteSpace(metaByName.Info))
+                            {
+                                infoText = metaByName.Info;
+                            }
                         }
-                        else if (!string.IsNullOrWhiteSpace(e.Package))
+                        else if (!string.IsNullOrWhiteSpace(e.ModName))
                         {
-                            infoMap.TryGetValue(e.Package, out infoText);
+                            if (infoMap.TryGetValue(e.ModName, out var metaByName2) && !string.IsNullOrWhiteSpace(metaByName2.Info))
+                            {
+                                infoText = metaByName2.Info;
+                            }
                         }
                         row.Cells["colInfo"].Value = infoText ?? string.Empty;
                     }
@@ -1547,6 +1679,22 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     if (File.Exists(srcInfo)) File.Copy(srcInfo, destInfo, overwrite: false);
                     if (File.Exists(srcLink)) File.Copy(srcLink, destLink, overwrite: false);
 
+                    // Merge importierte per‑Liste Links in globale links.json (ohne Duplikate)
+                    if (File.Exists(srcLink))
+                    {
+                        var importMap = ReadFlatLinksFromJsonFile(srcLink);
+                        var globalLinksPath = Path.Combine(root, "links.json");
+                        var globalMap = ReadFlatLinksFromJsonFile(globalLinksPath);
+                        foreach (var kv in importMap)
+                        {
+                            if (!globalMap.ContainsKey(kv.Key))
+                            {
+                                globalMap[kv.Key] = kv.Value; addedLinks++;
+                            }
+                        }
+                        if (addedLinks > 0) WriteFlatLinksToJsonFile(globalLinksPath, globalMap);
+                    }
+
                     // Merge nach globalem links.json
                     if (File.Exists(srcLink))
                     {
@@ -1752,14 +1900,54 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
             if (File.Exists(srcNote)) File.Copy(srcNote, tempNote, overwrite: true); else File.WriteAllText(tempNote, string.Empty, new UTF8Encoding(false));
             if (File.Exists(srcInfo)) File.Copy(srcInfo, tempInfo, overwrite: true); else File.WriteAllText(tempInfo, "{}", new UTF8Encoding(false));
-            if (File.Exists(srcLink)) File.Copy(srcLink, tempLink, overwrite: true); else File.WriteAllText(tempLink, "{}", new UTF8Encoding(false));
+
+            // .link.json für die Modliste erzeugen: aus globalen Links gefiltert nach Modliste und mit per‑Liste Overrides gemerged
+            try
+            {
+                var globalLinksPath = Path.Combine(dir, "links.json");
+                var keys = CollectModKeysFromTxt(srcTxt);
+                var perListMap = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+
+                // 1) aus globalen Links relevante Einträge übernehmen
+                if (File.Exists(globalLinksPath))
+                {
+                    var globalMap = ReadFlatLinksFromJsonFile(globalLinksPath);
+                    foreach (var k in keys)
+                    {
+                        if (globalMap.TryGetValue(k, out var url) && !string.IsNullOrWhiteSpace(url))
+                        {
+                            perListMap[k] = url;
+                        }
+                    }
+                }
+
+                // 2) per‑Liste Overrides (falls vorhanden) anwenden/erweitern
+                if (File.Exists(srcLink))
+                {
+                    var overrides = ReadFlatLinksFromJsonFile(srcLink);
+                    foreach (var kv in overrides)
+                    {
+                        if (keys.Contains(kv.Key))
+                            perListMap[kv.Key] = kv.Value;
+                    }
+                }
+
+                // 3) Schreiben in das temporäre Ziel
+                WriteFlatLinksToJsonFile(tempLink, perListMap);
+                try { ShowStatus(T("MainForm.ExportZip.LinksCreated", "Links für Modliste erstellt: ") + perListMap.Count); } catch { }
+            }
+            catch
+            {
+                // Fallback: falls etwas schiefgeht, leere Datei schreiben
+                File.WriteAllText(tempLink, "{}", new UTF8Encoding(false));
+            }
 
             // ZIP schreiben
             try { if (File.Exists(zipTarget)) File.Delete(zipTarget); } catch { }
             System.IO.Compression.ZipFile.CreateFromDirectory(temp.Path, zipTarget, System.IO.Compression.CompressionLevel.Optimal, includeBaseDirectory: false);
         }
 
-        private static Dictionary<string, string>? LoadInfoMapFor(string modlistFile)
+        private static Dictionary<string, ModMeta>? LoadInfoMapFor(string modlistFile)
         {
             try
             {
@@ -1767,7 +1955,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 if (string.IsNullOrEmpty(dir)) return null;
                 var baseName = Path.GetFileNameWithoutExtension(modlistFile);
                 var infoPath = Path.Combine(dir, baseName + ".json");
-                if (!File.Exists(infoPath)) return new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+                if (!File.Exists(infoPath)) return new Dictionary<string, ModMeta>(StringComparer.CurrentCultureIgnoreCase);
 
                 var json = File.ReadAllText(infoPath);
                 var opts = new System.Text.Json.JsonDocumentOptions
@@ -1776,23 +1964,44 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     AllowTrailingCommas = true
                 };
                 using var doc = System.Text.Json.JsonDocument.Parse(json, opts);
-                var map = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+                var map = new Dictionary<string, ModMeta>(StringComparer.CurrentCultureIgnoreCase);
                 if (doc.RootElement.ValueKind == System.Text.Json.JsonValueKind.Object)
                 {
                     foreach (var prop in doc.RootElement.EnumerateObject())
                     {
+                        // Abwärtskompatibel: String-Wert entspricht Info-Text
                         if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.String)
                         {
-                            map[prop.Name] = prop.Value.GetString() ?? string.Empty;
+                            map[prop.Name] = new ModMeta { Info = prop.Value.GetString() ?? string.Empty };
+                        }
+                        else if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Object)
+                        {
+                            string? modName = null;
+                            string? info = null;
+                            foreach (var inner in prop.Value.EnumerateObject())
+                            {
+                                var inName = inner.Name;
+                                if (inName.Equals("modname", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (inner.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+                                        modName = inner.Value.GetString();
+                                }
+                                else if (inName.Equals("info", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (inner.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+                                        info = inner.Value.GetString();
+                                }
+                            }
+                            map[prop.Name] = new ModMeta { ModName = string.IsNullOrWhiteSpace(modName) ? null : modName, Info = string.IsNullOrWhiteSpace(info) ? null : info };
                         }
                     }
                 }
                 return map;
             }
-            catch { return new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase); }
+            catch { return new Dictionary<string, ModMeta>(StringComparer.CurrentCultureIgnoreCase); }
         }
 
-        private static void SaveInfoMapFor(string modlistFile, Dictionary<string, string> map)
+        private static void SaveInfoMapFor(string modlistFile, Dictionary<string, ModMeta> map)
         {
             try
             {
@@ -1801,14 +2010,43 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 var baseName = Path.GetFileNameWithoutExtension(modlistFile);
                 var infoPath = Path.Combine(dir, baseName + ".json");
 
-                var json = System.Text.Json.JsonSerializer.Serialize(map, new System.Text.Json.JsonSerializerOptions
+                // Leere Einträge (kein ModName, keine Info) herausfiltern
+                var filtered = map
+                    .Where(kv => !string.IsNullOrWhiteSpace(kv.Value?.ModName) || !string.IsNullOrWhiteSpace(kv.Value?.Info))
+                    .ToDictionary(kv => kv.Key, kv => kv.Value!, StringComparer.CurrentCultureIgnoreCase);
+
+                var json = System.Text.Json.JsonSerializer.Serialize(filtered, new System.Text.Json.JsonSerializerOptions
                 {
                     WriteIndented = true,
-                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
                 });
                 File.WriteAllText(infoPath, json, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
             catch { }
+        }
+
+        // Sammelt die relevanten Keys aus einer Modlisten-.txt: sowohl Package als auch Modname
+        private static HashSet<string> CollectModKeysFromTxt(string txtPath)
+        {
+            var set = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+            try
+            {
+                if (!File.Exists(txtPath)) return set;
+                var lines = File.ReadAllLines(txtPath);
+                int start = 0;
+                if (lines.Length > 0 && int.TryParse(lines[0].Trim(), out _)) start = 1;
+                for (int i = start; i < lines.Length; i++)
+                {
+                    var line = lines[i].Trim();
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    var pair = TryParseModlistLine(line);
+                    if (!string.IsNullOrWhiteSpace(pair.Package)) set.Add(pair.Package.Trim());
+                    if (!string.IsNullOrWhiteSpace(pair.ModName)) set.Add(pair.ModName.Trim());
+                }
+            }
+            catch { }
+            return set;
         }
 
         private static Dictionary<string, string>? LoadLinkMapFor(string modlistFile)
@@ -1938,29 +2176,53 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
         private static (string Package, string ModName) TryParseModlistLine(string line)
         {
-            // Robust: erst '|' dann ';' dann Tab dann " - "
-            static (string, string)? SplitBy(string s, string sep)
+            if (string.IsNullOrWhiteSpace(line)) return (string.Empty, string.Empty);
+
+            // 1) Extrahiere ggf. den Inhalt in Anführungszeichen: active_mods[0]: "pkg|mod"
+            var s = line.Trim();
+            int q1 = s.IndexOf('"');
+            int q2 = s.LastIndexOf('"');
+            if (q1 >= 0 && q2 > q1)
             {
-                int p = s.IndexOf(sep, StringComparison.Ordinal);
+                s = s.Substring(q1 + 1, q2 - q1 - 1);
+            }
+
+            s = s.Trim();
+
+            // 2) Bevorzugt '|' als Trennzeichen (pkg|modname)
+            int pipe = s.IndexOf('|');
+            if (pipe > 0)
+            {
+                var left = s.Substring(0, pipe).Trim().Trim('"');
+                var right = s.Substring(pipe + 1).Trim().Trim('"');
+                return (left, right);
+            }
+
+            // 3) Legacy-Fallbacks: ';' / Tab / " - "
+            static (string, string)? SplitBy(string str, string sep)
+            {
+                int p = str.IndexOf(sep, StringComparison.Ordinal);
                 if (p <= 0) return null;
-                var left = s.Substring(0, p).Trim();
-                var right = s.Substring(p + sep.Length).Trim();
+                var left = str.Substring(0, p).Trim();
+                var right = str.Substring(p + sep.Length).Trim();
                 if (left.Length == 0 && right.Length == 0) return null;
                 return (left, right);
             }
 
             (string, string)? r = null;
-            r ??= SplitBy(line, "|");
-            r ??= SplitBy(line, ";");
-            r ??= SplitBy(line, "\t");
-            r ??= SplitBy(line, " - ");
+            r ??= SplitBy(s, ";");
+            r ??= SplitBy(s, "\t");
+            r ??= SplitBy(s, " - ");
 
-            if (r is null)
+            if (r is not null)
             {
-                // Fallback: alles als ModName
-                return (string.Empty, line);
+                var left = r.Value.Item1.Trim('"');
+                var right = r.Value.Item2.Trim('"');
+                return (left, right);
             }
-            return (r.Value.Item1, r.Value.Item2);
+
+            // 4) Kein erkennbarer Trenner: verwende die gesamte Zeile für beide Spalten
+            return (s.Trim('"'), s.Trim('"'));
         }
 
         private void ClearModsGrid()
@@ -2114,6 +2376,30 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 importModlistItem.Click += ImportModlist_Click;
             }
 
+            // Optional: Dynamischer Menüpunkt zum Setzen des Modlisten-Ordners pro Spiel
+            try
+            {
+                var miModlists = TryFindMenuItemByName(menuStrip1, "miModlists") as ToolStripMenuItem;
+                if (miModlists != null)
+                {
+                    // bereits vorhanden? Dann neu anhängen, falls nicht da
+                    var existing = miModlists.DropDownItems.Cast<ToolStripItem>().FirstOrDefault(i => string.Equals(i.Name, "miModSetFolder", StringComparison.OrdinalIgnoreCase));
+                    if (existing == null)
+                    {
+                        var miSet = new ToolStripMenuItem { Name = "miModSetFolder", Tag = "MainForm.Menu.Modlists.SetFolder", Text = T("MainForm.Menu.Modlists.SetFolder", "Modlistenordner wählen…") };
+                        miSet.Click += (_, __) => ChooseAndSaveModlistsFolderForCurrentGame();
+                        miModlists.DropDownItems.Insert(0, miSet);
+                    }
+                    else
+                    {
+                        // Stelle sicher, dass Tag und Text korrekt sind (für Lokalisierung und konsistente Anzeige)
+                        existing.Tag = "MainForm.Menu.Modlists.SetFolder";
+                        existing.Text = T("MainForm.Menu.Modlists.SetFolder", "Modlistenordner wählen…");
+                    }
+                }
+            }
+            catch { }
+
             // Footer: Undo-Link verdrahten
             if (linkUndo != null)
             {
@@ -2126,6 +2412,32 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             if (miRemoveLink != null) { miRemoveLink.Click -= MiRemoveLink_Click; miRemoveLink.Click += MiRemoveLink_Click; }
             if (miAddLinkPerList != null) { miAddLinkPerList.Click -= MiAddLinkPerList_Click; miAddLinkPerList.Click += MiAddLinkPerList_Click; }
             if (miRemoveLinkPerList != null) { miRemoveLinkPerList.Click -= MiRemoveLinkPerList_Click; miRemoveLinkPerList.Click += MiRemoveLinkPerList_Click; }
+        }
+
+        private void ChooseAndSaveModlistsFolderForCurrentGame()
+        {
+            try
+            {
+                var code = (cbGame.SelectedItem as GameItem)?.Code ?? "ETS2";
+                var norm = NormalizeGameCode(code);
+                using var fbd = new FolderBrowserDialog();
+                fbd.Description = norm == "ets2" ? T("MainForm.Choose.Modlists.Ets2", "Zielordner für ETS2-Modlisten wählen") : T("MainForm.Choose.Modlists.Ats", "Zielordner für ATS-Modlisten wählen");
+                var current = GetModlistsRootForGame(norm);
+                if (!string.IsNullOrWhiteSpace(current) && Directory.Exists(current)) fbd.SelectedPath = current;
+                if (fbd.ShowDialog(this) != DialogResult.OK) return;
+
+                var chosen = fbd.SelectedPath;
+                if (norm == "ets2") _settings.Current.Ets2ModlistsPath = chosen; else _settings.Current.AtsModlistsPath = chosen;
+                _settings.Save();
+
+                // Ordner anlegen und initial befüllen (nur wenn leer)
+                try { Directory.CreateDirectory(chosen); } catch { }
+                EnsureModlistsDirectoryForGame(norm);
+
+                // UI aktualisieren
+                LoadModlistNamesForSelectedGame();
+            }
+            catch { }
         }
 
         private void GridMods_CellMouseDown(object? sender, DataGridViewCellMouseEventArgs e)
@@ -3633,6 +3945,9 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 {
                     // Persistieren
                     _settings.Save();
+                    // Sicherheit: Theme final anwenden (inkl. Header-Banner)
+                    try { _theme.Apply(this, _settings.Current.Theme ?? "Light"); } catch { }
+                    try { this.headerBanner.ApplyTheme(string.Equals(_settings.Current.Theme, "Dark", StringComparison.OrdinalIgnoreCase)); } catch { }
                     return;
                 }
 
@@ -3677,6 +3992,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     _suppressCascade = true;
                     _settings.Current.Theme = string.IsNullOrWhiteSpace(themeName) ? "Light" : themeName;
                     try { _theme.Apply(this, _settings.Current.Theme); } catch { }
+                    // Header-Banner sofort an Theme anpassen
+                    try { this.headerBanner.ApplyTheme(string.Equals(_settings.Current.Theme, "Dark", StringComparison.OrdinalIgnoreCase)); } catch { }
                     // Undo-Link Ziel-Farbe dem Theme anpassen
                     var isDark = string.Equals(_settings.Current.Theme, "Dark", StringComparison.OrdinalIgnoreCase);
                     _undoEndColor = isDark ? Color.SkyBlue : Color.RoyalBlue;
@@ -3751,6 +4068,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 ApplyLanguage();
 
                 try { _theme.Apply(this, _settings.Current.Theme); } catch { }
+                try { this.headerBanner.ApplyTheme(string.Equals(_settings.Current.Theme, "Dark", StringComparison.OrdinalIgnoreCase)); } catch { }
+                try { this.headerBanner.ApplyTheme(string.Equals(_settings.Current.Theme, "Dark", StringComparison.OrdinalIgnoreCase)); } catch { }
 
                 try { SelectGameByCode(_settings.Current.PreferredGame); } catch { }
                 try { UpdateGameLogo(_settings.Current.PreferredGame); } catch { }
@@ -3801,12 +4120,13 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             if (total > 0) ShowStatus($"{decrypted}/{total} profile.sii entschlüsselt");
         }
 
-        private System.Windows.Forms.Timer? _statusTimer;
-        private void ShowStatus(string message, int milliseconds = 4000)
+    private System.Windows.Forms.Timer? _statusTimer;
+    private void ShowStatus(string message, int milliseconds = 4000)
         {
             try
             {
-                if (lblStatus != null) lblStatus.Text = message ?? string.Empty;
+        // Zeige Meldungen ausschließlich im Logfenster, um Doppelanzeigen und abgeschnittenen Text zu vermeiden
+        if (lblStatus != null) lblStatus.Text = string.Empty;
                 AppendLog(message);
                 _statusTimer ??= new System.Windows.Forms.Timer();
                 _statusTimer.Stop();
@@ -3823,7 +4143,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             try
             {
                 _statusTimer?.Stop();
-                if (lblStatus != null) lblStatus.Text = string.Empty;
+                if (lblStatus != null) lblStatus.Text = string.Empty; // bleibt leer
             }
             catch { }
         }

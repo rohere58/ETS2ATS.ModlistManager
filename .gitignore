@@ -41,3 +41,12 @@ dist/
 publish/
 publish_test*/
 *.sha256
+
+# Publish variants
+publish_*/
+# Explicit publish dirs seen previously
+publish_after_flatten/
+publish_final/
+publish_new/
+publish_sc/
+publish_fw_all/

@@ -1,4 +1,5 @@
 ﻿{
+  "Language.Name": "Deutsch",
   "Options.Title": "Optionen",
   "Options.Language": "Sprache",
   "Options.Theme": "Theme",
@@ -6,6 +7,8 @@
   "Options.Ets2Path": "ETS2-Profile Ordner",
   "Options.AtsPath": "ATS-Profile Ordner",
   "Options.Browse": "Durchsuchen…",
+  "Options.Ets2ModlistsPath": "ETS2-Modlisten Ordner",
+  "Options.AtsModlistsPath": "ATS-Modlisten Ordner",
   "Common.OK": "OK",
   "Common.Cancel": "Abbrechen",
 
@@ -20,6 +23,7 @@
 
   "MainForm.Menu.Modlists": "Modlisten",
   "MainForm.Menu.Modlists.OpenFolder": "Modlistenordner öffnen",
+  "MainForm.Menu.Modlists.SetFolder": "Modlistenordner wählen…",
   "MainForm.Menu.Modlists.Share": "Weitergeben…",
   "MainForm.Menu.Modlists.Import": "Importieren…",
   "MainForm.Menu.Modlists.Delete": "Löschen…",
@@ -100,6 +104,8 @@
   "MainForm.Common.Browse": "Durchsuchen…",
   "MainForm.Backup.ChooseTarget": "Backup-Zielordner wählen"
   ,
+  "MainForm.Choose.Modlists.Ets2": "Zielordner für ETS2-Modlisten wählen",
+  "MainForm.Choose.Modlists.Ats": "Zielordner für ATS-Modlisten wählen",
   "Options.ConfirmBeforeAdopt": "Bestätigung vor Übernehmen",
   "MainForm.Modlists.FoundNone": "Keine Modlisten gefunden: ",
   "MainForm.Modlists.Found": "Modlisten gefunden: ",
@@ -180,6 +186,11 @@
   "MainForm.Grid.LinkRemoved": "Link entfernt",
   "MainForm.Grid.LinkRemoveFailed": "Link entfernen fehlgeschlagen: ",
   "MainForm.Grid.LinkNotFound": "Kein Link für diesen Eintrag gefunden"
+  ,
+  "SiiDecrypt.Hint.Title": "SII_Decrypt fehlt",
+  "SiiDecrypt.Hint.Message": "Zum Erstellen oder Übernehmen von Modlisten wird SII_Decrypt.exe benötigt. Bitte legen Sie die Datei in folgenden Ordner:",
+  "SiiDecrypt.Hint.ExpectedPath": "Erwarteter Pfad:",
+  "SiiDecrypt.Hint.DontShow": "Diesen Hinweis nicht mehr anzeigen"
 }
 
 

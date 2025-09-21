@@ -1,0 +1,22 @@
+FAQ – ETS2/ATS Modlist Manager (DE)
+===================================
+
+1. Warum werden einige Mods nicht gefunden?
+   Die Workshop-/Datei-Erkennung wurde entfernt, um die Oberfläche zu vereinfachen.
+
+2. Wo liegen meine Modlisten?
+   Im Unterordner "modlists" neben der ausgeführten EXE.
+
+3. Wie kann ich eine Modliste teilen?
+   Menü Modlisten → Weitergeben… erzeugt eine portable Datei.
+
+4. Kann ich eigene Logos verwenden?
+   Ja: `Resources/Logos/logo.png` (ETS2) und analog zukünftig für ATS.
+
+5. Wo speichere ich Notizen zur Modliste?
+   Unten im Feld "Infos zur Modliste"; sie werden automatisch gespeichert.
+
+6. Sprache ändern?
+   Unter Optionen → Sprache. Danach Neustart empfohlen.
+
+(Weitere Fragen gern ergänzen.)

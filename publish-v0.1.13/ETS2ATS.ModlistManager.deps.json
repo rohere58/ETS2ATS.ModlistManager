@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "ETS2ATS.ModlistManager/0.1.13": {
+        "runtime": {
+          "ETS2ATS.ModlistManager.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "ETS2ATS.ModlistManager/0.1.13": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

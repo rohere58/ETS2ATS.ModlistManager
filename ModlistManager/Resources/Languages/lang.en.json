@@ -1,4 +1,5 @@
 ﻿{
+  "Language.Name": "English",
   "MainForm.Title": "ETS2/ATS Modlist Manager",
   "MainForm.Header.Subtitle": "Create, manage and share modlists",
 
@@ -10,6 +11,7 @@
 
   "MainForm.Menu.Modlists": "Modlists",
   "MainForm.Menu.Modlists.OpenFolder": "Open modlists folder",
+  "MainForm.Menu.Modlists.SetFolder": "Choose modlists folder…",
   "MainForm.Menu.Modlists.Share": "Share…",
   "MainForm.Menu.Modlists.Import": "Import…",
   "MainForm.Menu.Modlists.Delete": "Delete…",
@@ -68,6 +70,8 @@
   "Options.Ets2Path": "ETS2 profiles folder",
   "Options.AtsPath": "ATS profiles folder",
   "Options.Browse": "Browse…",
+  "Options.Ets2ModlistsPath": "ETS2 modlists folder",
+  "Options.AtsModlistsPath": "ATS modlists folder",
   "Common.OK": "OK",
     "Common.Cancel": "Cancel",
 
@@ -99,6 +103,8 @@
     "MainForm.Backup.TargetLabel": "Target folder:",
     "MainForm.Common.Browse": "Browse…",
   "MainForm.Backup.ChooseTarget": "Choose backup target folder",
+  "MainForm.Choose.Modlists.Ets2": "Choose target folder for ETS2 modlists",
+  "MainForm.Choose.Modlists.Ats": "Choose target folder for ATS modlists",
   "Options.ConfirmBeforeAdopt": "Confirm before adopt",
   "MainForm.Modlists.FoundNone": "No modlists found: ",
   "MainForm.Modlists.Found": "Modlists found: ",
@@ -179,6 +185,11 @@
   "MainForm.Grid.LinkRemoved": "Link removed",
   "MainForm.Grid.LinkRemoveFailed": "Failed to remove link: ",
   "MainForm.Grid.LinkNotFound": "No link found for this entry"
+  ,
+  "SiiDecrypt.Hint.Title": "SII Decrypt missing",
+  "SiiDecrypt.Hint.Message": "To create or adopt modlists, SII_Decrypt.exe is required. Please place it in the following folder:",
+  "SiiDecrypt.Hint.ExpectedPath": "Expected path:",
+  "SiiDecrypt.Hint.DontShow": "Don't show this again"
 }
 
 

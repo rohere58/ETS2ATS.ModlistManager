@@ -1,0 +1,8 @@
+{
+  "Language.Name": "Español",
+  "Options.Ets2ModlistsPath": "Carpeta de listas de mods de ETS2",
+  "Options.AtsModlistsPath": "Carpeta de listas de mods de ATS",
+  "MainForm.Menu.Modlists.SetFolder": "Elegir carpeta de listas de mods…",
+  "MainForm.Choose.Modlists.Ets2": "Elegir carpeta destino para listas de mods de ETS2",
+  "MainForm.Choose.Modlists.Ats": "Elegir carpeta destino para listas de mods de ATS"
+}
