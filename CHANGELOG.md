@@ -19,6 +19,42 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.14] - 2025-09-21
+### Geändert
+- Live-Theme-Vorschau: Header-Banner passt sich jetzt sofort bei Wechsel Light/Dark im Optionen-Dialog an und ist nach dem Übernehmen korrekt gestylt.
+- Menü „Modlisten“: Eintrag „Modlistenordner wählen…“ korrekt lokalisiert und wird bei Sprachwechseln live aktualisiert.
+
+### Hinzugefügt
+- Lokalisierungen (DE/EN) für SII_Decrypt-Hinweisdialog (Titel, Text, Pfadlabel, Checkbox).
+
+### Behoben
+- Hinweis-Logik: Dialog zu SII_Decrypt.exe wird nur noch unterdrückt, wenn „Nicht mehr anzeigen“ explizit gewählt wurde.
+
+## [0.1.13] - 2025-09-20
+### Behoben
+- Notiz im Footer (txtModInfo) wird nicht mehr von der Lokalisierung überschrieben und korrekt in `<ModlistName>.note` gespeichert/geladen
+- Doppelte/trunkierte Statusanzeigen entfernt: Meldungen erscheinen nur noch im Log-Bereich
+
+### Geändert
+- Lokalisierungslogik: Englische Basis wird überlagert; Verzeichnis-Priorität bevorzugt jetzt `Resources\Languages` vor `Languages` und gepackten Ressourcen
+- Verbesserte Parsing-Logik für Grid: `Package` zeigt Text vor `|`, `Modname` zeigt Text nach `|` (inkl. Quotes-Handling für active_mods)
+
+### Hinzugefügt
+- Platzhaltertext im Notizfeld (übersetzt), ohne Benutzerinhalt zu verändern
+
+## [0.1.12] - 2025-09-19
+### Geändert
+- Info-Spalte speichert nun kanonisch unter dem Package-Token (nicht mehr unter Modnamen)
+- Laden der Kurzinfos: Priorität Token > Modname > volles Package (Legacy-Fallback)
+- Build: Modlists Copy-Policy auf PreserveNewest (verhindert versehentliches Überschreiben)
+
+### Hinzugefügt
+- Diagnose-Logs beim Speichern zeigen den geschriebenen info.json-Pfad
+- VS Code Launch-Profile zum Starten der EXE aus bin (inkl. "no build")
+
+### Behoben
+- Persistenz-Diskrepanz zwischen EXE-Start und IDE-Start (durch einheitliche Laufumgebung + Copy-Policy)
+
 ## [0.1.10] - 2025-09-17
 ### Fixed
 - CI: Release Workflow PowerShell Syntaxfehler in Ressourcen-Prüfung behoben (Test-Path -and Klammerung)
@@ -121,7 +157,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.14...HEAD
+[0.1.14]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.13...v0.1.14
+[0.1.13]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.12...v0.1.13
+[0.1.12]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.7...v0.1.8

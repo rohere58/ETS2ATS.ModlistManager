@@ -109,7 +109,9 @@ namespace ETS2ATS.ModlistManager.Controls
                 }
                 if (_atsLogo == null)
                 {
+                    // Neu: zuerst logo_ats.png, dann ats.png
                     _atsLogo = TryLoadImage(
+                        Path.Combine(baseDir, "Resources", "Logos", "logo_ats.png"),
                         Path.Combine(baseDir, "Resources", "Logos", "ats.png"),
                         Path.Combine(baseDir, "Resources", "ats.png")
                     );
