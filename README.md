@@ -2,10 +2,10 @@
 
 <!-- Badges -->
 <!-- Repository: rohere58/ETS2ATS.ModlistManager -->
-![Release](https://img.shields.io/github/v/release/rohere58/ETS2ATS.ModlistManager)
+[![Release](https://img.shields.io/github/v/release/rohere58/ETS2ATS.ModlistManager)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases)
 [![Build](https://github.com/rohere58/ETS2ATS.ModlistManager/actions/workflows/build.yml/badge.svg)](https://github.com/rohere58/ETS2ATS.ModlistManager/actions/workflows/build.yml)
 [![CodeQL](https://github.com/rohere58/ETS2ATS.ModlistManager/actions/workflows/codeql.yml/badge.svg)](https://github.com/rohere58/ETS2ATS.ModlistManager/actions/workflows/codeql.yml)
-![Downloads](https://img.shields.io/github/downloads/rohere58/ETS2ATS.ModlistManager/total)
+[![Downloads](https://img.shields.io/github/downloads/rohere58/ETS2ATS.ModlistManager/total)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![.NET](https://img.shields.io/badge/.NET-8.0-5C2D91)
@@ -186,8 +186,9 @@ Jedes Release enthält zusätzlich eine `.sha256` Datei.
 
 Prüfen unter PowerShell:
 ```powershell
-Get-FileHash .\modlist-manager-vX.Y.Z-self-contained-win-x64.zip -Algorithm SHA256
-Get-Content .\modlist-manager-vX.Y.Z-self-contained-win-x64.zip.sha256
+# Beispiel für v0.1.14
+Get-FileHash .\ETS2ATS.ModlistManager_v0.1.14_win-x64.zip -Algorithm SHA256
+Get-Content .\ETS2ATS.ModlistManager_v0.1.14_win-x64.zip.sha256
 ```
 Die Hashes müssen identisch sein (Datei enthält Format: `<hash><2 spaces><zipname>`).
 
