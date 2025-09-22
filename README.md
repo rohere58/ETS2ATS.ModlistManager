@@ -68,7 +68,7 @@ Nicht (mehr) enthalten: frühere, unzuverlässige Prüfung ob ein Mod physisch /
 Wer viele Profile / Modsets (Konvois, verschiedene Savegames, Test-Konfigurationen) hat, verliert schnell den Überblick. Dieses Tool fokussiert auf organisieren & dokumentieren – **kein** automatischer Download / Sync, sondern klare, reproduzierbare Listen.
 
 ## Screenshots
-[img]https://i.ibb.co/LdCtJD91/Screenshot-2025-09-22-054325.png[/img]
+<img src="https://i.ibb.co/LdCtJD91/Screenshot-2025-09-22-054325.png" alt="Screenshot-2025-09-22-054325" border="0">
 ```
 ![Hauptfenster](docs/images/main-window.png)
 ![FAQ](docs/images/faq.png)
