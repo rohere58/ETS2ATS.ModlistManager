@@ -130,11 +130,14 @@
   "MainForm.ImportZip.Failed": "Błąd importu: ",
 
   "MainForm.Create.NoProfile": "Nie wybrano profilu",
-  "MainForm.Create.SiiNotFound": "profile.sii nie znaleziono",
+  "MainForm.Create.SiiNotFound": "Nie znaleziono profile.sii",
   "MainForm.Create.DecryptFailed": "Nie udało się odszyfrować profile.sii",
   "MainForm.Create.NoActiveMods": "Nie znaleziono bloku active_mods",
   "MainForm.Create.Done": "Utworzono listę: ",
-  "MainForm.Create.Failed": "Błąd tworzenia: ",
+  "MainForm.Create.Updated": "Zaktualizowano listę: ",
+  "MainForm.Create.DialogTitle": "Wybierz lub utwórz listę",
+  "MainForm.Create.InvalidName": "Nieprawidłowa nazwa pliku",
+  "MainForm.Create.Failed": "Tworzenie nie powiodło się: ",
 
   "MainForm.Create.OverwriteTitle": "Utwórz listę",
   "MainForm.Create.OverwriteQuestion": "Pliki o tej nazwie już istnieją. Nadpisać?",
@@ -181,5 +184,9 @@
   "Options.AtsModlistsPath": "Folder list modów ATS",
   "MainForm.Menu.Modlists.SetFolder": "Wybierz folder list modów…",
   "MainForm.Choose.Modlists.Ets2": "Wybierz folder docelowy dla list modów ETS2",
-  "MainForm.Choose.Modlists.Ats": "Wybierz folder docelowy dla list modów ATS"
+  "MainForm.Choose.Modlists.Ats": "Wybierz folder docelowy dla list modów ATS",
+  "SiiDecrypt.Bundle.Title": "Dołączony SII_Decrypt (MPL-2.0)",
+  "SiiDecrypt.Bundle.Message": "Narzędzie 'SII_Decrypt.exe' dostarczane bez zmian na licencji MPL-2.0.\nProjekt źródłowy: https://github.com/TheLazyTomcat/SII_Decrypt\n\nUżywane wyłącznie do odszyfrowania profile.sii. Zobacz ThirdPartyNotices.md.",
+  "SiiDecrypt.Bundle.PathLabel": "Położenie:",
+  "SiiDecrypt.Bundle.DontShow": "Nie pokazuj ponownie"
 }

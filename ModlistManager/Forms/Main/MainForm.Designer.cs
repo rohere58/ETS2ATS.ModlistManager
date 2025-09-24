@@ -13,9 +13,13 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         private ComboBox cbGame;
         private ComboBox cbProfile;
     private ComboBox cbModlist;
+    private TextBox txtQuickSearch;
+    private Button btnQuickSearch;
+    private ComboBox cbQuickSearchProvider;
     private ETS2ATS.ModlistManager.Controls.HeaderBannerControl headerBanner;
 
     private FlowLayoutPanel panelActions;
+    private Panel panelActionsSpacer;
     private Button btnAdopt, btnCreate, btnTextCheck;
 
         // Grid + Spalten
@@ -49,6 +53,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
     private ToolStripMenuItem miRemoveLink;
     private ToolStripMenuItem miAddLinkPerList;
     private ToolStripMenuItem miRemoveLinkPerList;
+    private ToolTip toolTipQuickSearch;
 
         private void InitializeComponent()
         {
@@ -61,7 +66,11 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             lblModlist = new Label();
             cbModlist = new ComboBox();
             headerBanner = new ETS2ATS.ModlistManager.Controls.HeaderBannerControl();
+            txtQuickSearch = new TextBox();
+            btnQuickSearch = new Button();
+            cbQuickSearchProvider = new ComboBox();
             panelActions = new FlowLayoutPanel();
+            panelActionsSpacer = new Panel();
             btnAdopt = new Button();
             btnCreate = new Button();
             btnTextCheck = new Button();
@@ -221,13 +230,60 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             panelActions.Controls.Add(btnAdopt);
             panelActions.Controls.Add(btnCreate);
             panelActions.Controls.Add(btnTextCheck);
+            // Quick search controls moved here (right side)
+            cbQuickSearchProvider.DropDownStyle = ComboBoxStyle.DropDownList;
+            // Quick Search Infrastruktur
+            toolTipQuickSearch = new ToolTip();
+            cbQuickSearchProvider.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbQuickSearchProvider.Name = "cbQuickSearchProvider";
+            cbQuickSearchProvider.Width = 110;
+            cbQuickSearchProvider.Tag = "MainForm.QuickSearch.Provider"; // for potential future label usage
+            cbQuickSearchProvider.Margin = new Padding(0, 0, 8, 0);
+            txtQuickSearch.PlaceholderText = "Mod suchen…";
+            txtQuickSearch.Size = new Size(230, 26);
+            txtQuickSearch.Margin = new Padding(0, 0, 2, 0);
+            txtQuickSearch.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; QuickSearchExecute(); } };
+            btnQuickSearch.Size = new Size(80, 26); // gleiche Höhe wie TextBox
+            txtQuickSearch.Name = "txtQuickSearch";
+            txtQuickSearch.Width = 230;
+            txtQuickSearch.PlaceholderText = "Mod suchen…";
+            txtQuickSearch.Margin = new Padding(0, 0, 2, 0); // minimal Abstand zum Button
+            btnQuickSearch.Name = "btnQuickSearch";
+            btnQuickSearch.Text = "Suchen";
+            btnQuickSearch.Tag = "MainForm.QuickSearch.Button";
+            btnQuickSearch.AutoSize = false; // feste Höhe
+            btnQuickSearch.Size = new Size(70, 23); // gleiche Höhe wie TextBox
+            btnQuickSearch.Margin = new Padding(0, 0, 0, 0);
+            btnQuickSearch.Click += (s, e) => QuickSearchExecute();
+            // Spacer wächst und drückt die Such-Controls nach rechts
+            panelActionsSpacer.Margin = new Padding(0, 0, 0, 0);
+            panelActionsSpacer.Padding = new Padding(0);
+            panelActionsSpacer.AutoSize = false;
+            panelActionsSpacer.Width = 10;
+            panelActionsSpacer.Height = 1;
+            panelActions.Controls.Add(panelActionsSpacer);
+            panelActions.Controls.Add(cbQuickSearchProvider);
+            panelActions.Controls.Add(txtQuickSearch);
+            panelActions.Controls.Add(btnQuickSearch);
             panelActions.Dock = DockStyle.Top;
             panelActions.Location = new Point(0, 174);
             panelActions.Name = "panelActions";
             panelActions.Padding = new Padding(8);
-            panelActions.Size = new Size(1384, 45);
+            panelActions.Size = new Size(1384, 50);
             panelActions.TabIndex = 0;
             panelActions.WrapContents = false;
+            panelActions.SizeChanged += (s, e) => {
+                // Spacer auf gesamte Restbreite setzen
+                int used = 0;
+                foreach (Control c in panelActions.Controls)
+                {
+                    if (c == panelActionsSpacer) continue;
+                    used += c.Width + c.Margin.Horizontal;
+                }
+                int avail = panelActions.ClientSize.Width - used - 16; // etwas Puffer
+                if (avail < 0) avail = 0;
+                panelActionsSpacer.Width = avail;
+            };
             // 
             // btnAdopt
             // 
@@ -301,7 +357,10 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             // 
             // colIndex
             // 
-            colIndex.FillWeight = 10F;
+            // Index column: fixed width to allow up to 3 digits comfortably
+            colIndex.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            colIndex.Width = 48; // enough for 3 digits + padding
+            colIndex.MinimumWidth = 48;
             colIndex.HeaderText = "#";
             colIndex.Name = "colIndex";
             colIndex.ReadOnly = true;
@@ -357,8 +416,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             colSearch.MinimumWidth = 90;
             colSearch.HeaderText = "Suche";
             colSearch.Name = "colSearch";
-            colSearch.Text = "Suchen";
-            colSearch.UseColumnTextForButtonValue = true;
+            // Text wird nach Sprachladevorgang dynamisch gesetzt (siehe ApplyLanguage)
+            colSearch.UseColumnTextForButtonValue = false;
             // 
             // footerPanel
             // 

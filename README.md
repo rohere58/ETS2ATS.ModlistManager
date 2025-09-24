@@ -109,7 +109,10 @@ Beispiel (auszug):
       ats.png
       (optional: logo.png -> überschreibt ETS2 Standard)
     ...
-  (optional) ModlistManager/Tools/  <- Externes Zusatztool (SII_Decrypt.exe) falls manuelle profile.sii Entschlüsselung gewünscht
+  ModlistManager/Tools/
+    SII_Decrypt.exe                <- Gebündeltes Drittanbieter-Tool für profile.sii Entschlüsselung
+    LICENSES/
+      SII_Decrypt.MPL-2.0.txt
 ```
 
 ## Modlisten & Begleitdateien
@@ -167,10 +170,14 @@ dotnet run --project .\ETS2ATS.ModlistManager.csproj
 - Kein Versionsvergleich zwischen zwei Listen
 
 ## Lizenz / Hinweise
-- Hauptprojekt: Mozilla Public License 2.0 (siehe `LICENSE` im Repository)
-- Optionales externes Tool `SII_Decrypt.exe` (nicht mehr gebündelt) unterliegt eigener Lizenz; bei Bedarf unter `ModlistManager/Tools/` platzieren
+- Hauptprojekt: Mozilla Public License 2.0 (siehe `LICENSE`)
+- Gebündeltes Drittanbieter-Tool: `SII_Decrypt.exe` (unverändert, MPL-2.0) – siehe `ThirdPartyNotices.md` & Original: https://github.com/TheLazyTomcat/SII_Decrypt
+- Lizenztext des Tools liegt unter `ModlistManager/Tools/LICENSES/SII_Decrypt.MPL-2.0.txt`
+- Quelle / Quellcode (unverändert): upstream Repository; kein Fork, keine Modifikationen. Falls künftig Änderungen: werden in `ThirdPartyNotices.md` dokumentiert.
 - ETS2 & ATS sind Marken von SCS Software – dieses Projekt steht in **keiner** offiziellen Verbindung
 - Beiträge (PRs) gelten als unter MPL-2.0 bereitgestellt
+
+Siehe auch: `ThirdPartyNotices.md` für vollständige Drittanbieter-Hinweise.
 
 ### Release & Versionierung
 - Version im `.csproj` (SemVer) anpassen
@@ -220,6 +227,7 @@ Ergebnis: Verzeichnis `dist/` mit einem ZIP:
 - Export / share (compact human-readable form)
 - Per-list description / note (separate file, auto-save)
 - Optional link management (download / reference links per mod)
+- Quick search bar with provider selection (Google / Steam Workshop / TruckyMods) incl. Enter trigger
 - Automatic table of contents in integrated Markdown FAQ
 - Customizable banner (transparency & logo overrides)
 - Multi-language (DE/EN) – easy to extend
@@ -238,7 +246,7 @@ Managing many profiles / convoys / experimental mod setups becomes messy. This t
 ```
 
 ## Installation (Users)
-1. Download release (ZIP): [Direct download v0.1.15 (win-x64)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.15/ETS2ATS.ModlistManager_v0.1.15_win-x64.zip)
+1. Download release (ZIP): [Direct download v0.1.16 (win-x64)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.16/ETS2ATS.ModlistManager_v0.1.16_win-x64.zip)
 2. Extract to any folder (e.g. `D:\Tools\ModlistManager`)
 3. Launch `ETS2ATS.ModlistManager.exe`
 4. Ensure folder is writable (for modlist files)
@@ -272,7 +280,9 @@ Example:
       ats.png
       (optional: logo.png -> overrides default ETS2 logo)
   Tools/
-    SII_Decrypt.exe
+    SII_Decrypt.exe                <- Bundled third-party tool (profile.sii decryption)
+    LICENSES/
+      SII_Decrypt.MPL-2.0.txt
 ```
 
 ## Modlists & Companion Files
@@ -330,10 +340,14 @@ dotnet run --project .\ETS2ATS.ModlistManager.csproj
 - No diff between two lists
 
 ## License / Notices
-- Main project licensed under Mozilla Public License 2.0 (see `LICENSE`)
-- Optional external tool `SII_Decrypt.exe` (no longer bundled) has its own license; place it manually in `ModlistManager/Tools/` if needed
+- Main project: Mozilla Public License 2.0 (see `LICENSE`)
+- Bundled third-party tool: `SII_Decrypt.exe` (unmodified, MPL-2.0) – see `ThirdPartyNotices.md` & upstream: https://github.com/TheLazyTomcat/SII_Decrypt
+- Tool license text: `ModlistManager/Tools/LICENSES/SII_Decrypt.MPL-2.0.txt`
+- Source (unmodified): upstream repository; no fork / changes. Future modifications (if any) will be documented in `ThirdPartyNotices.md`.
 - ETS2 & ATS are trademarks of SCS Software – no affiliation
-- Contributions are accepted under MPL-2.0
+- Contributions provided under MPL-2.0
+
+See also: `ThirdPartyNotices.md` for complete third-party notices.
 
 ### Release & Versioning (EN)
 - Update version in `.csproj` (SemVer)

@@ -61,7 +61,7 @@ namespace ETS2ATS.ModlistManager.Forms.About
 
             // Values rechts
             lblAppNameValue.AutoSize = true; lblAppNameValue.Text = "ETS2/ATS Modlist Manager"; lblAppNameValue.Tag = "About.AppName.Value";
-            lblVersionValue.AutoSize = true; lblVersionValue.Text = "4.0"; lblVersionValue.Tag = "About.Version.Value";
+            lblVersionValue.AutoSize = true; lblVersionValue.Text = ""; lblVersionValue.Tag = "About.Version.Value"; // dynamisch befüllt
             lblAuthorValue.AutoSize = true; lblAuthorValue.Text = "Winnie (rohere58)"; lblAuthorValue.Tag = "About.Author.Value";
             lblTechValue.AutoSize = true; lblTechValue.Text = "C# (.NET 8, WinForms)"; lblTechValue.Tag = "About.Tech.Value";
 

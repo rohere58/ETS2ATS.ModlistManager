@@ -125,7 +125,7 @@
   "MainForm.Name.Saved": "Nom enregistr\u00e9",
   "MainForm.Name.Removed": "Remplacement de nom supprim\u00e9",
 
-  "MainForm.Note.Saved": "Note enregistr\u00e9e",
+  "MainForm.Note.Saved": "Note enregistr\u00e9",
 
   "MainForm.Import.Title": "Importer une liste",
   "MainForm.Import.DoneLinks": "Import termin\u00e9 \u2013 liens ajout\u00e9s : ",
@@ -145,12 +145,15 @@
   "MainForm.ImportZip.Done": "Import termin\u00e9",
   "MainForm.ImportZip.Failed": "\u00c9chec de l'import : ",
 
-  "MainForm.Create.NoProfile": "Aucun profil s\u00e9lectionn\u00e9",
+  "MainForm.Create.NoProfile": "Aucun profil sélectionné",
   "MainForm.Create.SiiNotFound": "profile.sii introuvable",
-  "MainForm.Create.DecryptFailed": "profile.sii n'a pas pu \u00eatre d\u00e9chiffr\u00e9",
-  "MainForm.Create.NoActiveMods": "Aucun bloc active_mods trouv\u00e9",
+  "MainForm.Create.DecryptFailed": "profile.sii n'a pas pu être déchiffré",
+  "MainForm.Create.NoActiveMods": "Aucun bloc active_mods trouvé",
   "MainForm.Create.Done": "Liste cr\u00e9\u00e9e : ",
-  "MainForm.Create.Failed": "\u00c9chec de la cr\u00e9ation : ",
+  "MainForm.Create.Updated": "Liste mise à jour : ",
+  "MainForm.Create.DialogTitle": "Sélectionner ou créer une liste",
+  "MainForm.Create.InvalidName": "Nom de fichier invalide",
+  "MainForm.Create.Failed": "Échec de la création : ",
 
   "MainForm.Create.OverwriteTitle": "Cr\u00e9er une liste",
   "MainForm.Create.OverwriteQuestion": "Des fichiers de ce nom existent d\u00e9j\u00e0. \u00c9craser ?",
@@ -197,5 +200,9 @@
   "Options.AtsModlistsPath": "Dossier des listes de mods ATS",
   "MainForm.Menu.Modlists.SetFolder": "Choisir le dossier des listes de mods…",
   "MainForm.Choose.Modlists.Ets2": "Choisir le dossier cible pour les listes de mods ETS2",
-  "MainForm.Choose.Modlists.Ats": "Choisir le dossier cible pour les listes de mods ATS"
+  "MainForm.Choose.Modlists.Ats": "Choisir le dossier cible pour les listes de mods ATS",
+  "SiiDecrypt.Bundle.Title": "SII_Decrypt intégré (MPL-2.0)",
+  "SiiDecrypt.Bundle.Message": "L'outil 'SII_Decrypt.exe' est fourni tel quel sous licence MPL-2.0.\nProjet amont : https://github.com/TheLazyTomcat/SII_Decrypt\n\nUtilisé uniquement pour déchiffrer profile.sii. Voir ThirdPartyNotices.md pour les détails.",
+  "SiiDecrypt.Bundle.PathLabel": "Emplacement :",
+  "SiiDecrypt.Bundle.DontShow": "Ne plus afficher"
 }
