@@ -87,11 +87,45 @@ jobs:
           Write-Host "Checksumme: $hash"
           Add-Content -Path $Env:GITHUB_ENV -Value "SHA256_FILE=$outFile"
 
+      - name: Publish multi-file (win-x64)
+        run: dotnet publish ./ETS2ATS.ModlistManager.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish/mf/win-x64
+
+      - name: Verify multi-file tools
+        shell: pwsh
+        run: |
+          $tool = 'publish/mf/win-x64/ModlistManager/Tools/SII_Decrypt.exe'
+          if (Test-Path $tool) { Write-Host "Tools OK: $tool" -ForegroundColor Green } else { Write-Warning "SII_Decrypt.exe nicht gefunden im Multi-File Publish!" }
+
+      - name: Zip multi-file artifact
+        shell: pwsh
+        run: |
+          $tag = ($env:GITHUB_REF -replace 'refs/tags/','')
+            # Tag ohne führendes v für Artefakt-Namen konsistent halten
+          $zipNameMf = "modlist-manager-$tag-win-x64.zip" -replace '^modlist-manager-v','modlist-manager-'
+          Compress-Archive -Path publish/mf/win-x64/* -DestinationPath $zipNameMf
+          Add-Content -Path $Env:GITHUB_ENV -Value "ZIP_NAME_MF=$zipNameMf"
+
+      - name: Generate SHA256 checksum (multi-file)
+        shell: pwsh
+        run: |
+          if (-not $env:ZIP_NAME_MF) { Write-Error 'ZIP_NAME_MF env nicht gesetzt'; exit 1 }
+          $hashMf = (Get-FileHash $env:ZIP_NAME_MF -Algorithm SHA256).Hash.ToLower()
+          $outFileMf = "$($env:ZIP_NAME_MF).sha256"
+          "$hashMf  $($env:ZIP_NAME_MF)" | Out-File -FilePath $outFileMf -Encoding ASCII -NoNewline
+          Write-Host "Checksumme (Multi-File): $hashMf"
+          Add-Content -Path $Env:GITHUB_ENV -Value "SHA256_FILE_MF=$outFileMf"
+
       - name: Upload artifact (optional)
         uses: actions/upload-artifact@v4
         with:
           name: self-contained-zip
           path: ${{ env.ZIP_NAME }}
+
+      - name: Upload artifact (multi-file optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-file-zip
+          path: ${{ env.ZIP_NAME_MF }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -99,6 +133,8 @@ jobs:
           files: |
             ${{ env.ZIP_NAME }}
             ${{ env.SHA256_FILE }}
+            ${{ env.ZIP_NAME_MF }}
+            ${{ env.SHA256_FILE_MF }}
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
