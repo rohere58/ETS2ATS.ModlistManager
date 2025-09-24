@@ -134,6 +134,9 @@
   "MainForm.Create.DecryptFailed": "Não foi possível descriptografar profile.sii",
   "MainForm.Create.NoActiveMods": "Nenhum bloco active_mods encontrado",
   "MainForm.Create.Done": "Lista criada: ",
+  "MainForm.Create.Updated": "Lista atualizada: ",
+  "MainForm.Create.DialogTitle": "Selecionar ou criar lista",
+  "MainForm.Create.InvalidName": "Nome de arquivo inválido",
   "MainForm.Create.Failed": "Falha na criação: ",
 
   "MainForm.Create.OverwriteTitle": "Criar lista",
@@ -181,5 +184,9 @@
   "Options.AtsModlistsPath": "Pasta de listas de mods do ATS",
   "MainForm.Menu.Modlists.SetFolder": "Escolher pasta das listas de mods…",
   "MainForm.Choose.Modlists.Ets2": "Escolher pasta de destino para listas de mods do ETS2",
-  "MainForm.Choose.Modlists.Ats": "Escolher pasta de destino para listas de mods do ATS"
+  "MainForm.Choose.Modlists.Ats": "Escolher pasta de destino para listas de mods do ATS",
+  "SiiDecrypt.Bundle.Title": "SII_Decrypt incluído (MPL-2.0)",
+  "SiiDecrypt.Bundle.Message": "A ferramenta 'SII_Decrypt.exe' é fornecida sem modificações sob a licença MPL-2.0.\nUpstream: https://github.com/TheLazyTomcat/SII_Decrypt\n\nUsada apenas para descriptografar profile.sii. Veja ThirdPartyNotices.md.",
+  "SiiDecrypt.Bundle.PathLabel": "Local:",
+  "SiiDecrypt.Bundle.DontShow": "Não mostrar novamente"
 }
