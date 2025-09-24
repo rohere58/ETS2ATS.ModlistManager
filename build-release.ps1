@@ -11,7 +11,8 @@
   pwsh ./build-release.ps1 -Version 0.1.1
 #>
 param(
-    [string]$Version
+  [string]$Version,
+  [switch]$SingleFile = $true
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,13 +40,23 @@ New-Item -ItemType Directory -Path $dist | Out-Null
 Write-Host "==> dotnet restore" -ForegroundColor Yellow
 dotnet restore $csproj
 
-Write-Host "==> Self-contained Build (SingleFile)" -ForegroundColor Yellow
-dotnet publish $csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o (Join-Path $publishRoot 'sc')
-
-# ZIP
-$zipPath = Join-Path $dist ("modlist-manager-$Version-self-contained-win-x64.zip")
-Write-Host "==> Erzeuge ZIP" -ForegroundColor Yellow
-Compress-Archive -Path (Join-Path $publishRoot 'sc' '*') -DestinationPath $zipPath
+if ($SingleFile) {
+  Write-Host "==> Self-contained Build (SingleFile)" -ForegroundColor Yellow
+  dotnet publish $csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o (Join-Path $publishRoot 'pkg')
+  $zipPath = Join-Path $dist ("modlist-manager-$Version-self-contained-win-x64.zip")
+  Write-Host "==> Erzeuge ZIP (SingleFile)" -ForegroundColor Yellow
+  Compress-Archive -Path (Join-Path $publishRoot 'pkg' '*') -DestinationPath $zipPath -Force
+} else {
+  Write-Host "==> Framework-Ordner Build (MultiFile, mit Tools)" -ForegroundColor Yellow
+  dotnet publish $csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o (Join-Path $publishRoot 'pkg')
+  # Sicherstellen, dass Tools wirklich da sind
+  if (-not (Test-Path (Join-Path $publishRoot 'pkg' 'ModlistManager/Tools/SII_Decrypt.exe'))) {
+    Write-Warning "SII_Decrypt.exe fehlt im Publish-Ausgabepfad!"
+  }
+  $zipPath = Join-Path $dist ("modlist-manager-$Version-win-x64.zip")
+  Write-Host "==> Erzeuge ZIP (MultiFile)" -ForegroundColor Yellow
+  Compress-Archive -Path (Join-Path $publishRoot 'pkg' '*') -DestinationPath $zipPath -Force
+}
 
 # SHA256 Checksumme erzeugen
 Write-Host "==> Erzeuge SHA256" -ForegroundColor Yellow
@@ -58,4 +69,4 @@ Write-Host "==> Fertig" -ForegroundColor Green
 Write-Host "Ausgabe:" -ForegroundColor Green
 Get-ChildItem $dist | Format-Table -AutoSize
 
-Write-Host "Hinweis: Prüfe die self-contained EXE durch Teststart vor Upload." -ForegroundColor DarkGray
+Write-Host "Hinweis: Optional beide Varianten bauen: SingleFile (+Tools ggf. extrahiert) und MultiFile (mit unverändertem SII_Decrypt.exe)." -ForegroundColor DarkGray

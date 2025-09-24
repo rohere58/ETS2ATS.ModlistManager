@@ -12,9 +12,9 @@
 
 > Ein schlanker Windows (.NET 8 / WinForms) Helfer zum Erstellen, Verwalten und Teilen von Modlisten für **Euro Truck Simulator 2** und **American Truck Simulator**.
 
-> Hinweis/Notice: Wenn du Version 0.1.14 verwendest, aktualisiere bitte auf 0.1.15 (kritischer Fix für Optionen → Modlisten-Pfade).
-> If you are on 0.1.14, please update to 0.1.15 (critical fix for Options → modlists paths).
-> Direktdownload/Direct download: https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.15/ETS2ATS.ModlistManager_v0.1.15_win-x64.zip
+> Hinweis/Notice: Aktuelle Version 0.1.16 enthält Quick Search & gebündeltes SII_Decrypt (MPL-2.0) sowie den Hotfix aus 0.1.15.
+> Current version 0.1.16 includes Quick Search & bundled SII_Decrypt (MPL-2.0) plus the 0.1.15 hotfix.
+> Direktdownload/Direct download: https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.16/ETS2ATS.ModlistManager_v0.1.16_win-x64.zip
 
 ## Inhaltsverzeichnis / Table of Contents
 **Deutsch**
@@ -75,7 +75,7 @@ Wer viele Profile / Modsets (Konvois, verschiedene Savegames, Test-Konfiguration
 ```
 
 ## Installation (Benutzer)
-1. Release (ZIP) herunterladen: [Direktdownload v0.1.15 (win-x64)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.15/ETS2ATS.ModlistManager_v0.1.15_win-x64.zip)
+1. Release (ZIP) herunterladen: [Direktdownload v0.1.16 (win-x64)](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.16/ETS2ATS.ModlistManager_v0.1.16_win-x64.zip)
 2. ZIP in einen beliebigen Ordner entpacken (z.B. `D:\Tools\ModlistManager`)
 3. `ETS2ATS.ModlistManager.exe` starten
 4. (Optional) Benutzerrechte: Stelle sicher, dass der Ordner beschreibbar ist (für Modlisten-Dateien)
