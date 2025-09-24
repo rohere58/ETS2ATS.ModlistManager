@@ -132,8 +132,11 @@
   "MainForm.Create.NoProfile": "Профиль не выбран",
   "MainForm.Create.SiiNotFound": "profile.sii не найден",
   "MainForm.Create.DecryptFailed": "Не удалось расшифровать profile.sii",
-  "MainForm.Create.NoActiveMods": "Не найден блок active_mods",
+  "MainForm.Create.NoActiveMods": "Блок active_mods не найден",
   "MainForm.Create.Done": "Список создан: ",
+  "MainForm.Create.Updated": "Список обновлён: ",
+  "MainForm.Create.DialogTitle": "Выбрать или создать список",
+  "MainForm.Create.InvalidName": "Недопустимое имя файла",
   "MainForm.Create.Failed": "Ошибка создания: ",
 
   "MainForm.Create.OverwriteTitle": "Создание списка",
@@ -181,5 +184,9 @@
   "Options.AtsModlistsPath": "Папка списков модов ATS",
   "MainForm.Menu.Modlists.SetFolder": "Выбрать папку списков модов…",
   "MainForm.Choose.Modlists.Ets2": "Выбрать целевую папку для списков модов ETS2",
-  "MainForm.Choose.Modlists.Ats": "Выбрать целевую папку для списков модов ATS"
+  "MainForm.Choose.Modlists.Ats": "Выбрать целевую папку для списков модов ATS",
+  "SiiDecrypt.Bundle.Title": "Включённый SII_Decrypt (MPL-2.0)",
+  "SiiDecrypt.Bundle.Message": "Инструмент 'SII_Decrypt.exe' поставляется без изменений по лицензии MPL-2.0.\nUpstream: https://github.com/TheLazyTomcat/SII_Decrypt\n\nИспользуется только для расшифровки profile.sii. См. ThirdPartyNotices.md.",
+  "SiiDecrypt.Bundle.PathLabel": "Расположение:",
+  "SiiDecrypt.Bundle.DontShow": "Больше не показывать"
 }

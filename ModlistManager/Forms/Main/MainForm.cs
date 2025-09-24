@@ -121,8 +121,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 // Sicherstellen, dass Basisordner für Modlisten existieren
                 try { EnsureModlistsDirectories(); } catch { }
 
-                // Einmaliger Hinweis: SII_Decrypt.exe nicht mehr gebündelt – bitte in ModlistManager\\Tools ablegen
-                try { ShowSiiDecryptHintIfMissing(); } catch { }
+                // Einmaliger Hinweis / Attribution für gebündeltes SII_Decrypt.exe (MPL-2.0)
+                try { ShowSiiDecryptBundleInfoOnce(); } catch { }
 
                 // Grid-Events
                 this.gridMods.RowPostPaint += GridMods_RowPostPaint;
@@ -137,34 +137,44 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             }
         }
 
-        private void ShowSiiDecryptHintIfMissing()
+        private void ShowSiiDecryptBundleInfoOnce()
         {
             try
             {
-                // Nur unterdrücken, wenn der Nutzer explizit "nicht mehr anzeigen" gewählt hat
+                // Bereits unterdrückt?
                 if (_settings.Current.SiiDecryptDontShowAgain) return;
+
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 var toolsDir = Path.Combine(baseDir, "ModlistManager", "Tools");
                 var exePath = Path.Combine(toolsDir, "SII_Decrypt.exe");
-                if (!File.Exists(exePath))
+                var isPresent = File.Exists(exePath);
+
+                // Zeige Info nur einmalig (oder solange nicht unterdrückt) – egal ob Datei vorhanden.
+                if (!_settings.Current.HasShownSiiDecryptHint)
                 {
                     using var dlg = new ETS2ATS.ModlistManager.Forms.Common.SiiDecryptHintForm(exePath);
-                    try { dlg.Text = T("SiiDecrypt.Hint.Title", "SII_Decrypt.exe erforderlich"); } catch { }
-                    try { dlg.lblMessage.Text = T("SiiDecrypt.Hint.Message", "Hinweis: Ab dieser Version wird SII_Decrypt.exe nicht mehr mitgeliefert. Bitte lege die Datei manuell in den Ordner 'ModlistManager\\\\Tools' neben der Anwendung ab."); } catch { }
-                    try { dlg.lblPathLabel.Text = T("SiiDecrypt.Hint.ExpectedPath", "Erwarteter Pfad:"); } catch { }
-                    try { dlg.chkDontShow.Text = T("SiiDecrypt.Hint.DontShow", "Diesen Hinweis nicht mehr anzeigen"); } catch { }
+                    if (isPresent)
+                    {
+                        // Neuer Text: gebündelt + Attribution / Lizenz-Hinweis
+                        try { dlg.Text = T("SiiDecrypt.Bundle.Title", "Integriertes SII_Decrypt (MPL-2.0)"); } catch { }
+                        try { dlg.lblMessage.Text = T("SiiDecrypt.Bundle.Message", "Das Tool 'SII_Decrypt.exe' wird unverändert unter der MPL-2.0 Lizenz mitgeliefert.\nQuelle / Upstream: https://github.com/TheLazyTomcat/SII_Decrypt\n\nEs wird ausschließlich zur Entschlüsselung von profile.sii genutzt. Siehe ThirdPartyNotices.md für Details."); } catch { }
+                        try { dlg.lblPathLabel.Text = T("SiiDecrypt.Bundle.PathLabel", "Ablageort:"); } catch { }
+                    }
+                    else
+                    {
+                        // Fallback falls doch nicht da (sollte selten vorkommen).
+                        try { dlg.Text = T("SiiDecrypt.Hint.Title", "SII_Decrypt fehlt"); } catch { }
+                        try { dlg.lblMessage.Text = T("SiiDecrypt.Hint.Message", "Zum Erstellen oder Übernehmen von Modlisten wird SII_Decrypt.exe benötigt. Bitte legen Sie die Datei in folgenden Ordner:"); } catch { }
+                        try { dlg.lblPathLabel.Text = T("SiiDecrypt.Hint.ExpectedPath", "Erwarteter Pfad:"); } catch { }
+                    }
+                    try { dlg.chkDontShow.Text = T("SiiDecrypt.Bundle.DontShow", "Diesen Hinweis nicht mehr anzeigen"); } catch { }
                     dlg.ShowDialog(this);
-                    // Merke, dass wir den Hinweis mindestens einmal gezeigt haben (informativ)
                     _settings.Current.HasShownSiiDecryptHint = true;
                     if (dlg.DontShowAgain)
                     {
                         _settings.Current.SiiDecryptDontShowAgain = true;
-                        _settings.Save();
                     }
-                }
-                else
-                {
-                    // Datei vorhanden → kein Hinweis nötig; keine Unterdrückungs-Flags setzen
+                    _settings.Save();
                 }
             }
             catch { }
@@ -409,6 +419,148 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
             // Platzhalter für Notiz-Textbox setzen (aber Inhalt niemals überschreiben)
             try { if (txtModInfo != null) txtModInfo.PlaceholderText = T("MainForm.ModInfo.Input", "Notiz zur Modliste …"); } catch { }
+
+            // QuickSearch Lokalisierung (falls vorhanden)
+            try
+            {
+                if (btnQuickSearch != null)
+                {
+                    btnQuickSearch.Text = T("MainForm.QuickSearch.Button", btnQuickSearch.Text);
+                }
+                if (cbQuickSearchProvider != null)
+                {
+                    // Provider-Anzeige ggf. neu beschriften (wir verwenden einfache Items mit Display/Text)
+                    RebuildQuickSearchProviders(preserveSelection: true);
+                }
+                if (txtQuickSearch != null)
+                {
+                    var ph = T("MainForm.QuickSearch.Placeholder", "Mod suchen…");
+                    // PlaceholderText nur setzen, wenn leer oder zuvor Placeholder (nicht Benutzertext überschreiben)
+                    if (string.IsNullOrWhiteSpace(txtQuickSearch.Text))
+                        txtQuickSearch.PlaceholderText = ph;
+                }
+                // Tooltip für QuickSearch Button
+                if (toolTipQuickSearch != null && btnQuickSearch != null)
+                {
+                    try { toolTipQuickSearch.SetToolTip(btnQuickSearch, T("MainForm.QuickSearch.Tooltip", "Websuche nach Mod starten")); } catch { }
+                }
+            }
+            catch { }
+
+            // Dynamische Buttontexte für Grid-Sonderspalten (Download / Search)
+            try
+            {
+                if (colDownload != null)
+                {
+                    var dl = T("MainForm.Grid.Download", "Download");
+                    colDownload.HeaderText = dl;
+                    // Falls Buttons selbst Text pro Zeile nutzen (UseColumnTextForButtonValue=false), Standardtext setzen
+                    if (colDownload.UseColumnTextForButtonValue)
+                        colDownload.Text = dl;
+                }
+                if (colSearch != null)
+                {
+                    var search = T("MainForm.Grid.Search", "Search");
+                    colSearch.HeaderText = search;
+                    // Wir verwenden individuelle Buttonwerte? Dann nur Standard setzen, sonst Spalten-Text
+                    colSearch.Text = search;
+                    colSearch.UseColumnTextForButtonValue = true; // jetzt sicher aktivieren, damit Lokalisierung greift
+                }
+            }
+            catch { }
+        }
+
+        // Führt eine schnelle Websuche nach einem Mod durch (mit Game-Tag und optionalem zusätzlichen Query)
+        private void QuickSearchExecute()
+        {
+            try
+            {
+                if (txtQuickSearch == null) return;
+                var termRaw = txtQuickSearch.Text?.Trim();
+                if (string.IsNullOrWhiteSpace(termRaw)) return;
+                string gameTag = "ETS2";
+                try
+                {
+                    if (cbGame?.SelectedItem is GameItem gi && !string.IsNullOrWhiteSpace(gi.Code))
+                    {
+                        gameTag = gi.Code.Equals("ats", StringComparison.OrdinalIgnoreCase) ? "ATS" : "ETS2";
+                    }
+                }
+                catch { }
+                var provider = GetSelectedQuickSearchProvider();
+                var url = BuildSearchUrl(provider, gameTag, termRaw);
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+            }
+            catch { }
+        }
+
+        private enum QuickSearchProvider
+        {
+            Google,
+            SteamWorkshop,
+            ModHub, // Platzhalter für mögliche zukünftige Quelle
+            TruckyMods
+        }
+
+        private sealed class QuickSearchProviderItem
+        {
+            public QuickSearchProvider Provider { get; init; }
+            public string Display { get; init; } = "";
+            public override string ToString() => Display;
+        }
+
+        private void RebuildQuickSearchProviders(bool preserveSelection)
+        {
+            if (cbQuickSearchProvider == null) return;
+            QuickSearchProvider? previous = null;
+            if (preserveSelection && cbQuickSearchProvider.SelectedItem is QuickSearchProviderItem pi)
+                previous = pi.Provider;
+            cbQuickSearchProvider.Items.Clear();
+            string TProv(string key, string fallback) => T(key, fallback);
+            cbQuickSearchProvider.Items.Add(new QuickSearchProviderItem { Provider = QuickSearchProvider.Google, Display = TProv("MainForm.QuickSearch.Provider.Google", "Google") });
+            cbQuickSearchProvider.Items.Add(new QuickSearchProviderItem { Provider = QuickSearchProvider.SteamWorkshop, Display = TProv("MainForm.QuickSearch.Provider.Steam", "Steam WS") });
+            cbQuickSearchProvider.Items.Add(new QuickSearchProviderItem { Provider = QuickSearchProvider.TruckyMods, Display = TProv("MainForm.QuickSearch.Provider.Trucky", "Trucky") });
+            // Auswahl wiederherstellen oder Default
+            int index = 0;
+            if (previous.HasValue)
+            {
+                for (int i = 0; i < cbQuickSearchProvider.Items.Count; i++)
+                {
+                    if (cbQuickSearchProvider.Items[i] is QuickSearchProviderItem q && q.Provider == previous.Value)
+                    {
+                        index = i; break;
+                    }
+                }
+            }
+            cbQuickSearchProvider.SelectedIndex = index;
+        }
+
+        private QuickSearchProvider GetSelectedQuickSearchProvider()
+        {
+            if (cbQuickSearchProvider?.SelectedItem is QuickSearchProviderItem item)
+                return item.Provider;
+            return QuickSearchProvider.Google;
+        }
+
+        private string BuildSearchUrl(QuickSearchProvider provider, string gameTag, string termRaw)
+        {
+            string qBase = $"{gameTag} {termRaw}".Trim();
+            switch (provider)
+            {
+                case QuickSearchProvider.Google:
+                    return "https://www.google.com/search?q=" + Uri.EscapeDataString(qBase + " download");
+                case QuickSearchProvider.SteamWorkshop:
+                    // Direkte Workshop-Suche (Spiel-spezifisch): ETS2=227300, ATS=270880
+                    string appId = gameTag.Equals("ATS", StringComparison.OrdinalIgnoreCase) ? "270880" : "227300";
+                    return $"https://steamcommunity.com/workshop/browse/?appid={appId}&searchtext={Uri.EscapeDataString(termRaw)}";
+                case QuickSearchProvider.TruckyMods:
+                    // TruckyMods direkte Such-URL (liefert Ergebnisse besser als Startseite mit ?q=):
+                    return "https://truckymods.io/search?query=" + Uri.EscapeDataString(termRaw);
+                case QuickSearchProvider.ModHub:
+                    return "https://www.google.com/search?q=" + Uri.EscapeDataString(qBase + " mod download");
+                default:
+                    return "https://www.google.com/search?q=" + Uri.EscapeDataString(qBase);
+            }
         }
 
         // Aktualisiert das Spiel-Logo im Footer entsprechend des gewählten Spiels
@@ -626,7 +778,19 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 var modname = gridMods.Rows[e.RowIndex].Cells["colModName"].Value?.ToString() ?? "";
                 if (!string.IsNullOrWhiteSpace(modname))
                 {
-                    var q = Uri.EscapeDataString($"ETS2 {modname} download");
+                    // Spielcode ermitteln (ETS2 / ATS)
+                    string gameTag = "ETS2";
+                    try
+                    {
+                        if (cbGame?.SelectedItem is GameItem gi && !string.IsNullOrWhiteSpace(gi.Code))
+                        {
+                            if (gi.Code.Equals("ats", StringComparison.OrdinalIgnoreCase)) gameTag = "ATS";
+                            else gameTag = "ETS2";
+                        }
+                    }
+                    catch { }
+
+                    var q = Uri.EscapeDataString($"{gameTag} {modname} download");
                     var url = $"https://www.google.com/search?q={q}";
                     try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
                     catch { /* TODO: Meldung */ }
@@ -2951,48 +3115,52 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 var root = GetModlistsRootForGame(norm);
                 try { Directory.CreateDirectory(root); } catch { }
 
-                // Name vorschlagen = Profilanzeige
+                // Dateidialog anzeigen, damit Nutzer vorhandene Modliste wählen oder neuen Namen eingeben kann
                 var suggested = SanitizeAsFileName(p.Display);
                 if (string.IsNullOrWhiteSpace(suggested)) suggested = $"modlist_{DateTime.Now:yyyyMMdd-HHmm}";
 
-                var name = PromptForText(this, T("MainForm.Toolbar.Create", "Modliste erstellen"), T("MainForm.Prompt.Name", "Name:"), suggested, limit20: false);
-                if (string.IsNullOrWhiteSpace(name)) return;
-                var requestedBase = SanitizeAsFileName(name!);
-                var baseName = requestedBase;
-
-                // Überschreib-Abfrage, falls Dateien existieren
-                if (File.Exists(Path.Combine(root, requestedBase + ".txt")) ||
-                    File.Exists(Path.Combine(root, requestedBase + ".note")) ||
-                    File.Exists(Path.Combine(root, requestedBase + ".json")) ||
-                    File.Exists(Path.Combine(root, requestedBase + ".link.json")))
+                string? chosenPath = null;
+                using (var sfd = new SaveFileDialog())
                 {
-                    var cap = T("MainForm.Create.OverwriteTitle", "Modliste erstellen");
-                    var msg = T("MainForm.Create.OverwriteQuestion", "Dateien mit diesem Namen existieren bereits. Überschreiben?");
-                    var choice = MessageBox.Show(this, msg, cap, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3);
-                    if (choice == DialogResult.Cancel) return;
-                    if (choice == DialogResult.No)
-                    {
-                        baseName = EnsureUniqueBasename(root, requestedBase);
-                    }
-                    // Yes → baseName bleibt requestedBase und überschreibt
+                    sfd.Title = T("MainForm.Create.DialogTitle", "Modliste auswählen oder neu anlegen");
+                    sfd.InitialDirectory = root;
+                    sfd.FileName = suggested + ".txt";
+                    sfd.Filter = "Modlisten (*.txt)|*.txt|Alle Dateien (*.*)|*.*";
+                    sfd.OverwritePrompt = false; // eigenes Verhalten
+                    if (sfd.ShowDialog(this) != DialogResult.OK) return;
+                    chosenPath = sfd.FileName;
                 }
+                if (string.IsNullOrWhiteSpace(chosenPath)) return;
 
-                // Dateien schreiben: .txt (Block), .note (leer), .json ({}), .link.json ({})
+                // Basisname extrahieren
+                var baseName = Path.GetFileNameWithoutExtension(chosenPath);
+                var baseSanitized = SanitizeAsFileName(baseName);
+                if (string.IsNullOrWhiteSpace(baseSanitized))
+                {
+                    ShowStatus(T("MainForm.Create.InvalidName", "Ungültiger Dateiname"));
+                    return;
+                }
+                baseName = baseSanitized;
                 var pathTxt = Path.Combine(root, baseName + ".txt");
                 var pathNote = Path.Combine(root, baseName + ".note");
                 var pathInfo = Path.Combine(root, baseName + ".json");
                 var pathLink = Path.Combine(root, baseName + ".link.json");
 
-                // Schreiben (bei Überschreiben explizit true)
+                var txtExistsBefore = File.Exists(pathTxt);
+                var noteExists = File.Exists(pathNote);
+                var infoExists = File.Exists(pathInfo);
+                var linkExists = File.Exists(pathLink);
+
+                // Nur .txt immer schreiben (überschreiben erlaubt). Sidecar-Dateien nur anlegen, wenn sie NICHT existieren.
                 File.WriteAllLines(pathTxt, block, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-                File.WriteAllText(pathNote, string.Empty, new UTF8Encoding(false));
-                File.WriteAllText(pathInfo, "{}", new UTF8Encoding(false));
-                File.WriteAllText(pathLink, "{}", new UTF8Encoding(false));
+                if (!noteExists) File.WriteAllText(pathNote, string.Empty, new UTF8Encoding(false));
+                if (!infoExists) File.WriteAllText(pathInfo, "{}", new UTF8Encoding(false));
+                if (!linkExists) File.WriteAllText(pathLink, "{}", new UTF8Encoding(false));
 
                 // Modlisten neu laden und selektieren
                 try { LoadModlistNamesForSelectedGame(); SelectModlistByDisplay(baseName); } catch { }
 
-                ShowStatus(T("MainForm.Create.Done", "Modliste erstellt: ") + baseName);
+                ShowStatus((txtExistsBefore ? T("MainForm.Create.Updated", "Modliste aktualisiert: ") : T("MainForm.Create.Done", "Modliste erstellt: ")) + baseName);
             }
             catch (Exception ex)
             {

@@ -134,6 +134,9 @@
   "MainForm.Create.DecryptFailed": "profile.sii kon niet worden ontsleuteld",
   "MainForm.Create.NoActiveMods": "Geen active_mods-blok gevonden",
   "MainForm.Create.Done": "Lijst gemaakt: ",
+  "MainForm.Create.Updated": "Lijst bijgewerkt: ",
+  "MainForm.Create.DialogTitle": "Selecteer of maak lijst",
+  "MainForm.Create.InvalidName": "Ongeldige bestandsnaam",
   "MainForm.Create.Failed": "Aanmaken mislukt: ",
 
   "MainForm.Create.OverwriteTitle": "Lijst maken",
@@ -181,5 +184,9 @@
   "Options.AtsModlistsPath": "Map met ATS-modlijsten",
   "MainForm.Menu.Modlists.SetFolder": "Modlijsten-map kiezen…",
   "MainForm.Choose.Modlists.Ets2": "Doelmap kiezen voor ETS2-modlijsten",
-  "MainForm.Choose.Modlists.Ats": "Doelmap kiezen voor ATS-modlijsten"
+  "MainForm.Choose.Modlists.Ats": "Doelmap kiezen voor ATS-modlijsten",
+  "SiiDecrypt.Bundle.Title": "Gebundelde SII_Decrypt (MPL-2.0)",
+  "SiiDecrypt.Bundle.Message": "Het hulpmiddel 'SII_Decrypt.exe' wordt ongewijzigd meegeleverd onder de MPL-2.0 licentie.\nUpstream: https://github.com/TheLazyTomcat/SII_Decrypt\n\nAlleen gebruikt om profile.sii te ontsleutelen. Zie ThirdPartyNotices.md.",
+  "SiiDecrypt.Bundle.PathLabel": "Locatie:",
+  "SiiDecrypt.Bundle.DontShow": "Niet meer tonen"
 }
