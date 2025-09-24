@@ -62,6 +62,12 @@
   "MainForm.Grid.Status": "Status",
   "MainForm.Grid.Download": "Download",
   "MainForm.Grid.Search": "Suche",
+  "MainForm.QuickSearch.Button": "Suchen",
+  "MainForm.QuickSearch.Placeholder": "Mod suchen…",
+  "MainForm.QuickSearch.Provider.Google": "Google",
+  "MainForm.QuickSearch.Provider.Steam": "Steam WS",
+  "MainForm.QuickSearch.Provider.Trucky": "Trucky",
+  "MainForm.QuickSearch.Tooltip": "Websuche für eingegebenen Mod starten",
 
   "MainForm.ModInfo": "Infos zur Modliste",
   "MainForm.Status.Ready": "",
@@ -152,6 +158,9 @@
   "MainForm.Create.DecryptFailed": "profile.sii konnte nicht entschlüsselt werden",
   "MainForm.Create.NoActiveMods": "Kein active_mods-Block gefunden",
   "MainForm.Create.Done": "Modliste erstellt: ",
+  "MainForm.Create.Updated": "Modliste aktualisiert: ",
+  "MainForm.Create.DialogTitle": "Modliste auswählen oder neu anlegen",
+  "MainForm.Create.InvalidName": "Ungültiger Dateiname",
   "MainForm.Create.Failed": "Erstellung fehlgeschlagen: "
   ,
   "MainForm.Create.OverwriteTitle": "Modliste erstellen",
@@ -189,6 +198,10 @@
   ,
   "SiiDecrypt.Hint.Title": "SII_Decrypt fehlt",
   "SiiDecrypt.Hint.Message": "Zum Erstellen oder Übernehmen von Modlisten wird SII_Decrypt.exe benötigt. Bitte legen Sie die Datei in folgenden Ordner:",
+  "SiiDecrypt.Bundle.Title": "Integriertes SII_Decrypt (MPL-2.0)",
+  "SiiDecrypt.Bundle.Message": "Das Tool 'SII_Decrypt.exe' wird unverändert unter der MPL-2.0 Lizenz mitgeliefert.\nQuelle / Upstream: https://github.com/TheLazyTomcat/SII_Decrypt\n\nEs wird ausschließlich zur Entschlüsselung von profile.sii genutzt. Siehe ThirdPartyNotices.md für Details.",
+  "SiiDecrypt.Bundle.PathLabel": "Ablageort:",
+  "SiiDecrypt.Bundle.DontShow": "Diesen Hinweis nicht mehr anzeigen",
   "SiiDecrypt.Hint.ExpectedPath": "Erwarteter Pfad:",
   "SiiDecrypt.Hint.DontShow": "Diesen Hinweis nicht mehr anzeigen"
 }

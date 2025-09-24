@@ -102,6 +102,13 @@ namespace ETS2ATS.ModlistManager.Forms.Options
             Ets2Path = string.IsNullOrWhiteSpace(txtEts2Path.Text) ? null : txtEts2Path.Text;
             AtsPath = string.IsNullOrWhiteSpace(txtAtsPath.Text) ? null : txtAtsPath.Text;
 
+            // Modlisten-Pfade (neu): beim Öffnen mit gespeicherten Werten vorbelegen,
+            // damit OK nicht versehentlich benutzerdefinierte Verzeichnisse löscht.
+            if (txtEts2Modlists != null)
+                txtEts2Modlists.Text = _settings.Current.Ets2ModlistsPath ?? string.Empty;
+            if (txtAtsModlists != null)
+                txtAtsModlists.Text = _settings.Current.AtsModlistsPath ?? string.Empty;
+
             // Checkbox
             chkConfirmBeforeAdopt.Checked = _settings.Current.ConfirmBeforeAdopt;
             ConfirmBeforeAdopt = chkConfirmBeforeAdopt.Checked;

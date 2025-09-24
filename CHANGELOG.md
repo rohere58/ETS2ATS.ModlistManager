@@ -5,19 +5,31 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 ### Hinzugefügt
-- (Geplant) Erweiterte Export-Option (Notiz + Links gebündelt)
-- (Geplant) ATS spezifisches Logo-Override `logo_ats.png`
-- (Geplant) Schnellsuche / Filter
-- (Geplant) Markdown im Notizfeld
-
+- (Geplant) –
 ### Geändert
 - (Geplant) –
-
 ### Entfernt
 - (Geplant) –
-
 ### Behoben
 - (Geplant) –
+
+## [0.1.16] - 2025-09-24
+### Hinzugefügt
+- Drittanbieter-Hinweise: `ThirdPartyNotices.md` (Attribution für gebündeltes `SII_Decrypt.exe`, unverändert, MPL-2.0)
+- Schnell-Suchleiste mit Provider-Auswahl (Google, Steam Workshop, TruckyMods) inkl. Enter-Trigger & Tooltip
+- Einmaliger Lizenz-/Attributionsdialog für gebündeltes `SII_Decrypt.exe` (MPL-2.0)
+- Neue Lokalisierungs-Keys für Bundle-Hinweis (alle unterstützten Sprachen)
+
+### Geändert
+- `SII_Decrypt.exe` wieder im Paket enthalten (Re-Bundling mit korrekter Attribution & Lizenzbeibehaltung)
+- Erstellung einer Modliste nutzt jetzt einen Dateidialog (Speichern unter) und überschreibt vorhandene Sidecar-Dateien (.note / .json / .link.json) nicht mehr
+- TruckyMods-Suche korrigiert auf direkte Endpoint-Struktur `/search?query=`
+
+### Entfernt
+- –
+
+### Behoben
+- –
 
 ## [0.1.15] - 2025-09-21
 ### Behoben

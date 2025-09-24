@@ -265,6 +265,15 @@
 				"$msCompile"
 			],
 			"group": "build"
+		},
+		{
+			"label": "build-release",
+			"type": "shell",
+			"command": "dotnet build ETS2ATS.ModlistManager.csproj -c Release",
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
 		}
 	]
 }

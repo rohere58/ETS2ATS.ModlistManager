@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ETS2ATS.ModlistManager</AssemblyName>
     <RootNamespace>ETS2ATS.ModlistManager</RootNamespace>
-  <Version>0.1.15</Version>
+  <Version>0.1.16</Version>
     <Authors>Community</Authors>
     <Company>
     </Company>
@@ -58,6 +58,13 @@
   <ItemGroup>
     <Content Include="ModlistManager\modlists\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <!-- Gebündelte externen Tools (SII_Decrypt.exe + LICENSES) immer mitnehmen -->
+  <ItemGroup>
+    <Content Include="ModlistManager\Tools\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
   </ItemGroup>

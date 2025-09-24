@@ -31,6 +31,61 @@ namespace ETS2ATS.ModlistManager.Forms.About
             }
 
             L(this);
+
+            // Versions-Label nachträglich setzen (nicht aus Sprachdatei, sondern Assembly-Version)
+            try
+            {
+                var asm = typeof(AboutForm).Assembly;
+                string versionString = "?";
+                // Versuch 1: AssemblyInformationalVersion (kann SemVer + Suffix beinhalten)
+                try
+                {
+                    var infoAttr = asm.GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+                        .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
+                        .FirstOrDefault();
+                    if (infoAttr != null && !string.IsNullOrWhiteSpace(infoAttr.InformationalVersion))
+                    {
+                        versionString = infoAttr.InformationalVersion.Split('+')[0]; // Build-Metadaten abschneiden
+                    }
+                }
+                catch { }
+                // Versuch 2: ProductVersion aus FileVersionInfo (kann sehr lang sein) – nur nehmen, wenn noch '?'
+                if (versionString == "?")
+                {
+                    try
+                    {
+                        var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(asm.Location);
+                        var pv = fvi.ProductVersion ?? fvi.FileVersion;
+                        if (!string.IsNullOrWhiteSpace(pv)) versionString = pv.Split('+')[0];
+                    }
+                    catch { }
+                }
+                // Versuch 3: AssemblyName.Version -> Major.Minor.Build
+                if (versionString == "?")
+                {
+                    var ver = asm.GetName().Version;
+                    if (ver != null) versionString = $"{ver.Major}.{ver.Minor}.{ver.Build}";
+                }
+                // Falls jetzt immer noch sehr lang (z.B. 0.1.15.0 oder mit PräRelease), auf die ersten drei Komponenten reduzieren
+                if (Version.TryParse(versionString, out var parsed))
+                {
+                    versionString = $"{parsed.Major}.{parsed.Minor}.{parsed.Build}";
+                }
+                var lbl = FindControlByTag(this, "About.Version.Value");
+                if (lbl != null) lbl.Text = versionString;
+            }
+            catch { }
+        }
+
+        private static Control? FindControlByTag(Control root, string tag)
+        {
+            if (root.Tag is string t && t == tag) return root;
+            foreach (Control c in root.Controls)
+            {
+                var f = FindControlByTag(c, tag);
+                if (f != null) return f;
+            }
+            return null;
         }
     }
 }
