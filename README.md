@@ -12,11 +12,11 @@
 
 > Ein schlanker Windows (.NET 8 / WinForms) Helfer zum Erstellen, Verwalten und Teilen von Modlisten für **Euro Truck Simulator 2** und **American Truck Simulator**.
 
-> Hinweis/Notice: Aktuelle Version 0.1.16 enthält Quick Search & gebündeltes SII_Decrypt (MPL-2.0) sowie den Hotfix aus 0.1.15.
-> Current version 0.1.16 includes Quick Search & bundled SII_Decrypt (MPL-2.0) plus the 0.1.15 hotfix.
+> Hinweis/Notice: Aktuelle Version 0.1.17 enthält Quick Search & gebündeltes SII_Decrypt (MPL-2.0) sowie mehrere Bugfixes/Verbesserungen.
+> Current version 0.1.17 includes Quick Search & bundled SII_Decrypt (MPL-2.0) plus multiple fixes/improvements.
 > Downloads:
-> - Multi-File (empfohlen / recommended): https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.16/modlist-manager-0.1.16-win-x64.zip
-> - Single-File (kompakte Einzel-EXE): https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.16/modlist-manager-0.1.16-self-contained-win-x64.zip
+> - Multi-File (empfohlen / recommended): https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.17/modlist-manager-0.1.17-win-x64.zip
+> - Single-File (kompakte Einzel-EXE): https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.17/modlist-manager-0.1.17-self-contained-win-x64.zip
 
 ## Inhaltsverzeichnis / Table of Contents
 **Deutsch**
@@ -78,8 +78,8 @@ Wer viele Profile / Modsets (Konvois, verschiedene Savegames, Test-Konfiguration
 
 ## Installation (Benutzer)
 1. Release (ZIP) herunterladen:
-   - Empfohlen (enthält Tools-Ordner direkt): [Multi-File v0.1.16](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.16/modlist-manager-0.1.16-win-x64.zip)
-   - Alternative (eine einzelne EXE): [Single-File v0.1.16](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.16/modlist-manager-0.1.16-self-contained-win-x64.zip)
+  - Empfohlen (enthält Tools-Ordner direkt): [Multi-File v0.1.17](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.17/modlist-manager-0.1.17-win-x64.zip)
+  - Alternative (eine einzelne EXE): [Single-File v0.1.17](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.17/modlist-manager-0.1.17-self-contained-win-x64.zip)
 2. ZIP in einen beliebigen Ordner entpacken (z.B. `D:\Tools\ModlistManager`)
 3. `ETS2ATS.ModlistManager.exe` starten
 4. (Optional) Benutzerrechte: Stelle sicher, dass der Ordner beschreibbar ist (für Modlisten-Dateien)
@@ -216,10 +216,10 @@ Varianten (Beispiele PowerShell):
 pwsh ./build-release.ps1
 
 # Explizite Version Single-File
-pwsh ./build-release.ps1 -Version 0.1.16 -SingleFile:$true
+pwsh ./build-release.ps1 -Version 0.1.17 -SingleFile:$true
 
 # Multi-File (mit Tools-Ordner)
-pwsh ./build-release.ps1 -Version 0.1.16 -SingleFile:$false
+pwsh ./build-release.ps1 -Version 0.1.17 -SingleFile:$false
 ```
 Ergebnis: Verzeichnis `dist/` mit einem oder zwei ZIPs:
 - `modlist-manager-<Version>-self-contained-win-x64.zip` (Single-File)
@@ -257,8 +257,8 @@ Managing many profiles / convoys / experimental mod setups becomes messy. This t
 
 ## Installation (Users)
 1. Download release (ZIP):
-   - Recommended (includes Tools folder with SII_Decrypt.exe): [Multi-File v0.1.16](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.16/modlist-manager-0.1.16-win-x64.zip)
-   - Alternative (single executable): [Single-File v0.1.16](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.16/modlist-manager-0.1.16-self-contained-win-x64.zip)
+  - Recommended (includes Tools folder with SII_Decrypt.exe): [Multi-File v0.1.17](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.17/modlist-manager-0.1.17-win-x64.zip)
+  - Alternative (single executable): [Single-File v0.1.17](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.17/modlist-manager-0.1.17-self-contained-win-x64.zip)
 2. Extract to any folder (e.g. `D:\Tools\ModlistManager`)
 3. Launch `ETS2ATS.ModlistManager.exe`
 4. Ensure folder is writable (for modlist files)
@@ -378,7 +378,7 @@ Recommended release flow:
 Script: `build-release.ps1`
 ```powershell
 pwsh ./build-release.ps1
-pwsh ./build-release.ps1 -Version 0.1.16 -SingleFile:$true
+pwsh ./build-release.ps1 -Version 0.1.17 -SingleFile:$true
 pwsh ./build-release.ps1 -Version 0.1.16 -SingleFile:$false
 ```
 Artifacts in `dist/`:

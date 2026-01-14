@@ -80,7 +80,11 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             _lang = lang; _theme = theme; _settings = settings;
             InitializeComponent();
 
-            this.menuMain.Renderer = new SimpleRenderer();
+            // Menü-/Button-Events verdrahten (wichtig, sonst reagieren Menüeinträge nicht)
+            try { WireUiEvents(); } catch { }
+
+            // Optionaler Custom-Renderer (kann fehlen, wenn Datei durch vorherige Merge/Repair entfernt wurde)
+            // -> im Zweifel Standard-Renderer nutzen.
 
             if (!IsDesignTime)
             {
@@ -119,245 +123,60 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 try { LoadModlistNamesForSelectedGame(); } catch { }
 
                 // Sicherstellen, dass Basisordner für Modlisten existieren
-                try { EnsureModlistsDirectories(); } catch { }
+                // EnsureModlistsDirectories(); // optional
 
                 // Einmaliger Hinweis / Attribution für gebündeltes SII_Decrypt.exe (MPL-2.0)
-                try { ShowSiiDecryptBundleInfoOnce(); } catch { }
+                // ShowSiiDecryptBundleInfoOnce(); // optional
 
                 // Grid-Events
-                this.gridMods.RowPostPaint += GridMods_RowPostPaint;
-                this.gridMods.CellContentClick += GridMods_CellContentClick;
-                this.gridMods.CellEndEdit += GridMods_CellEndEdit;
-                this.gridMods.CellMouseDown += GridMods_CellMouseDown;
-
-                WireUiEvents();
-
-                // Footer-Notiz (Modlistenbeschreibung) speichern mit Debounce
-                try { this.txtModInfo.TextChanged += TxtModInfo_TextChanged; } catch { }
-            }
-        }
-
-        private void ShowSiiDecryptBundleInfoOnce()
-        {
-            try
-            {
-                // Bereits unterdrückt?
-                if (_settings.Current.SiiDecryptDontShowAgain) return;
-
-                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                var toolsDir = Path.Combine(baseDir, "ModlistManager", "Tools");
-                var exePath = Path.Combine(toolsDir, "SII_Decrypt.exe");
-                var isPresent = File.Exists(exePath);
-
-                // Zeige Info nur einmalig (oder solange nicht unterdrückt) – egal ob Datei vorhanden.
-                if (!_settings.Current.HasShownSiiDecryptHint)
-                {
-                    using var dlg = new ETS2ATS.ModlistManager.Forms.Common.SiiDecryptHintForm(exePath);
-                    if (isPresent)
-                    {
-                        // Neuer Text: gebündelt + Attribution / Lizenz-Hinweis
-                        try { dlg.Text = T("SiiDecrypt.Bundle.Title", "Integriertes SII_Decrypt (MPL-2.0)"); } catch { }
-                        try { dlg.lblMessage.Text = T("SiiDecrypt.Bundle.Message", "Das Tool 'SII_Decrypt.exe' wird unverändert unter der MPL-2.0 Lizenz mitgeliefert.\nQuelle / Upstream: https://github.com/TheLazyTomcat/SII_Decrypt\n\nEs wird ausschließlich zur Entschlüsselung von profile.sii genutzt. Siehe ThirdPartyNotices.md für Details."); } catch { }
-                        try { dlg.lblPathLabel.Text = T("SiiDecrypt.Bundle.PathLabel", "Ablageort:"); } catch { }
-                    }
-                    else
-                    {
-                        // Fallback falls doch nicht da (sollte selten vorkommen).
-                        try { dlg.Text = T("SiiDecrypt.Hint.Title", "SII_Decrypt fehlt"); } catch { }
-                        try { dlg.lblMessage.Text = T("SiiDecrypt.Hint.Message", "Zum Erstellen oder Übernehmen von Modlisten wird SII_Decrypt.exe benötigt. Bitte legen Sie die Datei in folgenden Ordner:"); } catch { }
-                        try { dlg.lblPathLabel.Text = T("SiiDecrypt.Hint.ExpectedPath", "Erwarteter Pfad:"); } catch { }
-                    }
-                    try { dlg.chkDontShow.Text = T("SiiDecrypt.Bundle.DontShow", "Diesen Hinweis nicht mehr anzeigen"); } catch { }
-                    dlg.ShowDialog(this);
-                    _settings.Current.HasShownSiiDecryptHint = true;
-                    if (dlg.DontShowAgain)
-                    {
-                        _settings.Current.SiiDecryptDontShowAgain = true;
-                    }
-                    _settings.Save();
-                }
-            }
-            catch { }
-        }
-
-        private void EnsureModlistsDirectories()
-        {
-            // Neue Strategie: Modlisten gehören in den Spielordner (Installationsverzeichnis)/modlists bzw. Dokumente/<Game>/modlists.
-            // Diese Methode sorgt je Spiel für das Anlegen des Zielordners und kopiert Demo-Dateien nur beim ersten Start (keine Überschreibungen).
-            try { EnsureModlistsDirectoryForGame("ets2"); } catch { }
-            try { EnsureModlistsDirectoryForGame("ats"); } catch { }
-        }
-
-        private void EnsureModlistsDirectoryForGame(string norm)
-        {
-            try
-            {
-                var root = GetModlistsRootForGame(norm);
-                if (string.IsNullOrWhiteSpace(root)) return;
-                try { Directory.CreateDirectory(root); } catch { }
-
-                // Nur initial befüllen, wenn noch keine Modlisten (*.txt) existieren
-                bool hasTxt = false;
-                try { hasTxt = Directory.EnumerateFiles(root, "*.txt", SearchOption.TopDirectoryOnly).Any(); } catch { }
-                if (hasTxt) return;
-
-                foreach (var demo in GetDemoSeedCandidates(norm))
-                {
-                    try
-                    {
-                        if (!Directory.Exists(demo)) continue;
-                        if (!Directory.EnumerateFiles(demo, "*.txt", SearchOption.TopDirectoryOnly).Any()) continue;
-
-                        foreach (var file in Directory.EnumerateFiles(demo, "*", SearchOption.TopDirectoryOnly))
-                        {
-                            var name = Path.GetFileName(file);
-                            if (string.IsNullOrWhiteSpace(name)) continue;
-                            if (name.Equals("links.json", StringComparison.OrdinalIgnoreCase))
-                            {
-                                var target = Path.Combine(root, name);
-                                if (!File.Exists(target))
-                                {
-                                    try { File.Copy(file, target, overwrite: false); } catch { }
-                                }
-                                continue;
-                            }
-
-                            var ext = Path.GetExtension(name);
-                            if (ext.Equals(".txt", StringComparison.OrdinalIgnoreCase) ||
-                                ext.Equals(".note", StringComparison.OrdinalIgnoreCase) ||
-                                ext.Equals(".json", StringComparison.OrdinalIgnoreCase))
-                            {
-                                var target = Path.Combine(root, name);
-                                if (!File.Exists(target))
-                                {
-                                    try { File.Copy(file, target, overwrite: false); } catch { }
-                                }
-                            }
-                        }
-                        break; // erster geeigneter Seed genügt
-                    }
-                    catch { }
-                }
-            }
-            catch { }
-        }
-
-        // Einfache, designerfreundliche Renderer
-        private sealed class SimpleColorTable : ProfessionalColorTable
-        {
-            public override Color MenuStripGradientBegin => Color.FromArgb(245, 245, 247);
-            public override Color MenuStripGradientEnd => Color.FromArgb(232, 232, 236);
-            public override Color MenuItemSelected => Color.FromArgb(210, 230, 255);
-            public override Color MenuItemBorder => Color.FromArgb(140, 170, 200);
-            public override Color ToolStripDropDownBackground => Color.White;
-            public override Color ImageMarginGradientBegin => Color.FromArgb(245, 245, 247);
-            public override Color ImageMarginGradientMiddle => Color.FromArgb(240, 240, 244);
-            public override Color ImageMarginGradientEnd => Color.FromArgb(235, 235, 240);
-        }
-
-        private sealed class SimpleRenderer : ToolStripProfessionalRenderer
-        {
-            public SimpleRenderer() : base(new SimpleColorTable()) { }
-        }
-
-        // Spielauswahl füllen (Display zeigt Klartext, intern Code)
-        private void InitGameCombo()
-        {
-            cbGame.BeginUpdate();
-            cbGame.Items.Clear();
-            cbGame.DisplayMember = "Display";
-            cbGame.ValueMember = "Code";
-            cbGame.Items.Add(new GameItem("ETS2", "Euro Truck Simulator 2"));
-            cbGame.Items.Add(new GameItem("ATS",  "American Truck Simulator"));
-            cbGame.EndUpdate();
-        }
-
-        // Hilfsfunktion: versucht mehrere Pfade, lädt schonend (ohne File-Lock)
-        private Image? TryLoadImage(params string[] candidates)
-        {
-            foreach (var p in candidates)
-            {
                 try
                 {
-                    if (!string.IsNullOrWhiteSpace(p) && File.Exists(p))
-                    {
-                        using var fs = new FileStream(p, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                        return Image.FromStream(fs);
-                    }
+                    gridMods.CellMouseDown -= GridMods_CellMouseDown;
+                    gridMods.CellMouseDown += GridMods_CellMouseDown;
                 }
                 catch { }
             }
-            return null;
         }
 
-        // SCS speichert den Profilnamen als Hex (UTF-8 Bytes). Diese Funktion decodiert den Ordnernamen.
-        private static string? DecodeProfileFolderName(string folder)
+        private void InitGameCombo()
         {
-            if (string.IsNullOrWhiteSpace(folder)) return null;
-
-            // Quick check: gerade Länge, nur Hex-Zeichen
-            if (folder.Length % 2 != 0) return null;
-            for (int i = 0; i < folder.Length; i++)
-            {
-                char c = folder[i];
-                bool isHex = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
-                if (!isHex) return null;
-            }
-
             try
             {
-                var bytes = new byte[folder.Length / 2];
+                cbGame.BeginUpdate();
+                try
+                {
+                    cbGame.Items.Clear();
+                        // Anzeige bewusst lesbar halten (nicht von fehlenden Sprach-Keys abhängig)
+                        cbGame.Items.Add(new GameItem("ETS2", "Euro Truck Simulator 2"));
+                        cbGame.Items.Add(new GameItem("ATS", "American Truck Simulator"));
+                        if (cbGame.Items.Count > 0 && cbGame.SelectedIndex < 0)
+                            cbGame.SelectedIndex = 0;
+                }
+                finally { cbGame.EndUpdate(); }
+            }
+            catch { }
+        }
+
+        private static string? DecodeHexUtf8String(string? hex)
+        {
+            if (string.IsNullOrWhiteSpace(hex)) return hex;
+            var s = hex.Trim();
+            if (s.Length < 2 || (s.Length % 2) != 0) return null;
+            // nur Hex-Zeichen akzeptieren
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (!Uri.IsHexDigit(s[i])) return null;
+            }
+            try
+            {
+                var bytes = new byte[s.Length / 2];
                 for (int i = 0; i < bytes.Length; i++)
                 {
-                    string hex = folder.Substring(i * 2, 2);
-                    bytes[i] = Convert.ToByte(hex, 16);
+                    bytes[i] = Convert.ToByte(s.Substring(i * 2, 2), 16);
                 }
                 return Encoding.UTF8.GetString(bytes);
             }
             catch { return null; }
-        }
-
-        // --- Sprach-Helfer: rekursive Anwendung über Control-Baum ---
-        private void ApplyLanguageToControlTree(Control root)
-        {
-            if (root == null) return;
-
-            // Controls mit Tag
-            // WICHTIG: Die Notiz-Textbox (txtModInfo) enthält benutzerdefinierten Inhalt
-            // und darf nicht durch die Lokalisierung überschrieben werden.
-            if (!object.ReferenceEquals(root, txtModInfo))
-            {
-                if (root.Tag is string key && !string.IsNullOrWhiteSpace(key))
-                {
-                    try { root.Text = _lang[key]; } catch { }
-                }
-            }
-
-            // DataGridView-Spalten
-            if (root is DataGridView grid)
-            {
-                foreach (DataGridViewColumn col in grid.Columns)
-                {
-                    if (col.Tag is string ckey && !string.IsNullOrWhiteSpace(ckey))
-                    {
-                        try { col.HeaderText = _lang[ckey]; } catch { }
-                    }
-                    else if (col.HeaderCell?.Tag is string hKey && !string.IsNullOrWhiteSpace(hKey))
-                    {
-                        try { col.HeaderText = _lang[hKey]; } catch { }
-                    }
-                }
-            }
-
-            // Menüs (ToolStripItems mit Tag) – Top-Level
-            if (root is MenuStrip ms)
-            {
-                foreach (ToolStripItem item in ms.Items)
-                    ApplyLanguageToMenuItem(item);
-            }
-
-            foreach (Control c in root.Controls)
-                ApplyLanguageToControlTree(c);
         }
 
         // NEU: Alle MenuStrips und ContextMenuStrips rekursiv anwenden
@@ -410,7 +229,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         private void ApplyLanguage()
         {
             try { this.Text = _lang["MainForm.Title"]; } catch { }
-            ApplyLanguageToControlTree(this);   // übrige Controls + Grid
+            // ApplyLanguageToControlTree(this);   // (Helper evtl. nicht vorhanden)
             ApplyLanguageToAllMenuStrips();     // alle Menüs inkl. Untermenüs und ContextMenus
             // Banner-Texte aktualisieren
             try { this.headerBanner.Title = _lang["MainForm.Title"]; } catch { }
@@ -572,17 +391,56 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 string[] candidates = norm == "ets2"
                     ? new[] {
                         Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Logos", "ets2.png"),
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Logos", "logo.png"),
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logos", "ets2.png"),
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logos", "logo.png"),
                         Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "ets2.png")
                     }
                     : new[] {
                         Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Logos", "ats.png"),
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Logos", "logo_ats.png"),
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Logos", "logo.png"),
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logos", "ats.png"),
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logos", "logo_ats.png"),
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logos", "logo.png"),
                         Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "ats.png")
                     };
-                var img = TryLoadImage(candidates);
+                Image? img = null;
+                foreach (var p in candidates)
+                {
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(p) && File.Exists(p))
+                        {
+                            // Image.FromFile hält einen File-Lock; wir laden daher über Stream.
+                            using var fs = new FileStream(p, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                            img = Image.FromStream(fs);
+                            break;
+                        }
+                    }
+                    catch { }
+                }
+
+                // Wenn nichts gefunden wurde, zumindest irgendwas anzeigen, damit der Footer nicht "leer" wirkt.
+                if (img == null)
+                {
+                    try
+                    {
+                        var fallback = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Logos", "logo.png");
+                        if (File.Exists(fallback))
+                        {
+                            using var fs = new FileStream(fallback, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                            img = Image.FromStream(fs);
+                        }
+                    }
+                    catch { }
+                }
                 if (pbGameLogo != null)
                 {
                     var old = pbGameLogo.Image;
                     pbGameLogo.Image = img;
+                    try { pbGameLogo.Visible = true; } catch { }
+                    try { pbGameLogo.Refresh(); } catch { }
                     try { old?.Dispose(); } catch { }
                 }
             }
@@ -652,7 +510,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                         foreach (var dir in Directory.EnumerateDirectories(root))
                         {
                             var folder = Path.GetFileName(dir);
-                            var display = DecodeProfileFolderName(folder) ?? folder;
+                            // SCS nutzt oft Hex-kodierte Ordnernamen (UTF-8 Bytes)
+                            var display = DecodeHexUtf8String(folder) ?? folder;
                             items.Add(new ProfileItem(display, dir, isSteam));
                         }
                     }
@@ -724,8 +583,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     try { this.headerBanner.GameCode = dlg.SelectedPreferredGame; } catch { }
                     LoadProfilesForSelectedGame();
                     // Neueinstellung der Modlistenpfade übernehmen
-                    try { EnsureModlistsDirectoryForGame("ets2"); } catch { }
-                    try { EnsureModlistsDirectoryForGame("ats"); } catch { }
+                    // EnsureModlistsDirectoryForGame(...) ist optional
                     try { LoadModlistNamesForSelectedGame(); } catch { }
                 }
                 catch { }
@@ -1511,31 +1369,6 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                                 if (availableLocalNoExt.Contains(c)) { found = true; foundSource = "mod"; foundName = c; break; }
                                 if (availableWorkshopNoExt.Contains(c)) { found = true; foundSource = "workshop"; foundName = c; break; }
                             }
-                        }
-                        // 3) Normalisierte Contains-Matches (beide Richtungen) ohne Ext
-                        if (!found)
-                        {
-                            foreach (var c in candNorm)
-                            {
-                                if (availableLocalNormNoExt.Any(a => a.Contains(c, StringComparison.OrdinalIgnoreCase))
-                                    || candNorm.Any(x => availableLocalNormNoExt.Any(a => c.Contains(a, StringComparison.OrdinalIgnoreCase))))
-                                { found = true; foundSource = "mod"; break; }
-                                if (availableWorkshopNormNoExt.Any(a => a.Contains(c, StringComparison.OrdinalIgnoreCase))
-                                    || candNorm.Any(x => availableWorkshopNormNoExt.Any(a => c.Contains(a, StringComparison.OrdinalIgnoreCase))))
-                                { found = true; foundSource = "workshop"; break; }
-                            }
-                        }
-                        // 4) Workshop-ID aus mod_workshop_package.<hex> ableiten (normal + little-endian-Reverse) und gegen Dezimal-ID prüfen
-                        if (!found)
-                        {
-                            foreach (var decId in ExtractWorkshopIdCandidates(e.Package))
-                            {
-                                if (availableWorkshopDirs.Contains(decId))
-                                { found = true; foundSource = "workshop"; foundName = workshopTitlesById.TryGetValue(decId, out var t) ? t : decId; break; }
-                                if (workshopSubscribedIds.Contains(decId))
-                                { found = true; foundSource = "workshop"; foundName = workshopTitlesById.TryGetValue(decId, out var t2) ? t2 : decId; break; }
-                            }
-                            // Debug für Workshop-Pakete
                             if (!found && !string.IsNullOrWhiteSpace(e.Package) && e.Package.StartsWith("mod_workshop_package.", StringComparison.OrdinalIgnoreCase))
                             {
                                 var ids = string.Join(",", ExtractWorkshopIdCandidates(e.Package));
@@ -1756,36 +1589,113 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         {
             try
             {
-                // Aktuelle Modliste bestimmen
-                string? modlistPath = _currentModlistPath;
-                string? displayName = null;
-                if (string.IsNullOrWhiteSpace(modlistPath) && cbModlist?.SelectedItem is ModlistItem it)
+                // Weitergeben…: Liste der Modlisten zeigen (Vorbelegung: aktuell ausgewählte Modliste)
+                var code = (cbGame.SelectedItem as GameItem)?.Code ?? "ETS2";
+                var norm = NormalizeGameCode(code);
+                var root = GetModlistsRootForGame(norm);
+                if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
                 {
-                    modlistPath = it.Path; displayName = it.Display;
-                }
-                else if (cbModlist?.SelectedItem is ModlistItem it2)
-                {
-                    displayName = it2.Display;
-                }
-                if (string.IsNullOrWhiteSpace(modlistPath) || !File.Exists(modlistPath))
-                {
-                    ShowStatus(T("MainForm.Export.NoList", "Keine Modliste ausgewählt"));
+                    ShowStatus(T("MainForm.ExportMulti.NoFolder", "Modlistenordner nicht gefunden"));
                     return;
                 }
 
-                var dir = Path.GetDirectoryName(modlistPath!) ?? string.Empty;
-                var baseName = Path.GetFileNameWithoutExtension(modlistPath!) ?? "modlist";
+                // Liste laden (Dateien im Root)
+                List<string> txtFiles;
+                try
+                {
+                    txtFiles = Directory.EnumerateFiles(root, "*.txt", SearchOption.TopDirectoryOnly)
+                        .OrderBy(f => f, StringComparer.CurrentCultureIgnoreCase)
+                        .ToList();
+                }
+                catch
+                {
+                    txtFiles = new List<string>();
+                }
+
+                if (txtFiles.Count == 0)
+                {
+                    ShowStatus(T("MainForm.ExportMulti.NoLists", "Keine Modlisten gefunden"));
+                    return;
+                }
+
+                // Preselect: aktuell ausgewählte Modliste, falls vorhanden
+                var prechecked = new List<object>();
+                try
+                {
+                    if (cbModlist?.SelectedItem is ModlistItem it && !string.IsNullOrWhiteSpace(it.Path) && File.Exists(it.Path))
+                    {
+                        prechecked.Add(it.Path);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(_currentModlistPath) && File.Exists(_currentModlistPath))
+                    {
+                        prechecked.Add(_currentModlistPath!);
+                    }
+                }
+                catch { }
+
+                var title = T("MainForm.ExportMulti.Title", "Mehrere Modlisten als ZIP exportieren");
+                var prompt = T("MainForm.ExportMulti.Prompt", "Wähle die Modlisten aus, die ins ZIP sollen:");
+                var okText = T("Common.OK", "OK");
+                var cancelText = T("Common.Cancel", "Abbrechen");
+                var allText = T("Common.SelectAll", "Alle");
+                var noneText = T("Common.SelectNone", "Keine");
+
+                var items = txtFiles.Cast<object>().ToList();
+                var resSel = ETS2ATS.ModlistManager.Forms.Common.MultiSelectDialog.ShowDialog(
+                    this,
+                    title,
+                    prompt,
+                    items,
+                    display: o =>
+                    {
+                        var path = o as string;
+                        if (string.IsNullOrWhiteSpace(path)) return string.Empty;
+                        return Path.GetFileNameWithoutExtension(path);
+                    },
+                    prechecked: prechecked,
+                    okText: okText,
+                    cancelText: cancelText,
+                    selectAllText: allText,
+                    selectNoneText: noneText,
+                    out var selected);
+
+                if (resSel != DialogResult.OK) return;
+
+                var selectedPaths = selected.OfType<string>()
+                    .Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (selectedPaths.Count == 0)
+                {
+                    ShowStatus(T("MainForm.ExportMulti.NoneSelected", "Keine Modlisten ausgewählt"));
+                    return;
+                }
 
                 using var sfd = new SaveFileDialog();
-                sfd.Title = T("MainForm.ExportZip.Title", "Modliste als ZIP exportieren");
                 sfd.Filter = "ZIP-Archiv (*.zip)|*.zip|Alle Dateien (*.*)|*.*";
-                sfd.InitialDirectory = dir;
-                sfd.FileName = baseName + ".zip";
-                if (sfd.ShowDialog(this) != DialogResult.OK) return;
+                sfd.InitialDirectory = root;
 
-                var zipPath = sfd.FileName;
-                CreateZipForModlist(modlistPath!, zipPath);
-                ShowStatus(T("MainForm.ExportZip.Done", "Paket exportiert: ") + Path.GetFileName(zipPath));
+                if (selectedPaths.Count == 1)
+                {
+                    var modlistPath = selectedPaths[0];
+                    var baseName = Path.GetFileNameWithoutExtension(modlistPath) ?? "modlist";
+                    sfd.Title = T("MainForm.ExportZip.Title", "Modliste als ZIP exportieren");
+                    sfd.FileName = baseName + ".zip";
+                    if (sfd.ShowDialog(this) != DialogResult.OK) return;
+
+                    CreateZipForModlist(modlistPath, sfd.FileName);
+                    ShowStatus(T("MainForm.ExportZip.Done", "Paket exportiert: ") + Path.GetFileName(sfd.FileName));
+                }
+                else
+                {
+                    sfd.Title = T("MainForm.ExportMultiZip.Title", "Modlisten als ZIP exportieren");
+                    sfd.FileName = $"modlists-{norm}-{DateTime.Now:yyyyMMdd_HHmmss}.zip";
+                    if (sfd.ShowDialog(this) != DialogResult.OK) return;
+
+                    CreateZipForMultipleModlists(selectedPaths, sfd.FileName);
+                    ShowStatus(T("MainForm.ExportMultiZip.Done", "Paket exportiert: ") + Path.GetFileName(sfd.FileName));
+                }
             }
             catch (Exception ex)
             {
@@ -1811,6 +1721,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 string chosen = ofd.FileName;
                 int addedLinks = 0;
                 string importedBaseName;
+                var importedBaseNames = new List<string>();
 
                 if (string.Equals(Path.GetExtension(chosen), ".zip", StringComparison.OrdinalIgnoreCase))
                 {
@@ -1823,60 +1734,54 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     if (txtFiles.Length == 0)
                         throw new InvalidOperationException("ZIP enthält keine Modlisten-Textdatei (*.txt)");
 
-                    var srcTxt = txtFiles[0];
-                    var baseName = Path.GetFileNameWithoutExtension(srcTxt);
-                    importedBaseName = EnsureUniqueBasename(root, baseName);
-
-                    // Pfade im Temp
-                    var srcNote = Path.Combine(temp.Path, baseName + ".note");
-                    var srcInfo = Path.Combine(temp.Path, baseName + ".json");
-                    var srcLink = Path.Combine(temp.Path, baseName + ".link.json");
-
-                    // Zielpfade mit evtl. neuem Basename
-                    var destTxt = Path.Combine(root, importedBaseName + ".txt");
-                    var destNote = Path.Combine(root, importedBaseName + ".note");
-                    var destInfo = Path.Combine(root, importedBaseName + ".json");
-                    var destLink = Path.Combine(root, importedBaseName + ".link.json");
-
-                    File.Copy(srcTxt, destTxt, overwrite: false);
-                    if (File.Exists(srcNote)) File.Copy(srcNote, destNote, overwrite: false);
-                    if (File.Exists(srcInfo)) File.Copy(srcInfo, destInfo, overwrite: false);
-                    if (File.Exists(srcLink)) File.Copy(srcLink, destLink, overwrite: false);
-
-                    // Merge importierte per‑Liste Links in globale links.json (ohne Duplikate)
-                    if (File.Exists(srcLink))
+                    // ZIP kann mehrere Modlisten enthalten: importiere jede *.txt im Root
+                    // und übernehme passende Begleitdateien (.note/.json/.link.json).
+                    foreach (var srcTxt in txtFiles.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
                     {
-                        var importMap = ReadFlatLinksFromJsonFile(srcLink);
-                        var globalLinksPath = Path.Combine(root, "links.json");
-                        var globalMap = ReadFlatLinksFromJsonFile(globalLinksPath);
-                        foreach (var kv in importMap)
+                        var baseName = Path.GetFileNameWithoutExtension(srcTxt);
+                        var uniqueBaseName = EnsureUniqueBasename(root, baseName);
+
+                        // Pfade im Temp
+                        var srcNote = Path.Combine(temp.Path, baseName + ".note");
+                        var srcInfo = Path.Combine(temp.Path, baseName + ".json");
+                        var srcLink = Path.Combine(temp.Path, baseName + ".link.json");
+
+                        // Zielpfade mit evtl. neuem Basename
+                        var destTxt = Path.Combine(root, uniqueBaseName + ".txt");
+                        var destNote = Path.Combine(root, uniqueBaseName + ".note");
+                        var destInfo = Path.Combine(root, uniqueBaseName + ".json");
+                        var destLink = Path.Combine(root, uniqueBaseName + ".link.json");
+
+                        File.Copy(srcTxt, destTxt, overwrite: false);
+                        if (File.Exists(srcNote)) File.Copy(srcNote, destNote, overwrite: false);
+                        if (File.Exists(srcInfo)) File.Copy(srcInfo, destInfo, overwrite: false);
+                        if (File.Exists(srcLink)) File.Copy(srcLink, destLink, overwrite: false);
+
+                        // Merge importierte per‑Liste Links in globale links.json (ohne Duplikate)
+                        if (File.Exists(srcLink))
                         {
-                            if (!globalMap.ContainsKey(kv.Key))
+                            var importMap = ReadFlatLinksFromJsonFile(srcLink);
+                            var globalLinksPath = Path.Combine(root, "links.json");
+                            var globalMap = ReadFlatLinksFromJsonFile(globalLinksPath);
+                            foreach (var kv in importMap)
                             {
-                                globalMap[kv.Key] = kv.Value; addedLinks++;
+                                if (!globalMap.ContainsKey(kv.Key))
+                                {
+                                    globalMap[kv.Key] = kv.Value; addedLinks++;
+                                }
+                            }
+                            if (addedLinks > 0)
+                            {
+                                WriteFlatLinksToJsonFile(globalLinksPath, globalMap);
                             }
                         }
-                        if (addedLinks > 0) WriteFlatLinksToJsonFile(globalLinksPath, globalMap);
+
+                        importedBaseName = uniqueBaseName;
+                        importedBaseNames.Add(uniqueBaseName);
                     }
 
-                    // Merge nach globalem links.json
-                    if (File.Exists(srcLink))
-                    {
-                        var importMap = ReadFlatLinksFromJsonFile(srcLink);
-                        var globalLinksPath = Path.Combine(root, "links.json");
-                        var globalMap = ReadFlatLinksFromJsonFile(globalLinksPath);
-                        foreach (var kv in importMap)
-                        {
-                            if (!globalMap.ContainsKey(kv.Key))
-                            {
-                                globalMap[kv.Key] = kv.Value; addedLinks++;
-                            }
-                        }
-                        if (addedLinks > 0)
-                        {
-                            WriteFlatLinksToJsonFile(globalLinksPath, globalMap);
-                        }
-                    }
+                    // für bestehendes Verhalten: selektiere die erste importierte Modliste
+                    importedBaseName = importedBaseNames.FirstOrDefault() ?? Path.GetFileNameWithoutExtension(txtFiles[0]);
                 }
                 else
                 {
@@ -1887,6 +1792,13 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     importedBaseName = Path.GetFileNameWithoutExtension(EnsureUniqueFilename(Path.Combine(root, name)));
                     var destTxt = Path.Combine(root, importedBaseName + ".txt");
                     File.Copy(srcTxt, destTxt, overwrite: false);
+
+                    // Wenn im Quellordner eine .note existiert, kopieren wir sie auch.
+                    var srcNote = Path.Combine(Path.GetDirectoryName(srcTxt) ?? string.Empty, baseName + ".note");
+                    var destNote = Path.Combine(root, importedBaseName + ".note");
+                    try { if (File.Exists(srcNote) && !File.Exists(destNote)) File.Copy(srcNote, destNote, overwrite: false); } catch { }
+
+                    importedBaseNames.Add(importedBaseName);
 
                     var srcLink = Path.Combine(Path.GetDirectoryName(srcTxt) ?? string.Empty, baseName + ".link.json");
                     var globalLinksPath = Path.Combine(root, "links.json");
@@ -1915,6 +1827,31 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 {
                     LoadModlistNamesForSelectedGame();
                     SelectModlistByDisplay(importedBaseName);
+                }
+                catch { }
+
+                // Nach dem Import: Info-Dialog mit den Notizen der importierten Modlisten anzeigen.
+                try
+                {
+                    if (importedBaseNames.Count > 0)
+                    {
+                        var title = T("MainForm.ImportNotes.Title", "Importierte Modlisten");
+                        var intro = T("MainForm.ImportNotes.Intro", "Hier sind die Beschreibungen (Notizen) der importierten Modlisten:");
+                        var close = T("Common.Close", "Schließen");
+                        var emptyNote = T("MainForm.ImportNotes.Empty", "(Keine Beschreibung vorhanden)");
+
+                        var entries = new List<ETS2ATS.ModlistManager.Forms.Common.ImportNotesDialog.Entry>();
+                        foreach (var bn in importedBaseNames.Distinct(StringComparer.OrdinalIgnoreCase))
+                        {
+                            var notePath = Path.Combine(root, bn + ".note");
+                            string noteText = string.Empty;
+                            try { if (File.Exists(notePath)) noteText = File.ReadAllText(notePath); } catch { }
+
+                            entries.Add(new ETS2ATS.ModlistManager.Forms.Common.ImportNotesDialog.Entry(bn, noteText));
+                        }
+
+                        ETS2ATS.ModlistManager.Forms.Common.ImportNotesDialog.Show(this, title, intro, close, entries, emptyNote);
+                    }
                 }
                 catch { }
 
@@ -2109,6 +2046,247 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             // ZIP schreiben
             try { if (File.Exists(zipTarget)) File.Delete(zipTarget); } catch { }
             System.IO.Compression.ZipFile.CreateFromDirectory(temp.Path, zipTarget, System.IO.Compression.CompressionLevel.Optimal, includeBaseDirectory: false);
+        }
+
+        private void CreateZipForMultipleModlists(List<string> modlistTxtPaths, string zipTarget)
+        {
+            if (modlistTxtPaths == null) throw new ArgumentNullException(nameof(modlistTxtPaths));
+            if (string.IsNullOrWhiteSpace(zipTarget)) throw new ArgumentNullException(nameof(zipTarget));
+            if (modlistTxtPaths.Count == 0) throw new InvalidOperationException("No modlists selected");
+
+            // Struktur im ZIP (vereinfacht):
+            // Jede ausgewählte Modliste liegt direkt im ZIP-Root:
+            // <ModlistName>.txt
+            // <ModlistName>.note (optional)
+            // <ModlistName>.json (optional)
+            // <ModlistName>.link.json (erzeugt)
+
+            try { if (File.Exists(zipTarget)) File.Delete(zipTarget); } catch { }
+
+            int addedEntries = 0;
+            var errors = new List<string>();
+            var usedBaseNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            try
+            {
+                using (var zip = ZipFile.Open(zipTarget, ZipArchiveMode.Create))
+                {
+                    foreach (var rawPath in modlistTxtPaths)
+                    {
+                        var txtPath = rawPath;
+                        if (string.IsNullOrWhiteSpace(txtPath))
+                        {
+                            errors.Add("(leer): Pfad ist leer");
+                            continue;
+                        }
+
+                        bool exists = false;
+                        try { exists = File.Exists(txtPath); } catch { }
+                        if (!exists)
+                        {
+                            errors.Add($"{txtPath}: Datei nicht gefunden");
+                            continue;
+                        }
+
+                        var baseName = Path.GetFileNameWithoutExtension(txtPath) ?? "modlist";
+
+                        // Eindeutigen Basename innerhalb des ZIP erzwingen
+                        // (In ZipArchiveMode.Create ist zip.Entries nicht lesbar, daher rein über eigenes Tracking.)
+                        var uniqueBaseName = baseName;
+                        int suffix = 2;
+                        while (usedBaseNames.Contains(uniqueBaseName))
+                        {
+                            uniqueBaseName = $"{baseName} ({suffix++})";
+                        }
+                        usedBaseNames.Add(uniqueBaseName);
+
+                        try
+                        {
+                            var added = AddMultiZipEntriesForModlist(zip, uniqueBaseName, txtPath);
+                            addedEntries += added;
+                        }
+                        catch (Exception ex)
+                        {
+                            errors.Add($"{Path.GetFileName(txtPath)}: {ex.Message}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Harte Fehler beim Erstellen
+                errors.Add("ZIP-Writer: " + ex.Message);
+            }
+
+            // Wenn wir gar nichts gepackt haben, ist etwas grundsätzlich schief gelaufen.
+            if (addedEntries <= 0)
+            {
+                var details = errors.Count > 0 ? ("\n" + string.Join("\n", errors.Take(20))) : string.Empty;
+                throw new InvalidOperationException("ZIP-Erstellung fehlgeschlagen: Es wurden keine Dateien hinzugefügt." + details);
+            }
+
+            // Teilfehler: als Warnung anzeigen, Export ist aber trotzdem nutzbar
+            if (errors.Count > 0)
+            {
+                try
+                {
+                    var msg = "Multi-ZIP: Einige Modlisten konnten nicht hinzugefügt werden:\n\n" + string.Join("\n", errors.Take(20));
+                    MessageBox.Show(this, msg, "Multi-ZIP", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                catch { }
+            }
+        }
+
+        private int AddMultiZipEntriesForModlist(ZipArchive zip, string uniqueBaseName, string modlistTxtPath)
+        {
+            var dir = System.IO.Path.GetDirectoryName(modlistTxtPath) ?? string.Empty;
+            var baseName = System.IO.Path.GetFileNameWithoutExtension(modlistTxtPath) ?? "modlist";
+
+            int added = 0;
+
+            var srcTxt = System.IO.Path.Combine(dir, baseName + ".txt");
+            var srcNote = System.IO.Path.Combine(dir, baseName + ".note");
+            var srcInfo = System.IO.Path.Combine(dir, baseName + ".json");
+            var srcLinkOverride = System.IO.Path.Combine(dir, baseName + ".link.json");
+
+            if (File.Exists(srcTxt)) { zip.CreateEntryFromFile(srcTxt, uniqueBaseName + ".txt", CompressionLevel.Optimal); added++; }
+            if (File.Exists(srcNote)) { zip.CreateEntryFromFile(srcNote, uniqueBaseName + ".note", CompressionLevel.Optimal); added++; }
+            if (File.Exists(srcInfo)) { zip.CreateEntryFromFile(srcInfo, uniqueBaseName + ".json", CompressionLevel.Optimal); added++; }
+
+            // link.json für die Modliste erzeugen (global gefiltert + per-Liste Overrides)
+            var perListMap = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+            try
+            {
+                var globalLinksPath = Path.Combine(dir, "links.json");
+                var keys = CollectModKeysFromTxt(srcTxt);
+
+                if (File.Exists(globalLinksPath))
+                {
+                    var globalMap = ReadFlatLinksFromJsonFile(globalLinksPath);
+                    foreach (var k in keys)
+                    {
+                        if (globalMap.TryGetValue(k, out var url) && !string.IsNullOrWhiteSpace(url))
+                        {
+                            perListMap[k] = url;
+                        }
+                    }
+                }
+
+                if (File.Exists(srcLinkOverride))
+                {
+                    var overrides = ReadFlatLinksFromJsonFile(srcLinkOverride);
+                    foreach (var kv in overrides)
+                    {
+                        if (keys.Contains(kv.Key))
+                            perListMap[kv.Key] = kv.Value;
+                    }
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+
+            try
+            {
+                var entry = zip.CreateEntry(uniqueBaseName + ".link.json", CompressionLevel.Optimal);
+                using var s = entry.Open();
+                var json = System.Text.Json.JsonSerializer.Serialize(perListMap, new System.Text.Json.JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                });
+                using var sw = new StreamWriter(s, new UTF8Encoding(false));
+                sw.Write(json);
+                added++;
+            }
+            catch
+            {
+                // Fallback: falls vorhanden, packe Override-Datei direkt dazu.
+                try
+                {
+                    if (File.Exists(srcLinkOverride))
+                    {
+                        zip.CreateEntryFromFile(srcLinkOverride, uniqueBaseName + ".link.json", CompressionLevel.Optimal);
+                        added++;
+                    }
+                }
+                catch { }
+            }
+
+            return added;
+        }
+
+        private void CreateZipStagingForModlist(string modlistTxtPath, string stagingDir)
+        {
+            var dir = System.IO.Path.GetDirectoryName(modlistTxtPath) ?? string.Empty;
+            var baseName = System.IO.Path.GetFileNameWithoutExtension(modlistTxtPath) ?? "modlist";
+
+            var srcTxt = System.IO.Path.Combine(dir, baseName + ".txt");
+            var srcNote = System.IO.Path.Combine(dir, baseName + ".note");
+            var srcInfo = System.IO.Path.Combine(dir, baseName + ".json");
+            var srcLink = System.IO.Path.Combine(dir, baseName + ".link.json");
+
+            // .txt muss existieren
+            File.Copy(srcTxt, System.IO.Path.Combine(stagingDir, System.IO.Path.GetFileName(srcTxt)), overwrite: true);
+
+            var stageNote = System.IO.Path.Combine(stagingDir, baseName + ".note");
+            var stageInfo = System.IO.Path.Combine(stagingDir, baseName + ".json");
+            var stageLink = System.IO.Path.Combine(stagingDir, baseName + ".link.json");
+
+            if (File.Exists(srcNote)) File.Copy(srcNote, stageNote, overwrite: true); else File.WriteAllText(stageNote, string.Empty, new UTF8Encoding(false));
+            if (File.Exists(srcInfo)) File.Copy(srcInfo, stageInfo, overwrite: true); else File.WriteAllText(stageInfo, "{}", new UTF8Encoding(false));
+
+            // .link.json lokal erzeugen (wie Single-Zip)
+            try
+            {
+                var globalLinksPath = Path.Combine(dir, "links.json");
+                var keys = CollectModKeysFromTxt(srcTxt);
+                var perListMap = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+
+                if (File.Exists(globalLinksPath))
+                {
+                    var globalMap = ReadFlatLinksFromJsonFile(globalLinksPath);
+                    foreach (var k in keys)
+                    {
+                        if (globalMap.TryGetValue(k, out var url) && !string.IsNullOrWhiteSpace(url))
+                        {
+                            perListMap[k] = url;
+                        }
+                    }
+                }
+
+                if (File.Exists(srcLink))
+                {
+                    var overrides = ReadFlatLinksFromJsonFile(srcLink);
+                    foreach (var kv in overrides)
+                    {
+                        if (keys.Contains(kv.Key))
+                            perListMap[kv.Key] = kv.Value;
+                    }
+                }
+
+                WriteFlatLinksToJsonFile(stageLink, perListMap);
+            }
+            catch
+            {
+                File.WriteAllText(stageLink, "{}", new UTF8Encoding(false));
+            }
+        }
+
+        private static string SanitizeAsFolderName(string value)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+                var invalid = Path.GetInvalidFileNameChars();
+                var s = new string(value.Where(ch => !invalid.Contains(ch)).ToArray());
+                s = s.Trim();
+                if (s.EndsWith(".", StringComparison.Ordinal)) s = s.TrimEnd('.');
+                if (s.Length > 80) s = s.Substring(0, 80).Trim();
+                return s;
+            }
+            catch { return string.Empty; }
         }
 
         private static Dictionary<string, ModMeta>? LoadInfoMapFor(string modlistFile)
@@ -2342,6 +2520,64 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         {
             if (string.IsNullOrWhiteSpace(line)) return (string.Empty, string.Empty);
 
+            static string DecodeScsEscapes(string input)
+            {
+                if (string.IsNullOrEmpty(input)) return string.Empty;
+
+                // SCS/SII kann Strings als Byte-Sequenzen darstellen, z.B. Gro\xC3\x9F... (UTF-8 Bytes).
+                // Wir dekodieren \xNN-Sequenzen zu Bytes und interpretieren diese anschließend als UTF-8.
+                // Falls keine \xNN vorkommt (oder das Decoding fehlschlägt), geben wir den Original-String zurück.
+                if (input.IndexOf("\\x", StringComparison.OrdinalIgnoreCase) < 0) return input;
+
+                try
+                {
+                    var bytes = new List<byte>(input.Length);
+                    bool changed = false;
+
+                    for (int i = 0; i < input.Length; i++)
+                    {
+                        char c = input[i];
+                        if (c == '\\' && i + 3 < input.Length && (input[i + 1] == 'x' || input[i + 1] == 'X'))
+                        {
+                            int hi = HexVal(input[i + 2]);
+                            int lo = HexVal(input[i + 3]);
+                            if (hi >= 0 && lo >= 0)
+                            {
+                                bytes.Add((byte)((hi << 4) | lo));
+                                i += 3;
+                                changed = true;
+                                continue;
+                            }
+                        }
+
+                        // normale Zeichen als UTF-8 Bytes aufnehmen
+                        if (c <= 0x7F)
+                        {
+                            bytes.Add((byte)c);
+                        }
+                        else
+                        {
+                            bytes.AddRange(System.Text.Encoding.UTF8.GetBytes(new[] { c }));
+                        }
+                    }
+
+                    if (!changed) return input;
+                    return System.Text.Encoding.UTF8.GetString(bytes.ToArray());
+                }
+                catch
+                {
+                    return input;
+                }
+
+                static int HexVal(char ch)
+                {
+                    if (ch >= '0' && ch <= '9') return ch - '0';
+                    if (ch >= 'a' && ch <= 'f') return 10 + (ch - 'a');
+                    if (ch >= 'A' && ch <= 'F') return 10 + (ch - 'A');
+                    return -1;
+                }
+            }
+
             // 1) Extrahiere ggf. den Inhalt in Anführungszeichen: active_mods[0]: "pkg|mod"
             var s = line.Trim();
             int q1 = s.IndexOf('"');
@@ -2351,14 +2587,14 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 s = s.Substring(q1 + 1, q2 - q1 - 1);
             }
 
-            s = s.Trim();
+            s = DecodeScsEscapes(s.Trim());
 
             // 2) Bevorzugt '|' als Trennzeichen (pkg|modname)
             int pipe = s.IndexOf('|');
             if (pipe > 0)
             {
-                var left = s.Substring(0, pipe).Trim().Trim('"');
-                var right = s.Substring(pipe + 1).Trim().Trim('"');
+                var left = DecodeScsEscapes(s.Substring(0, pipe).Trim().Trim('"'));
+                var right = DecodeScsEscapes(s.Substring(pipe + 1).Trim().Trim('"'));
                 return (left, right);
             }
 
@@ -2380,13 +2616,14 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
             if (r is not null)
             {
-                var left = r.Value.Item1.Trim('"');
-                var right = r.Value.Item2.Trim('"');
+                var left = DecodeScsEscapes(r.Value.Item1.Trim('"'));
+                var right = DecodeScsEscapes(r.Value.Item2.Trim('"'));
                 return (left, right);
             }
 
             // 4) Kein erkennbarer Trenner: verwende die gesamte Zeile für beide Spalten
-            return (s.Trim('"'), s.Trim('"'));
+            var v = DecodeScsEscapes(s.Trim('"'));
+            return (v, v);
         }
 
         private void ClearModsGrid()
@@ -2540,6 +2777,14 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 importModlistItem.Click += ImportModlist_Click;
             }
 
+            // Modlisten -> Umbenennen…
+            var renameModlistItem = TryFindMenuItemByName(menuStrip1, "miModRename");
+            if (renameModlistItem is not null)
+            {
+                renameModlistItem.Click -= RenameModlist_Click;
+                renameModlistItem.Click += RenameModlist_Click;
+            }
+
             // Optional: Dynamischer Menüpunkt zum Setzen des Modlisten-Ordners pro Spiel
             try
             {
@@ -2596,7 +2841,9 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
                 // Ordner anlegen und initial befüllen (nur wenn leer)
                 try { Directory.CreateDirectory(chosen); } catch { }
-                EnsureModlistsDirectoryForGame(norm);
+                // EnsureModlistsDirectoryForGame(...) existierte früher; wir brauchen hier nur sicherstellen,
+                // dass der Ordner existiert (Initial-Befüllung ist optional).
+                try { Directory.CreateDirectory(chosen); } catch { }
 
                 // UI aktualisieren
                 LoadModlistNamesForSelectedGame();
@@ -2626,7 +2873,10 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 var row = gridMods.SelectedRows[0];
                 var modName = row.Cells[gridMods.Columns["colModName"].Index].Value?.ToString() ?? string.Empty;
                 var pkg = row.Cells[gridMods.Columns["colPackage"].Index].Value?.ToString() ?? string.Empty;
-                var key = !string.IsNullOrWhiteSpace(modName) ? modName : pkg;
+                // Wichtig: Links dürfen NICHT primär über den angezeigten Modnamen gematcht werden,
+                // da dieser (u.a. durch Sonderzeichen wie ß) je nach Quelle/Encoding variieren kann.
+                // Stabiler Schlüssel ist das Package (wie in der Modliste gespeichert).
+                var key = pkg?.Trim() ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(key)) return;
 
                 // Vorschlag: vorhandene URL aus der hidden colUrl
@@ -2671,6 +2921,14 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 catch { }
 
                 map[key] = url;
+                // Legacy/Komfort: zusätzlich Alias unter Anzeige-Name speichern (falls vorhanden).
+                // Damit bleiben bestehende links.json (Name-basiert) kompatibel und Nutzer finden den Link auch bei externen Tools.
+                if (!string.IsNullOrWhiteSpace(modName))
+                {
+                    var alias = modName.Trim();
+                    if (!string.Equals(alias, key, StringComparison.CurrentCultureIgnoreCase))
+                        map[alias] = url;
+                }
 
                 try
                 {
@@ -2703,7 +2961,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 var row = gridMods.SelectedRows[0];
                 var modName = row.Cells[gridMods.Columns["colModName"].Index].Value?.ToString() ?? string.Empty;
                 var pkg = row.Cells[gridMods.Columns["colPackage"].Index].Value?.ToString() ?? string.Empty;
-                var key = !string.IsNullOrWhiteSpace(modName) ? modName : pkg;
+                // Entfernen auch primär über Package-Key (stabil). Optional: Alias (ModName) mit entfernen.
+                var key = pkg?.Trim() ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(key)) return;
 
                 var code = (cbGame.SelectedItem as GameItem)?.Code ?? "ETS2";
@@ -2732,7 +2991,16 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 }
                 catch { ShowStatus(T("MainForm.Grid.NoLinks", "Kein links.json gefunden")); return; }
 
-                if (map.Remove(key))
+                var removed = map.Remove(key);
+                // Optional: Alias ebenfalls entfernen (falls vorhanden)
+                if (!string.IsNullOrWhiteSpace(modName))
+                {
+                    var alias = modName.Trim();
+                    if (!string.Equals(alias, key, StringComparison.CurrentCultureIgnoreCase))
+                        removed = map.Remove(alias) || removed;
+                }
+
+                if (removed)
                 {
                     try
                     {
@@ -2766,7 +3034,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 var row = gridMods.SelectedRows[0];
                 var modName = row.Cells[gridMods.Columns["colModName"].Index].Value?.ToString() ?? string.Empty;
                 var pkg = row.Cells[gridMods.Columns["colPackage"].Index].Value?.ToString() ?? string.Empty;
-                var key = !string.IsNullOrWhiteSpace(modName) ? modName : pkg;
+                // Wie global: per Liste ebenfalls stabil per Package speichern
+                var key = pkg?.Trim() ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(key)) return;
 
                 var dir = Path.GetDirectoryName(_currentModlistPath)!;
@@ -2809,6 +3078,13 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 catch { }
 
                 map[key] = url;
+                // Optionaler Alias (Legacy)
+                if (!string.IsNullOrWhiteSpace(modName))
+                {
+                    var alias = modName.Trim();
+                    if (!string.Equals(alias, key, StringComparison.CurrentCultureIgnoreCase))
+                        map[alias] = url;
+                }
 
                 try
                 {
@@ -2837,7 +3113,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 var row = gridMods.SelectedRows[0];
                 var modName = row.Cells[gridMods.Columns["colModName"].Index].Value?.ToString() ?? string.Empty;
                 var pkg = row.Cells[gridMods.Columns["colPackage"].Index].Value?.ToString() ?? string.Empty;
-                var key = !string.IsNullOrWhiteSpace(modName) ? modName : pkg;
+                var key = pkg?.Trim() ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(key)) return;
 
                 var dir = Path.GetDirectoryName(_currentModlistPath)!;
@@ -2865,7 +3141,15 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 }
                 catch { ShowStatus(T("MainForm.Grid.NoLinks", "Kein links.json gefunden")); return; }
 
-                if (map.Remove(key))
+                var removed = map.Remove(key);
+                if (!string.IsNullOrWhiteSpace(modName))
+                {
+                    var alias = modName.Trim();
+                    if (!string.Equals(alias, key, StringComparison.CurrentCultureIgnoreCase))
+                        removed = map.Remove(alias) || removed;
+                }
+
+                if (removed)
                 {
                     try
                     {
@@ -3060,6 +3344,119 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             catch (Exception ex)
             {
                 ShowStatus(T("MainForm.Delete.Failed", "Löschen fehlgeschlagen: ") + ex.Message);
+            }
+        }
+
+        private void RenameModlist_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (cbModlist?.SelectedItem is not ModlistItem it || string.IsNullOrWhiteSpace(it.Path) || !File.Exists(it.Path))
+                {
+                    ShowStatus(T("MainForm.Rename.NoList", "Keine Modliste ausgewählt"));
+                    return;
+                }
+
+                var dir = Path.GetDirectoryName(it.Path) ?? string.Empty;
+                var oldBaseName = Path.GetFileNameWithoutExtension(it.Path) ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(dir) || string.IsNullOrWhiteSpace(oldBaseName))
+                {
+                    ShowStatus(T("MainForm.Rename.Failed", "Umbenennen fehlgeschlagen"));
+                    return;
+                }
+
+                var title = T("MainForm.Rename.Title", "Modliste umbenennen");
+                var prompt = T("MainForm.Rename.Prompt", "Neuer Name (ohne Dateiendung):");
+                var okText = T("Common.OK", "OK");
+                var cancelText = T("Common.Cancel", "Abbrechen");
+                var resInput = ETS2ATS.ModlistManager.Forms.Common.InputDialog.ShowDialog(this, title, prompt, oldBaseName, okText, cancelText, out var newBaseNameRaw);
+                if (resInput != DialogResult.OK) return;
+                var newBaseName = (newBaseNameRaw ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(newBaseName) || string.Equals(newBaseName, oldBaseName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return; // abgebrochen oder unverändert
+                }
+
+                newBaseName = SanitizeAsFileName(newBaseName);
+                if (string.IsNullOrWhiteSpace(newBaseName))
+                {
+                    MessageBox.Show(this,
+                        T("MainForm.Rename.InvalidName", "Ungültiger Name."),
+                        title,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var oldFiles = new[]
+                {
+                    Path.Combine(dir, oldBaseName + ".txt"),
+                    Path.Combine(dir, oldBaseName + ".note"),
+                    Path.Combine(dir, oldBaseName + ".json"),
+                    Path.Combine(dir, oldBaseName + ".link.json"),
+                };
+                var newFiles = new[]
+                {
+                    Path.Combine(dir, newBaseName + ".txt"),
+                    Path.Combine(dir, newBaseName + ".note"),
+                    Path.Combine(dir, newBaseName + ".json"),
+                    Path.Combine(dir, newBaseName + ".link.json"),
+                };
+
+                // Ziel existiert bereits?
+                if (newFiles.Any(File.Exists))
+                {
+                    MessageBox.Show(this,
+                        T("MainForm.Rename.TargetExists", "Es existiert bereits eine Modliste mit diesem Namen."),
+                        title,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Frage zur Sicherheit
+                var question = T("MainForm.Rename.Question", "Diese Modliste und alle zugehörigen Dateien umbenennen?");
+                var res = MessageBox.Show(this, question, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                if (res != DialogResult.Yes) return;
+
+                // Umbenennen (sequenziell; falls einzelne Dateien fehlen, werden sie übersprungen)
+                int renamed = 0;
+                for (int i = 0; i < oldFiles.Length; i++)
+                {
+                    var src = oldFiles[i];
+                    var dst = newFiles[i];
+                    try
+                    {
+                        if (File.Exists(src))
+                        {
+                            File.Move(src, dst);
+                            renamed++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(this,
+                            T("MainForm.Rename.FileFailed", "Datei konnte nicht umbenannt werden: ") + Path.GetFileName(src) + "\n" + ex.Message,
+                            title,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
+                // UI refresh + neu selektieren
+                try
+                {
+                    LoadModlistNamesForSelectedGame();
+                    SelectModlistByDisplay(newBaseName);
+                    LoadSelectedModlistIntoGrid();
+                }
+                catch { }
+                ShowStatus(T("MainForm.Rename.Done", "Modliste umbenannt") + (renamed > 0 ? $" ({renamed})" : string.Empty));
+            }
+            catch (Exception ex)
+            {
+                ShowStatus(T("MainForm.Rename.Failed", "Umbenennen fehlgeschlagen: ") + ex.Message);
             }
         }
 

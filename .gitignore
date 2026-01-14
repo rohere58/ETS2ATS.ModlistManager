@@ -3,12 +3,17 @@
 *.suo
 *.userosscache
 *.sln.docstates
+.vs/
 
 # Build
 bin/
 obj/
 [Bb]uild/
 [Ll]og/
+
+# Release/Artifacts
+artifacts/
+*.zip
 
 # VS Code
 .vscode/*

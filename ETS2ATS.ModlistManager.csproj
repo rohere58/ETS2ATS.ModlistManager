@@ -7,7 +7,10 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ETS2ATS.ModlistManager</AssemblyName>
     <RootNamespace>ETS2ATS.ModlistManager</RootNamespace>
-  <Version>0.1.16</Version>
+    <ApplicationIcon>ModlistManager\Resources\app.ico</ApplicationIcon>
+  <Version>0.1.17</Version>
+    <AssemblyVersion>0.1.17.0</AssemblyVersion>
+    <FileVersion>0.1.17.0</FileVersion>
     <Authors>Community</Authors>
     <Company>
     </Company>

@@ -13,7 +13,9 @@
   "MainForm.Menu.Modlists.OpenFolder": "Open modlists folder",
   "MainForm.Menu.Modlists.SetFolder": "Choose modlists folder…",
   "MainForm.Menu.Modlists.Share": "Share…",
+  "MainForm.Menu.Modlists.ShareMulti": "Multiple as ZIP…",
   "MainForm.Menu.Modlists.Import": "Import…",
+  "MainForm.Menu.Modlists.Rename": "Rename…",
   "MainForm.Menu.Modlists.Delete": "Delete…",
 
   "MainForm.Menu.Backup": "Backup && Restore",
@@ -35,6 +37,9 @@
   "Faq.Title": "Frequently Asked Questions (FAQ)",
   "Common.Close": "Close",
 
+  "ETS2": "ETS2",
+  "ATS": "ATS",
+
   "MainForm.Game": "Game:",
   "MainForm.Profile": "Profile:",
   "MainForm.Modlist": "Modlist:",
@@ -52,12 +57,14 @@
   "MainForm.Grid.Search": "Search",
   "MainForm.QuickSearch.Button": "Search",
   "MainForm.QuickSearch.Placeholder": "Search mod…",
+  "MainForm.QuickSearch.Provider": "Provider",
   "MainForm.QuickSearch.Provider.Google": "Google",
   "MainForm.QuickSearch.Provider.Steam": "Steam WS",
   "MainForm.QuickSearch.Provider.Trucky": "Trucky",
   "MainForm.QuickSearch.Tooltip": "Start web search for entered mod",
 
   "MainForm.ModInfo": "Info about the modlist",
+  "MainForm.ModInfo.Input": "Modlist note …",
   "MainForm.Status.Ready": "",
   "MainForm.Prompt.Name": "Name:",
   "MainForm.Confirm.DeleteProfile": "Really delete the profile? This action cannot be undone.",
@@ -79,7 +86,9 @@
   "Options.Ets2ModlistsPath": "ETS2 modlists folder",
   "Options.AtsModlistsPath": "ATS modlists folder",
   "Common.OK": "OK",
-    "Common.Cancel": "Cancel",
+  "Common.Cancel": "Cancel",
+  "Common.SelectAll": "Select all",
+  "Common.SelectNone": "Select none",
 
     "About.Title": "About this program",
     "About.AppName": "Application:",
@@ -102,6 +111,17 @@
     "MainForm.Restore.Confirm": "Copy profiles from backup to the target folder and overwrite files?",
     "MainForm.Restore.Done": "Profiles restored.",
     "MainForm.Restore.Failed": "Restore failed: ",
+
+  "MainForm.ExportZip.LinksCreated": "Links created for modlist: ",
+
+  "SiiDecrypt.Bundle.Title": "Bundled SII_Decrypt (MPL-2.0)",
+  "SiiDecrypt.Bundle.Message": "The tool 'SII_Decrypt.exe' is included unchanged under the MPL-2.0 license.\nUpstream: https://github.com/TheLazyTomcat/SII_Decrypt\n\nIt is used only to decrypt profile.sii. See ThirdPartyNotices.md for details.",
+  "SiiDecrypt.Bundle.PathLabel": "Location:",
+  "SiiDecrypt.Bundle.DontShow": "Don't show this again",
+
+  "SiiDecrypt.Hint.Title": "SII_Decrypt missing",
+  "SiiDecrypt.Hint.Message": "To create or adopt modlists, SII_Decrypt.exe is required. Please place the file in this folder:",
+  "SiiDecrypt.Hint.ExpectedPath": "Expected path:",
 
     "MainForm.Backup.ChooseInstallDir": "Choose installation folder",
     "MainForm.Backup.DialogTitle": "Backup profiles",
@@ -147,10 +167,22 @@
   "MainForm.ExportZip.Title": "Export modlist as ZIP",
   "MainForm.ExportZip.Done": "Package exported: ",
   "MainForm.ExportZip.Failed": "Export failed: ",
+  "MainForm.ExportMulti.Title": "Export multiple modlists as ZIP",
+  "MainForm.ExportMulti.Prompt": "Select the modlists you want to include:",
+  "MainForm.ExportMulti.NoFolder": "Modlists folder not found",
+  "MainForm.ExportMulti.NoLists": "No modlists found",
+  "MainForm.ExportMulti.NoneSelected": "No modlists selected",
+  "MainForm.ExportMultiZip.Title": "Export modlists as ZIP",
+  "MainForm.ExportMultiZip.Done": "Package exported: ",
+  "MainForm.ExportMultiZip.Failed": "Export failed: ",
   "MainForm.ImportZip.Title": "Import modlist package",
   "MainForm.ImportZip.DoneLinks": "Import finished – links added: ",
   "MainForm.ImportZip.Done": "Import finished",
   "MainForm.ImportZip.Failed": "Import failed: "
+  ,
+  "MainForm.ImportNotes.Title": "Imported modlists",
+  "MainForm.ImportNotes.Intro": "Here are the descriptions (notes) of the imported modlists:",
+  "MainForm.ImportNotes.Empty": "(No description available)"
   ,
   "MainForm.Create.NoProfile": "No profile selected",
   "MainForm.Create.SiiNotFound": "profile.sii not found",
@@ -170,6 +202,16 @@
   "MainForm.Delete.NoList": "No modlist selected",
   "MainForm.Delete.Done": "Modlist deleted",
   "MainForm.Delete.Failed": "Delete failed: "
+  ,
+  "MainForm.Rename.Title": "Rename modlist",
+  "MainForm.Rename.Prompt": "New name (without file extension):",
+  "MainForm.Rename.Question": "Rename this modlist and all related files?",
+  "MainForm.Rename.NoList": "No modlist selected",
+  "MainForm.Rename.InvalidName": "Invalid name.",
+  "MainForm.Rename.TargetExists": "A modlist with this name already exists.",
+  "MainForm.Rename.FileFailed": "Could not rename file: ",
+  "MainForm.Rename.Done": "Modlist renamed",
+  "MainForm.Rename.Failed": "Rename failed: "
   ,
   "MainForm.Adopt.NoProfile": "No profile selected",
   "MainForm.Adopt.NoList": "No modlist selected",
@@ -195,13 +237,6 @@
   "MainForm.Grid.LinkRemoveFailed": "Failed to remove link: ",
   "MainForm.Grid.LinkNotFound": "No link found for this entry"
   ,
-  "SiiDecrypt.Hint.Title": "SII Decrypt missing",
-  "SiiDecrypt.Hint.Message": "To create or adopt modlists, SII_Decrypt.exe is required. Please place it in the following folder:",
-  "SiiDecrypt.Bundle.Title": "Bundled SII_Decrypt (MPL-2.0)",
-  "SiiDecrypt.Bundle.Message": "The tool 'SII_Decrypt.exe' is bundled unmodified under the MPL-2.0 license.\nUpstream: https://github.com/TheLazyTomcat/SII_Decrypt\n\nIt is used solely to decrypt profile.sii. See ThirdPartyNotices.md for details.",
-  "SiiDecrypt.Bundle.PathLabel": "Location:",
-  "SiiDecrypt.Bundle.DontShow": "Don't show this again",
-  "SiiDecrypt.Hint.ExpectedPath": "Expected path:",
   "SiiDecrypt.Hint.DontShow": "Don't show this again"
 }
 

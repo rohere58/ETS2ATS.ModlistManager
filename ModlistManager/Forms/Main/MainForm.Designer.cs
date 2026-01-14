@@ -99,6 +99,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             miModOpen = new ToolStripMenuItem();
             miModShare = new ToolStripMenuItem();
             miModImport = new ToolStripMenuItem();
+            miModRename = new ToolStripMenuItem();
             miModDelete = new ToolStripMenuItem();
             miBackup = new ToolStripMenuItem();
             miBkAll = new ToolStripMenuItem();
@@ -617,7 +618,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             // miModlists
             // 
             miModlists.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            miModlists.DropDownItems.AddRange(new ToolStripItem[] { miModOpen, miModShare, miModImport, miModDelete });
+            miModlists.DropDownItems.AddRange(new ToolStripItem[] { miModOpen, miModShare, miModImport, miModRename, miModDelete });
             miModlists.Name = "miModlists";
             miModlists.Size = new Size(78, 21);
             miModlists.Tag = "MainForm.Menu.Modlists";
@@ -646,6 +647,14 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             miModImport.Size = new Size(215, 22);
             miModImport.Tag = "MainForm.Menu.Modlists.Import";
             miModImport.Text = "Importieren…";
+            // 
+            // miModRename
+            // 
+            miModRename.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            miModRename.Name = "miModRename";
+            miModRename.Size = new Size(215, 22);
+            miModRename.Tag = "MainForm.Menu.Modlists.Rename";
+            miModRename.Text = "Umbenennen…";
             // 
             // miModDelete
             // 
@@ -794,6 +803,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         private ToolStripMenuItem miModOpen;
     private ToolStripMenuItem miModShare;
     private ToolStripMenuItem miModImport;
+    private ToolStripMenuItem miModRename;
     private ToolStripMenuItem miModDelete;
         private ToolStripMenuItem miBackup;
         private ToolStripMenuItem miBkAll;

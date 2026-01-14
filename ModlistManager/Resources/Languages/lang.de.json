@@ -11,6 +11,8 @@
   "Options.AtsModlistsPath": "ATS-Modlisten Ordner",
   "Common.OK": "OK",
   "Common.Cancel": "Abbrechen",
+  "Common.SelectAll": "Alle",
+  "Common.SelectNone": "Keine",
 
   "MainForm.Title": "ETS2/ATS Modlist Manager",
   "MainForm.Header.Subtitle": "Modlisten erstellen, pflegen und teilen",
@@ -25,7 +27,9 @@
   "MainForm.Menu.Modlists.OpenFolder": "Modlistenordner öffnen",
   "MainForm.Menu.Modlists.SetFolder": "Modlistenordner wählen…",
   "MainForm.Menu.Modlists.Share": "Weitergeben…",
+  "MainForm.Menu.Modlists.ShareMulti": "Mehrere als ZIP…",
   "MainForm.Menu.Modlists.Import": "Importieren…",
+  "MainForm.Menu.Modlists.Rename": "Umbenennen…",
   "MainForm.Menu.Modlists.Delete": "Löschen…",
 
   "MainForm.Menu.Backup": "Sichern && Wiederherstellen",
@@ -47,6 +51,9 @@
   "Faq.Title": "Häufige Fragen (FAQ)",
   "Common.Close": "Schließen",
 
+  "ETS2": "ETS2",
+  "ATS": "ATS",
+
   "MainForm.Game": "Spiel:",
   "MainForm.Profile": "Profil:",
   "MainForm.Modlist": "Modliste:",
@@ -64,12 +71,14 @@
   "MainForm.Grid.Search": "Suche",
   "MainForm.QuickSearch.Button": "Suchen",
   "MainForm.QuickSearch.Placeholder": "Mod suchen…",
+  "MainForm.QuickSearch.Provider": "Anbieter",
   "MainForm.QuickSearch.Provider.Google": "Google",
   "MainForm.QuickSearch.Provider.Steam": "Steam WS",
   "MainForm.QuickSearch.Provider.Trucky": "Trucky",
   "MainForm.QuickSearch.Tooltip": "Websuche für eingegebenen Mod starten",
 
   "MainForm.ModInfo": "Infos zur Modliste",
+  "MainForm.ModInfo.Input": "Notiz zur Modliste …",
   "MainForm.Status.Ready": "",
   "MainForm.Prompt.Name": "Name:",
   "MainForm.Confirm.DeleteProfile": "Profil wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.",
@@ -80,6 +89,8 @@
   "MainForm.RestoreSii.ChooseBackup": "Backup-Datei auswählen",
   "MainForm.RestoreSii.Success": "profile.sii wiederhergestellt",
   "MainForm.RestoreSii.Failed": "Wiederherstellung fehlgeschlagen: ",
+
+  "MainForm.ExportZip.LinksCreated": "Links für Modliste erstellt: ",
 
   "About.Title": "Über dieses Programm",
   "About.AppName": "Programm:",
@@ -148,10 +159,23 @@
   "MainForm.ExportZip.Title": "Modliste als ZIP exportieren",
   "MainForm.ExportZip.Done": "Paket exportiert: ",
   "MainForm.ExportZip.Failed": "Export fehlgeschlagen: ",
+
+  "MainForm.ExportMulti.Title": "Mehrere Modlisten als ZIP exportieren",
+  "MainForm.ExportMulti.Prompt": "Wähle die Modlisten aus, die ins ZIP sollen:",
+  "MainForm.ExportMulti.NoFolder": "Modlistenordner nicht gefunden",
+  "MainForm.ExportMulti.NoLists": "Keine Modlisten gefunden",
+  "MainForm.ExportMulti.NoneSelected": "Keine Modlisten ausgewählt",
+  "MainForm.ExportMultiZip.Title": "Modlisten als ZIP exportieren",
+  "MainForm.ExportMultiZip.Done": "Paket exportiert: ",
+  "MainForm.ExportMultiZip.Failed": "Export fehlgeschlagen: ",
   "MainForm.ImportZip.Title": "Modlisten-Paket importieren",
   "MainForm.ImportZip.DoneLinks": "Import abgeschlossen – Links hinzugefügt: ",
   "MainForm.ImportZip.Done": "Import abgeschlossen",
   "MainForm.ImportZip.Failed": "Import fehlgeschlagen: "
+  ,
+  "MainForm.ImportNotes.Title": "Importierte Modlisten",
+  "MainForm.ImportNotes.Intro": "Hier sind die Beschreibungen (Notizen) der importierten Modlisten:",
+  "MainForm.ImportNotes.Empty": "(Keine Beschreibung vorhanden)"
   ,
   "MainForm.Create.NoProfile": "Kein Profil ausgewählt",
   "MainForm.Create.SiiNotFound": "profile.sii nicht gefunden",
@@ -171,6 +195,16 @@
   "MainForm.Delete.NoList": "Keine Modliste ausgewählt",
   "MainForm.Delete.Done": "Modliste gelöscht",
   "MainForm.Delete.Failed": "Löschen fehlgeschlagen: "
+  ,
+  "MainForm.Rename.Title": "Modliste umbenennen",
+  "MainForm.Rename.Prompt": "Neuer Name (ohne Dateiendung):",
+  "MainForm.Rename.Question": "Diese Modliste und alle zugehörigen Dateien umbenennen?",
+  "MainForm.Rename.NoList": "Keine Modliste ausgewählt",
+  "MainForm.Rename.InvalidName": "Ungültiger Name.",
+  "MainForm.Rename.TargetExists": "Es existiert bereits eine Modliste mit diesem Namen.",
+  "MainForm.Rename.FileFailed": "Datei konnte nicht umbenannt werden: ",
+  "MainForm.Rename.Done": "Modliste umbenannt",
+  "MainForm.Rename.Failed": "Umbenennen fehlgeschlagen: "
   ,
   "MainForm.Adopt.NoProfile": "Kein Profil ausgewählt",
   "MainForm.Adopt.NoList": "Keine Modliste ausgewählt",

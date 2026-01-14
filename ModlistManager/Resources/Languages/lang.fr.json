@@ -11,7 +11,9 @@
   "MainForm.Menu.Modlists": "Listes de mods",
   "MainForm.Menu.Modlists.OpenFolder": "Ouvrir le dossier des listes",
   "MainForm.Menu.Modlists.Share": "Partager\u2026",
+  "MainForm.Menu.Modlists.ShareMulti": "Plusieurs en ZIP\u2026",
   "MainForm.Menu.Modlists.Import": "Importer\u2026",
+  "MainForm.Menu.Modlists.Rename": "Renommer\u2026",
   "MainForm.Menu.Modlists.Delete": "Supprimer\u2026",
 
   "MainForm.Menu.Backup": "Sauvegarde && Restauration",
@@ -33,6 +35,9 @@
   "Faq.Title": "Foire aux questions (FAQ)",
   "Common.Close": "Fermer",
 
+  "ETS2": "ETS2",
+  "ATS": "ATS",
+
   "MainForm.Game": "Jeu:",
   "MainForm.Profile": "Profil:",
   "MainForm.Modlist": "Liste:",
@@ -50,7 +55,13 @@
   "MainForm.Grid.Search": "Recherche",
   "MainForm.Grid.ResetName": "R\u00e9initialiser le nom",
 
+  "MainForm.QuickSearch.Button": "Rechercher",
+  "MainForm.QuickSearch.Placeholder": "Rechercher un mod\u2026",
+  "MainForm.QuickSearch.Provider": "Fournisseur",
+  "MainForm.QuickSearch.Tooltip": "Lancer une recherche web pour le mod saisi",
+
   "MainForm.ModInfo": "Infos sur la liste",
+  "MainForm.ModInfo.Input": "Note de la liste de mods \u2026",
   "MainForm.Status.Ready": "",
   "MainForm.Prompt.Name": "Nom:",
   "MainForm.Confirm.DeleteProfile": "Supprimer vraiment le profil ? Cette action est irr\u00e9versible.",
@@ -62,6 +73,12 @@
   "MainForm.RestoreSii.Success": "profile.sii restaur\u00e9",
   "MainForm.RestoreSii.Failed": "\u00c9chec de la restauration : ",
 
+  "MainForm.ExportZip.LinksCreated": "Liens cr\u00e9\u00e9s pour la liste de mods : ",
+
+  "SiiDecrypt.Hint.Title": "SII_Decrypt manquant",
+  "SiiDecrypt.Hint.Message": "Pour cr\u00e9er ou adopter des listes de mods, SII_Decrypt.exe est requis. Veuillez placer le fichier dans ce dossier :",
+  "SiiDecrypt.Hint.ExpectedPath": "Chemin attendu :",
+
   "Options.Title": "Options",
   "Options.Language": "Langue",
   "Options.Theme": "Th\u00e8me",
@@ -71,6 +88,8 @@
   "Options.Browse": "Parcourir\u2026",
   "Common.OK": "OK",
   "Common.Cancel": "Annuler",
+  "Common.SelectAll": "Tout s\u00e9lectionner",
+  "Common.SelectNone": "Ne rien s\u00e9lectionner",
 
   "About.Title": "\u00c0 propos de ce programme",
   "About.AppName": "Application :",
@@ -140,10 +159,23 @@
   "MainForm.ExportZip.Title": "Exporter la liste en ZIP",
   "MainForm.ExportZip.Done": "Package export\u00e9 : ",
   "MainForm.ExportZip.Failed": "\u00c9chec de l'export : ",
+  "MainForm.ExportMulti.Title": "Exporter plusieurs listes de mods",
+  "MainForm.ExportMulti.Prompt": "S\u00e9lectionnez les listes de mods \u00e0 inclure :",
+  "MainForm.ExportMulti.NoFolder": "Dossier des listes de mods introuvable",
+  "MainForm.ExportMulti.NoLists": "Aucune liste de mods s\u00e9lectionn\u00e9e",
+  "MainForm.ExportMulti.NoneSelected": "Aucune liste de mods s\u00e9lectionn\u00e9e",
+  "MainForm.ExportMulti.DialogTitle": "S\u00e9lectionner des listes de mods",
+  "MainForm.ExportMultiZip.Title": "Exporter plusieurs listes de mods en ZIP",
+  "MainForm.ExportMultiZip.Done": "Package export\u00e9 : ",
+  "MainForm.ExportMultiZip.Failed": "\u00c9chec de l'export : ",
   "MainForm.ImportZip.Title": "Importer un paquet de liste",
   "MainForm.ImportZip.DoneLinks": "Import termin\u00e9 \u2013 liens ajout\u00e9s : ",
   "MainForm.ImportZip.Done": "Import termin\u00e9",
   "MainForm.ImportZip.Failed": "\u00c9chec de l'import : ",
+
+  "MainForm.ImportNotes.Title": "Listes de mods import\u00e9es",
+  "MainForm.ImportNotes.Intro": "Voici les descriptions (notes) des listes de mods import\u00e9es :",
+  "MainForm.ImportNotes.Empty": "(Aucune description disponible)",
 
   "MainForm.Create.NoProfile": "Aucun profil sélectionné",
   "MainForm.Create.SiiNotFound": "profile.sii introuvable",
@@ -163,6 +195,16 @@
   "MainForm.Delete.NoList": "Aucune liste s\u00e9lectionn\u00e9e",
   "MainForm.Delete.Done": "Liste supprim\u00e9e",
   "MainForm.Delete.Failed": "\u00c9chec de la suppression : ",
+
+  "MainForm.Rename.Title": "Renommer la liste",
+  "MainForm.Rename.Prompt": "Nouveau nom (sans extension) :",
+  "MainForm.Rename.Question": "Renommer cette liste et tous les fichiers associ\u00e9s ?",
+  "MainForm.Rename.NoList": "Aucune liste s\u00e9lectionn\u00e9e",
+  "MainForm.Rename.InvalidName": "Nom invalide.",
+  "MainForm.Rename.TargetExists": "Une liste avec ce nom existe d\u00e9j\u00e0.",
+  "MainForm.Rename.FileFailed": "Impossible de renommer le fichier : ",
+  "MainForm.Rename.Done": "Liste renomm\u00e9e",
+  "MainForm.Rename.Failed": "\u00c9chec du renommage : ",
 
   "MainForm.Adopt.NoProfile": "Aucun profil s\u00e9lectionn\u00e9",
   "MainForm.Adopt.NoList": "Aucune liste s\u00e9lectionn\u00e9e",
