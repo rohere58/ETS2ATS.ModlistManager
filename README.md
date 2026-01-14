@@ -323,6 +323,11 @@ Full FAQ (DE & EN) accessible via Help → FAQ inside the app.
 Sources: `ModlistManager/Resources/faq.de.md`, `faq.en.md` (Markdown with auto ToC).
 
 ## Build (Developers)
+
+### Release notes (GitHub Releases)
+
+For international reach, release notes are kept in English.
+Use the template in `docs/release-template.md`.
 Requirements:
 - .NET 8 SDK (Windows)
 - Visual Studio 2022 or `dotnet` CLI
