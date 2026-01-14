@@ -13,6 +13,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.17.1] - 2026-01-14
+### Behoben
+- Regression: Download- und Suche-Buttons im Mod-Grid waren nicht mehr anklickbar (fehlendes Event-Wiring).
+
 ## [0.1.16] - 2025-09-24
 ### Hinzugefügt
 - Drittanbieter-Hinweise: `ThirdPartyNotices.md` (Attribution für gebündeltes `SII_Decrypt.exe`, unverändert, MPL-2.0)

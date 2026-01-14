@@ -23,6 +23,10 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         private readonly ETS2ATS.ModlistManager.Services.ThemeService _theme;
 
         private bool _suppressCascade;
+
+    #if DEBUG
+        private bool _gridEventsWired;
+    #endif
     // Pfad der aktuell geladenen Modliste (für korrekte Persistenz der Info-JSON)
     private string? _currentModlistPath;
     // Modlisten-Notiz (.note) Handling
@@ -131,12 +135,66 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 // Grid-Events
                 try
                 {
+                    gridMods.CellContentClick -= GridMods_CellContentClick;
+                    gridMods.CellContentClick += GridMods_CellContentClick;
+
+                    gridMods.CellEndEdit -= GridMods_CellEndEdit;
+                    gridMods.CellEndEdit += GridMods_CellEndEdit;
+
+                    gridMods.RowPostPaint -= GridMods_RowPostPaint;
+                    gridMods.RowPostPaint += GridMods_RowPostPaint;
+
                     gridMods.CellMouseDown -= GridMods_CellMouseDown;
                     gridMods.CellMouseDown += GridMods_CellMouseDown;
+
+#if DEBUG
+                    _gridEventsWired = true;
+#endif
                 }
-                catch { }
+                catch
+                {
+#if DEBUG
+                    _gridEventsWired = false;
+#endif
+                }
+
+#if DEBUG
+                DebugSanityCheckGrid();
+#endif
             }
         }
+
+#if DEBUG
+        private void DebugSanityCheckGrid()
+        {
+            try
+            {
+                if (gridMods == null)
+                {
+                    System.Diagnostics.Debug.Fail("[Sanity] gridMods ist null (Designer/InitializeComponent?).");
+                    return;
+                }
+
+                if (!_gridEventsWired)
+                {
+                    System.Diagnostics.Debug.Fail("[Sanity] Grid-Events wurden nicht verdrahtet (Download/Suche reagieren dann nicht).");
+                }
+
+                var dl = gridMods.Columns["colDownload"];
+                var search = gridMods.Columns["colSearch"];
+
+                if (dl is not DataGridViewButtonColumn)
+                    System.Diagnostics.Debug.Fail("[Sanity] Spalte 'colDownload' fehlt oder ist keine DataGridViewButtonColumn.");
+
+                if (search is not DataGridViewButtonColumn)
+                    System.Diagnostics.Debug.Fail("[Sanity] Spalte 'colSearch' fehlt oder ist keine DataGridViewButtonColumn.");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.Fail("[Sanity] DebugSanityCheckGrid Exception: " + ex);
+            }
+        }
+#endif
 
         private void InitGameCombo()
         {
