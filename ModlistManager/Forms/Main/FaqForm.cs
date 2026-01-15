@@ -82,12 +82,13 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     mdList.Add(Path.Combine(baseDir, relative));
                 }
                 // Häufige Layouts: nach Publish können Ressourcen direkt unter Resources oder weiter unter ModlistManager/Resources liegen
-                AddMd($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.{_langCode}.md");
+                // Wunsch: FAQ bevorzugt immer auf Englisch anzeigen, wenn verfügbar.
                 AddMd($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.en.md");
-                AddMd($"Resources{Path.DirectorySeparatorChar}faq.{_langCode}.md");
+                AddMd($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.{_langCode}.md");
                 AddMd($"Resources{Path.DirectorySeparatorChar}faq.en.md");
-                AddMd($"faq.{_langCode}.md");
+                AddMd($"Resources{Path.DirectorySeparatorChar}faq.{_langCode}.md");
                 AddMd("faq.en.md");
+                AddMd($"faq.{_langCode}.md");
 
                 foreach (var candidate in mdList)
                 {
@@ -103,12 +104,12 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 // TXT Fallback analog
                 var txtList = new System.Collections.Generic.List<string>();
                 void AddTxt(string relative) => txtList.Add(Path.Combine(baseDir, relative));
-                AddTxt($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.{_langCode}.txt");
                 AddTxt($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.en.txt");
-                AddTxt($"Resources{Path.DirectorySeparatorChar}faq.{_langCode}.txt");
+                AddTxt($"ModlistManager{Path.DirectorySeparatorChar}Resources{Path.DirectorySeparatorChar}faq.{_langCode}.txt");
                 AddTxt($"Resources{Path.DirectorySeparatorChar}faq.en.txt");
-                AddTxt($"faq.{_langCode}.txt");
+                AddTxt($"Resources{Path.DirectorySeparatorChar}faq.{_langCode}.txt");
                 AddTxt("faq.en.txt");
+                AddTxt($"faq.{_langCode}.txt");
 
                 foreach (var candidate in txtList)
                 {
@@ -165,13 +166,26 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 {
                     int lvl = t.StartsWith("### ") ? 3 : t.StartsWith("## ") ? 2 : 1;
                     string txt = lvl==3? t.Substring(4): lvl==2? t.Substring(3): t.Substring(2);
+
+                    // Manuelles Inhaltsverzeichnis erkennen (z.B. "## Inhalt" oder "## Table of Contents")
+                    if (txt.Equals("Inhalt", StringComparison.OrdinalIgnoreCase)
+                        || txt.Equals("Inhaltsverzeichnis", StringComparison.OrdinalIgnoreCase)
+                        || txt.Equals("Table of Contents", StringComparison.OrdinalIgnoreCase)
+                        || txt.Equals("Contents", StringComparison.OrdinalIgnoreCase))
+                    {
+                        manualTocPresent = true;
+                    }
+
                     string slug = MakeSlug(txt);
                     // Slug-Kollision vermeiden
                     string orig = slug; int counter=2;
                     while (headingList.Exists(h => h.slug==slug)) { slug = orig + "-" + counter++; }
                     headingList.Add((lvl, txt, slug));
                 }
-                if (t.Contains("[Inhalt]") || t.Contains("[Inhaltsverzeichnis]") || t.Contains("Table of Contents", StringComparison.OrdinalIgnoreCase))
+                if (t.Contains("[Inhalt]")
+                    || t.Contains("[Inhaltsverzeichnis]")
+                    || t.Contains("Table of Contents", StringComparison.OrdinalIgnoreCase)
+                    || t.Contains("Contents", StringComparison.OrdinalIgnoreCase))
                     manualTocPresent = true;
             }
 
@@ -188,7 +202,10 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             // Automatisches TOC (falls mehrere Überschriften und kein manueller ToC)
             if (!manualTocPresent && headingList.Count > 1)
             {
-                sb.Append("<nav class='toc'><h2>").Append(dark?"Inhalt":"Contents").Append("</h2><ul>");
+                var tocTitle = _lang["Faq.Contents"];
+                if (string.IsNullOrWhiteSpace(tocTitle) || tocTitle == "Faq.Contents")
+                    tocTitle = "Contents";
+                sb.Append("<nav class='toc'><h2>").Append(EscapeHtml(tocTitle)).Append("</h2><ul>");
                 int lastLevel = 0;
                 foreach (var h in headingList)
                 {
@@ -199,36 +216,48 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 sb.Append("</ul></nav>");
             }
 
-            // Zweiter Durchlauf: Inhalt rendern
-            foreach (var raw in lines)
+            // Zweiter Durchlauf: Inhalt rendern (indexbasiert, damit Listenzeilen sauber übersprungen werden)
+            for (int i = 0; i < lines.Length; i++)
             {
+                var raw = lines[i];
                 if (string.IsNullOrWhiteSpace(raw)) { sb.Append("<p></p>"); continue; }
+
                 var trimmed = raw.Trim();
                 // Headings
-                if (trimmed.StartsWith("### ")) { var txt = trimmed.Substring(4); var slug = GetSlugFor(headingList, 3, txt); sb.Append("<h3 id='"+slug+"'>").Append(ParseInline(txt)).Append("</h3>"); continue; }
-                if (trimmed.StartsWith("## ")) { var txt = trimmed.Substring(3); var slug = GetSlugFor(headingList, 2, txt); sb.Append("<h2 id='"+slug+"'>").Append(ParseInline(txt)).Append("</h2>"); continue; }
-                if (trimmed.StartsWith("# ")) { var txt = trimmed.Substring(2); var slug = GetSlugFor(headingList, 1, txt); sb.Append("<h1 id='"+slug+"'>").Append(ParseInline(txt)).Append("</h1>"); continue; }
+                if (trimmed.StartsWith("### ")) { var txt = trimmed.Substring(4); var slug = GetSlugFor(headingList, 3, txt); sb.Append("<h3 id='" + slug + "'>").Append(ParseInline(txt)).Append("</h3>"); continue; }
+                if (trimmed.StartsWith("## ")) { var txt = trimmed.Substring(3); var slug = GetSlugFor(headingList, 2, txt); sb.Append("<h2 id='" + slug + "'>").Append(ParseInline(txt)).Append("</h2>"); continue; }
+                if (trimmed.StartsWith("# ")) { var txt = trimmed.Substring(2); var slug = GetSlugFor(headingList, 1, txt); sb.Append("<h1 id='" + slug + "'>").Append(ParseInline(txt)).Append("</h1>"); continue; }
                 if (trimmed == "---" || trimmed == "***" || trimmed == "___") { sb.Append("<hr/>"); continue; }
+
                 if (trimmed.StartsWith("- ") || trimmed.StartsWith("* "))
                 {
-                    // Liste sammeln
+                    // Liste sammeln (alle unmittelbar folgenden Listenelemente aufnehmen)
                     var items = new System.Collections.Generic.List<string>();
-                    items.Add(trimmed.Substring(2));
-                    // Wir benötigen einen "Lookahead" basierend auf Index
-                    int idx = Array.IndexOf(lines, raw) + 1;
-                    while (idx < lines.Length)
+                    int j = i;
+                    while (j < lines.Length)
                     {
-                        var nraw = lines[idx];
+                        var nraw = lines[j];
+                        if (string.IsNullOrWhiteSpace(nraw)) break;
                         var ntrim = nraw.TrimStart();
-                        if (ntrim.StartsWith("- ") || ntrim.StartsWith("* ")) { items.Add(ntrim.Substring(2)); idx++; continue; }
+                        if (ntrim.StartsWith("- ") || ntrim.StartsWith("* "))
+                        {
+                            items.Add(ntrim.Substring(2));
+                            j++;
+                            continue;
+                        }
                         break;
                     }
+
                     sb.Append("<ul>");
                     foreach (var it in items)
                         sb.Append("<li>").Append(ParseInline(it)).Append("</li>");
                     sb.Append("</ul>");
+
+                    // bereits verarbeitete Zeilen überspringen
+                    i = j - 1;
                     continue;
                 }
+
                 sb.Append("<p>").Append(ParseInline(trimmed)).Append("</p>");
             }
 

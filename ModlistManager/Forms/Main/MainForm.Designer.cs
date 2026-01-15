@@ -28,6 +28,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         private DataGridViewTextBoxColumn colPackage;
         private DataGridViewTextBoxColumn colModName;
     private DataGridViewTextBoxColumn colInfo;
+    private DataGridViewTextBoxColumn colStatus;
     private DataGridViewTextBoxColumn colUrl;
     
     private DataGridViewButtonColumn colDownload;
@@ -79,6 +80,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             colPackage = new DataGridViewTextBoxColumn();
             colModName = new DataGridViewTextBoxColumn();
             colInfo = new DataGridViewTextBoxColumn();
+            colStatus = new DataGridViewTextBoxColumn();
             
             colDownload = new DataGridViewButtonColumn();
             colSearch = new DataGridViewButtonColumn();
@@ -345,7 +347,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             gridMods.BackgroundColor = SystemColors.Window;
             gridMods.ReadOnly = false;
             gridMods.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
-            gridMods.Columns.AddRange(new DataGridViewColumn[] { colIndex, colPackage, colModName, colInfo, colDownload, colSearch, colUrl });
+            gridMods.Columns.AddRange(new DataGridViewColumn[] { colIndex, colPackage, colModName, colInfo, colStatus, colDownload, colSearch, colUrl });
             gridMods.Dock = DockStyle.Fill;
             gridMods.Location = new Point(0, 219);
             gridMods.MultiSelect = false;
@@ -386,6 +388,17 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             colInfo.HeaderText = "Info";
             colInfo.Name = "colInfo";
             colInfo.ReadOnly = false;
+
+            // 
+            // colStatus
+            // 
+            colStatus.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            colStatus.Width = 44;
+            colStatus.MinimumWidth = 44;
+            colStatus.HeaderText = "✓";
+            colStatus.Name = "colStatus";
+            colStatus.ReadOnly = true;
+            colStatus.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             // 
             // colUrl (hidden)
             // 
@@ -402,8 +415,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             // 
             colDownload.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             colDownload.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            colDownload.Width = 100;
-            colDownload.MinimumWidth = 100;
+            colDownload.Width = 120;
+            colDownload.MinimumWidth = 120;
             colDownload.HeaderText = "Download";
             colDownload.Name = "colDownload";
             colDownload.Text = "Download"; // Standardtext, wird pro Zeile überschrieben

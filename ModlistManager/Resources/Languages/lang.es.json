@@ -54,6 +54,7 @@
   "MainForm.Grid.Info": "Info",
   "MainForm.Grid.Status": "Estado",
   "MainForm.Grid.Download": "Descargar",
+  "MainForm.Grid.Subscribe": "Suscribirse",
   "MainForm.Grid.Search": "Buscar",
 
   "MainForm.QuickSearch.Button": "Buscar",
@@ -143,6 +144,7 @@
   "MainForm.Mods.Status.Missing": "Faltante",
   "MainForm.Mods.Status.AvailableTip": "Archivo de mod encontrado (mod/ o Workshop)",
   "MainForm.Mods.Status.MissingTip": "No se encontró ningún archivo de mod coincidente (.scs/.zip)",
+  "MainForm.Mods.Status.WorkshopUnknown": "Steam Workshop",
   "MainForm.Modlists.SearchTip": "Buscar mod: ",
   "MainForm.Status.Header": "Estado y registro",
   "MainForm.Info.Saved": "Información guardada",

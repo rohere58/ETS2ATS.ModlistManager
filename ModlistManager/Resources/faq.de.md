@@ -18,8 +18,8 @@ Willkommen zur **FAQ**. Diese Datei unterstützt *Markdown* und ein automatische
 - [Roadmap / Ideen](#roadmap--ideen)
 
 ## Allgemein
-**F:** Warum werden manche Mods nicht mehr als vorhanden/fehlend markiert?  
-**A:** Die frühere Erkennungslogik wurde entfernt, um die Oberfläche zu vereinfachen.
+**F:** Wie funktioniert der Status „Vorhanden/Fehlt“?  
+**A:** Das Tool versucht Mods anhand von Dateinamen im lokalen `mod/`-Ordner und (optional) anhand des Steam-Workshop-Contents zuzuordnen. Das ist eine Heuristik und kann danebenliegen (z.B. umbenannte Archive, ungewöhnliche Workshop-Strukturen oder mehrdeutige Namen).
 
 **F:** Unterstützt das Tool automatische Workshop-Synchronisation?  
 **A:** Nein – Fokus liegt auf Verwaltung / Teilen von Modlisten, nicht auf Downloads.
@@ -35,7 +35,7 @@ Willkommen zur **FAQ**. Diese Datei unterstützt *Markdown* und ein automatische
 	Resources/             <- Logos, Sprache
 		Logos/
 		Languages/
-	(optional) Tools/      <- Externes Zusatztool (SII_Decrypt.exe) falls manuell genutzt
+	Tools/                 <- Enthaltenes Hilfstool (SII_Decrypt.exe) zum Entschlüsseln von profile.sii
 ```
 Updates: EXE ersetzen. Eigene Dateien bleiben erhalten.
 
@@ -95,7 +95,7 @@ Typische Ursachen:
 Log-Bereich prüfen. (Geplante Option: `--debug` Startparameter.)
 
 ## Limitierungen
-- Keine physische Mod-Datei-Prüfung (Feature entfernt)  
+- Verfügbarkeits-Erkennung ist eine Heuristik (Dateiname / Workshop-Ordner) und kann falsch liegen; keine Prüfung von Versionen oder Load-Order  
 - Keine Steam Workshop API  
 - Kein Diff zwischen zwei Listen  
 - Keine Multiplayer-Synchronisierung

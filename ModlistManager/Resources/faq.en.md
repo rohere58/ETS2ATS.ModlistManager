@@ -18,8 +18,8 @@ Welcome to the **FAQ**. This document supports *Markdown* and automatic table of
 - [Roadmap / Ideas](#roadmap--ideas)
 
 ## General
-**Q:** Why are mods no longer marked as available/missing?  
-**A:** That detection was removed to keep the UI lean.
+**Q:** How does the Available/Missing status work?  
+**A:** The app tries to match mod packages against files in your local `mod/` folder and (optionally) your Steam Workshop content. This is a best-effort heuristic and can be wrong (e.g. renamed archives, unusual Workshop layouts, or ambiguous names).
 
 **Q:** Does the tool auto-sync Steam Workshop mods?  
 **A:** No. It focuses on managing / sharing lists, not acquiring content.
@@ -35,7 +35,7 @@ Welcome to the **FAQ**. This document supports *Markdown* and automatic table of
 	Resources/             <- Logos, languages
 		Logos/
 		Languages/
-	(optional) Tools/      <- External helper (SII_Decrypt.exe) if manually used
+	Tools/                 <- Bundled helper (SII_Decrypt.exe) used to decrypt profile.sii
 ```
 Updates: replace the EXE; user files stay.
 
@@ -95,7 +95,7 @@ Common causes:
 Check log area. (Planned: `--debug` flag.)
 
 ## Limitations
-- No physical mod file presence check (removed)  
+- Availability detection is best-effort (filename / Workshop folder matching); it cannot guarantee correctness and does not validate versions or load order  
 - No Steam Workshop API integration  
 - No diff between two lists  
 - No multiplayer sync

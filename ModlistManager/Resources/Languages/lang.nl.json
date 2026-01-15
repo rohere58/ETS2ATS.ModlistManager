@@ -36,6 +36,7 @@
   "MainForm.Grid.Info": "Info",
   "MainForm.Grid.Status": "Status",
   "MainForm.Grid.Download": "Download",
+  "MainForm.Grid.Subscribe": "Abonneren",
   "MainForm.Grid.Search": "Zoeken",
   "MainForm.Grid.ResetName": "Naam terugzetten",
   "MainForm.Name.Saved": "Naam opgeslagen",
@@ -128,6 +129,7 @@
   "MainForm.Mods.Status.Missing": "Ontbreekt",
   "MainForm.Mods.Status.AvailableTip": "Modbestand gevonden (mod/ of Workshop)",
   "MainForm.Mods.Status.MissingTip": "Geen overeenkomend mod-archief gevonden (.scs/.zip)",
+  "MainForm.Mods.Status.WorkshopUnknown": "Steam Workshop",
   "MainForm.Modlists.SearchTip": "Zoek mod: ",
 
   "MainForm.Status.Header": "Status & Log",

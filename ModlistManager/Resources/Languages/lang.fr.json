@@ -52,6 +52,7 @@
   "MainForm.Grid.Info": "Info",
   "MainForm.Grid.Status": "Statut",
   "MainForm.Grid.Download": "T\u00e9l\u00e9charger",
+  "MainForm.Grid.Subscribe": "S'abonner",
   "MainForm.Grid.Search": "Recherche",
   "MainForm.Grid.ResetName": "R\u00e9initialiser le nom",
 
@@ -135,6 +136,7 @@
   "MainForm.Mods.Status.Missing": "Manquant",
   "MainForm.Mods.Status.AvailableTip": "Fichier du mod trouv\u00e9 (mod/ ou Workshop)",
   "MainForm.Mods.Status.MissingTip": "Aucune archive mod correspondante trouv\u00e9e (.scs/.zip)",
+  "MainForm.Mods.Status.WorkshopUnknown": "Steam Workshop",
   "MainForm.Modlists.SearchTip": "Rechercher un mod : ",
 
   "MainForm.Status.Header": "Statut & Journal",

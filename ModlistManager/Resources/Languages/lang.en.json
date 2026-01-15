@@ -35,6 +35,7 @@
   "MainForm.Menu.Help.About": "About…",
   "MainForm.Menu.Help.Faq": "FAQ",
   "Faq.Title": "Frequently Asked Questions (FAQ)",
+  "Faq.Contents": "Contents",
   "Common.Close": "Close",
 
   "ETS2": "ETS2",
@@ -54,6 +55,7 @@
   "MainForm.Grid.Info": "Info",
   "MainForm.Grid.Status": "Status",
   "MainForm.Grid.Download": "Download",
+  "MainForm.Grid.Subscribe": "Subscribe",
   "MainForm.Grid.Search": "Search",
   "MainForm.QuickSearch.Button": "Search",
   "MainForm.QuickSearch.Placeholder": "Search mod…",
@@ -146,6 +148,7 @@
   "MainForm.Mods.Status.Missing": "Missing",
   "MainForm.Mods.Status.AvailableTip": "Mod file was found (mod/ or Workshop)",
   "MainForm.Mods.Status.MissingTip": "No matching mod archive found (.scs/.zip)",
+  "MainForm.Mods.Status.WorkshopUnknown": "Steam Workshop",
   "MainForm.Modlists.SearchTip": "Search for mod: "
   ,
   "MainForm.Status.Header": "Status & Log",

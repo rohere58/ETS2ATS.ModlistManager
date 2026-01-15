@@ -36,6 +36,7 @@
   "MainForm.Grid.Info": "Инфо",
   "MainForm.Grid.Status": "Статус",
   "MainForm.Grid.Download": "Загрузить",
+  "MainForm.Grid.Subscribe": "Подписаться",
   "MainForm.Grid.Search": "Поиск",
   "MainForm.Grid.ResetName": "Сбросить имя",
   "MainForm.Name.Saved": "Имя сохранено",
@@ -108,6 +109,7 @@
   "MainForm.Mods.Status.Missing": "Отсутствует",
   "MainForm.Mods.Status.AvailableTip": "Файл мода найден (mod/ или Workshop)",
   "MainForm.Mods.Status.MissingTip": "Подходящий архив мода не найден (.scs/.zip)",
+  "MainForm.Mods.Status.WorkshopUnknown": "Steam Workshop",
   "MainForm.Modlists.SearchTip": "Поиск мода: ",
 
   "MainForm.Status.Header": "Статус и журнал",

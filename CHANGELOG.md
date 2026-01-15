@@ -13,6 +13,17 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.18] - 2026-01-15
+### Hinzugefügt
+- Mod-Grid: Status-Spalte (✓ / -) für Verfügbarkeit (inkl. Workshop-Erkennung).
+
+### Geändert
+- Mod-Grid: Download-Spalte zeigt je nach Status „Download“, „Abonnieren“ (Workshop) oder „Vorhanden“.
+- Mod-Grid: Buttons bleiben anklickbar (auch bei „Vorhanden“) um Links/Workshop-Seiten für Updates zu öffnen.
+
+### Behoben
+- Lokalisierung: fehlende Keys für „Abonnieren“/Workshop-Tooltip ergänzt.
+
 ## [0.1.17.1] - 2026-01-14
 ### Behoben
 - Regression: Download- und Suche-Buttons im Mod-Grid waren nicht mehr anklickbar (fehlendes Event-Wiring).
@@ -177,7 +188,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.15...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.18...HEAD
+[0.1.18]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.17.1...v0.1.18
+[0.1.17.1]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.17...v0.1.17.1
+[0.1.17]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.16...v0.1.17
+[0.1.16]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.12...v0.1.13

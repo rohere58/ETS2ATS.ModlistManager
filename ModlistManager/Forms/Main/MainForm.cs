@@ -681,6 +681,25 @@ namespace ETS2ATS.ModlistManager.Forms.Main
 
             if (col.Name == "colDownload")
             {
+                // Workshop: Seite öffnen (auch wenn bereits vorhanden, z.B. für Updates)
+                try
+                {
+                    var pkg = gridMods.Rows[e.RowIndex].Cells["colPackage"].Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(pkg) && pkg.StartsWith("mod_workshop_package.", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var wid = ExtractWorkshopIdCandidates(pkg).FirstOrDefault(id => !string.IsNullOrWhiteSpace(id));
+                        if (!string.IsNullOrWhiteSpace(wid))
+                        {
+                            var wurl = $"https://steamcommunity.com/sharedfiles/filedetails/?id={wid}";
+                            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(wurl) { UseShellExecute = true }); }
+                            catch { }
+                            return;
+                        }
+                    }
+                }
+                catch { }
+
+                // Normaler Download-Link öffnen (auch wenn bereits vorhanden, z.B. für Updates)
                 var url = gridMods.Rows[e.RowIndex].Cells["colUrl"].Value?.ToString();
                 if (!string.IsNullOrWhiteSpace(url) && Uri.IsWellFormedUriString(url, UriKind.Absolute))
                 {
@@ -1295,6 +1314,15 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     if (gridMods.Columns.Contains("colPackage")) row.Cells["colPackage"].Value = e.Package;
                     if (gridMods.Columns.Contains("colModName")) row.Cells["colModName"].Value = e.ModName;
 
+                    bool isWorkshopPackage = !string.IsNullOrWhiteSpace(e.Package)
+                        && e.Package.StartsWith("mod_workshop_package.", StringComparison.OrdinalIgnoreCase);
+                    string? workshopId = null;
+                    if (isWorkshopPackage)
+                    {
+                        try { workshopId = ExtractWorkshopIdCandidates(e.Package).FirstOrDefault(id => !string.IsNullOrWhiteSpace(id)); } catch { }
+                    }
+                    bool foundForRow = false;
+
                     string? url = null;
                     if (linkMap != null)
                     {
@@ -1413,6 +1441,29 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                         var candNorm = candNoExt.Select(NormalizeKey).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
 
                         bool found = false;
+
+                        // 0) Workshop: Direkter ID-Match über Workshop-Verzeichnisnamen.
+                        // Viele Workshop-Mods liegen nicht (nur) als .scs/.zip vor, sondern ggf. entpackt/verschachtelt.
+                        // Die Existenz des Workshop-ID-Ordners ist hier die robusteste Aussage "Mod ist vorhanden".
+                        if (isWorkshopPackage)
+                        {
+                            try
+                            {
+                                foreach (var wid in ExtractWorkshopIdCandidates(e.Package))
+                                {
+                                    if (string.IsNullOrWhiteSpace(wid)) continue;
+                                    if (availableWorkshopDirs.Contains(wid))
+                                    {
+                                        found = true;
+                                        foundSource = "workshop";
+                                        foundName = wid;
+                                        break;
+                                    }
+                                }
+                            }
+                            catch { }
+                        }
+
                         // 1) Exakte Dateinamen (mit Ext)
                         foreach (var c in candidates)
                         {
@@ -1442,7 +1493,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                             }
                         }
                         // 6) Workshop-Titel (normalisiert) matchen: contains in beide Richtungen
-                        if (!found && workshopTitlesNorm.Count > 0)
+                        // Für Workshop-Packages überspringen (zu viele False-Positives möglich).
+                        if (!isWorkshopPackage && !found && workshopTitlesNorm.Count > 0)
                         {
                             foreach (var c in candNorm)
                             {
@@ -1451,7 +1503,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                             }
                         }
                         // 7) Fuzzy: Token-Overlap mit Workshop-Titeln/Dateinamen
-                        if (!found)
+                        // Für Workshop-Packages überspringen (zu viele False-Positives möglich).
+                        if (!isWorkshopPackage && !found)
                         {
                             var candTokenSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                             foreach (var c in candNoExt) foreach (var t in Tokenize(c)) candTokenSet.Add(t);
@@ -1491,11 +1544,9 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                                 foundSource = "workshop";
                         }
 
-                        string statusText = found
-                            ? T("MainForm.Mods.Status.Available", "Vorhanden")
-                            : T("MainForm.Mods.Status.Missing", "Fehlt");
+                        foundForRow = found;
 
-                        statusCell.Value = statusText;
+                        statusCell.Value = found ? "✓" : "-";
                         statusCell.ToolTipText = found
                             ? (foundSource == "mod"
                                 ? T("MainForm.Mods.Status.AvailableTip", "Mod-Datei wurde gefunden (mod/ oder Workshop)") + " — mod/" + (foundName != null ? (" (" + foundName + ")") : string.Empty)
@@ -1513,16 +1564,50 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     {
                         var idxCol = gridMods.Columns["colDownload"].Index;
                         var btnCell = row.Cells[idxCol];
-                        bool valid = !string.IsNullOrWhiteSpace(url) && Uri.IsWellFormedUriString(url, UriKind.Absolute);
-                        btnCell.Value = valid ? "Download" : "-";
+
+                        var isDarkTheme = string.Equals(_settings.Current.Theme, "Dark", StringComparison.OrdinalIgnoreCase);
+                        var validUrl = !string.IsNullOrWhiteSpace(url) && Uri.IsWellFormedUriString(url, UriKind.Absolute);
+
+                        DownloadButtonState state;
+                        if (foundForRow)
+                        {
+                            btnCell.Value = T("MainForm.Mods.Status.Available", "Vorhanden");
+                            state = DownloadButtonState.Present;
+                        }
+                        else if (isWorkshopPackage)
+                        {
+                            btnCell.Value = T("MainForm.Grid.Subscribe", "Abonnieren");
+                            state = DownloadButtonState.Subscribe;
+                        }
+                        else
+                        {
+                            btnCell.Value = validUrl ? T("MainForm.Grid.Download", "Download") : "-";
+                            state = validUrl ? DownloadButtonState.Download : DownloadButtonState.None;
+                        }
+
+                        ApplyDownloadButtonStyle(btnCell, state, isDarkTheme);
                     }
 
                     // Tooltips für Link-Spalten
                     if (gridMods.Columns.Contains("colDownload"))
                     {
-                        var tip = string.IsNullOrWhiteSpace(url)
-                            ? T("MainForm.Modlists.Status.NoLinkTip", "Kein Download-Link hinterlegt")
-                            : url;
+                        string tip;
+                        if (foundForRow)
+                        {
+                            tip = T("MainForm.Mods.Status.Available", "Vorhanden");
+                        }
+                        else if (isWorkshopPackage)
+                        {
+                            tip = !string.IsNullOrWhiteSpace(workshopId)
+                                ? $"https://steamcommunity.com/sharedfiles/filedetails/?id={workshopId}"
+                                : T("MainForm.Mods.Status.WorkshopUnknown", "Steam Workshop");
+                        }
+                        else
+                        {
+                            tip = string.IsNullOrWhiteSpace(url)
+                                ? T("MainForm.Modlists.Status.NoLinkTip", "Kein Download-Link hinterlegt")
+                                : url;
+                        }
                         row.Cells[gridMods.Columns["colDownload"].Index].ToolTipText = tip;
                     }
                     if (gridMods.Columns.Contains("colSearch"))
@@ -1566,6 +1651,44 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                 return Directory.Exists(modFolder) ? modFolder : null;
             }
             catch { return null; }
+        }
+
+        private enum DownloadButtonState
+        {
+            None,
+            Download,
+            Subscribe,
+            Present
+        }
+
+        private static void ApplyDownloadButtonStyle(DataGridViewCell cell, DownloadButtonState state, bool isDarkTheme)
+        {
+            var style = new DataGridViewCellStyle(cell.Style);
+            style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            // Defaults come from ThemeService; we only override text color.
+            // Background stays theme-controlled to avoid "painted" looking buttons.
+            if (state == DownloadButtonState.Download)
+            {
+                style.ForeColor = isDarkTheme ? Color.DeepSkyBlue : Color.RoyalBlue;
+            }
+            else if (state == DownloadButtonState.Subscribe)
+            {
+                style.ForeColor = isDarkTheme ? Color.Orange : Color.DarkOrange;
+            }
+            else if (state == DownloadButtonState.Present)
+            {
+                style.ForeColor = isDarkTheme ? Color.SeaGreen : Color.DarkGreen;
+            }
+            else if (state == DownloadButtonState.None)
+            {
+                style.ForeColor = isDarkTheme ? Color.Gainsboro : SystemColors.GrayText;
+            }
+
+            // Keep selection readable (don't force colored text on highlight background).
+            style.SelectionForeColor = isDarkTheme ? Color.Gainsboro : SystemColors.HighlightText;
+
+            cell.Style = style;
         }
 
         // mod_workshop_package.<HEXID> -> publishedFileId (dezimal)
