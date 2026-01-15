@@ -12,7 +12,10 @@ obj/
 [Ll]og/
 
 # Release/Artifacts
-artifacts/
+# artifacts/ enthält Release Notes (Markdown) und sollte commitbar sein.
+# Große Binärdateien gehören dagegen nicht ins Repo (die hängen als GitHub Release Assets).
+artifacts/**/*.zip
+artifacts/**/*.sha256
 *.zip
 
 # VS Code

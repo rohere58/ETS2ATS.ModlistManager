@@ -1,0 +1,2 @@
+# Track large binary artifacts with Git LFS
+*.zip filter=lfs diff=lfs merge=lfs -text
