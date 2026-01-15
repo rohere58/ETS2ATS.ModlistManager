@@ -25,16 +25,20 @@ $current = ($xml.Project.PropertyGroup | Where-Object { $_.Version }).Version
 if (-not $current) { throw 'Aktuelle Version konnte nicht aus csproj gelesen werden.' }
 
 if ($NewVersion) {
-  if ($NewVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+$') { throw "Ungültiges Versionsformat: $NewVersion" }
+  if ($NewVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$') { throw "Ungültiges Versionsformat: $NewVersion" }
   $target = $NewVersion
 } else {
   if (-not ($Major -or $Minor -or $Patch)) { $Patch = $true }
   $parts = $current.Split('.')
   [int]$maj=$parts[0]; [int]$min=$parts[1]; [int]$pat=$parts[2]
+  [int]$rev=0
+  if ($parts.Length -ge 4) { [int]$rev=$parts[3] }
   if ($Major) { $maj++; $min=0; $pat=0 }
   elseif ($Minor) { $min++; $pat=0 }
-  elseif ($Patch) { $pat++ }
-  $target = "$maj.$min.$pat"
+  elseif ($Patch) {
+    if ($parts.Length -ge 4) { $rev++ } else { $pat++ }
+  }
+  $target = ($parts.Length -ge 4) ? "$maj.$min.$pat.$rev" : "$maj.$min.$pat"
 }
 
 if ($target -eq $current) { Write-Warning "Version unverändert ($current)"; exit 0 }
@@ -46,7 +50,7 @@ $content = Get-Content $changelog -Raw
 if ($content -notmatch '\[Unreleased\]: .*') { throw 'Kein [Unreleased] Link gefunden.' }
 
 # Version Links einsammeln
-$matches = Select-String -InputObject $content -Pattern '^\[([0-9]+\.[0-9]+\.[0-9]+)\]:' -AllMatches
+$matches = Select-String -InputObject $content -Pattern '^\[([0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?)\]:' -AllMatches
 $lastVersion = $current
 if ($matches) {
   $versions = $matches.Matches | ForEach-Object { $_.Groups[1].Value }
@@ -72,7 +76,7 @@ if ($AddSection -and $content -notmatch "## \[$target\]") {
 - (Noch nichts)
 
 "@
-  $patternFirstVersion = '(?m)^## \[[0-9]+\.[0-9]+\.[0-9]+\]'
+  $patternFirstVersion = '(?m)^## \[[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?\]'
   $m = [regex]::Match($content, $patternFirstVersion)
   if ($m.Success) {
     $content = $content.Insert($m.Index, $section)

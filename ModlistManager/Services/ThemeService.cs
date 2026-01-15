@@ -159,7 +159,9 @@ namespace ETS2ATS.ModlistManager.Services
                 {
                     if (col is DataGridViewButtonColumn bcol)
                     {
-                        bcol.FlatStyle = FlatStyle.Standard;
+                        // Use Flat to ensure per-cell coloring (e.g. missing-link highlight) is visible.
+                        // With Standard style, Windows theming can ignore ForeColor/BackColor for buttons.
+                        bcol.FlatStyle = FlatStyle.Flat;
                         bcol.DefaultCellStyle.BackColor = SystemColors.Control;
                         bcol.DefaultCellStyle.ForeColor = SystemColors.ControlText;
                         bcol.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;

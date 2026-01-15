@@ -15,6 +15,9 @@ obj/
 # artifacts/ wird lokal für Builds/Release-Assets genutzt und soll standardmäßig NICHT im Repo landen.
 # Ausnahme: Release Notes (Markdown) dürfen committed werden.
 artifacts/**
+# Wichtig: Wenn ein Ordner ignoriert ist, kann Git darin keine "unignored" Dateien finden.
+# Daher Ordner wieder erlauben, damit RELEASE_*.md ohne -f hinzugefügt werden kann.
+!artifacts/**/
 !artifacts/**/RELEASE_BODY.md
 !artifacts/**/RELEASE_NOTES.md
 !artifacts/**/RELEASE_NOTES_EN.md

@@ -13,6 +13,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.18.1] - 2026-01-15
+### Behoben
+- Mod-Grid: Download-Spalte – fehlende Downloadlinks sind wieder sofort erkennbar (deutliche Hervorhebung).
+
 ## [0.1.18] - 2026-01-15
 ### Hinzugefügt
 - Mod-Grid: Status-Spalte (✓ / -) für Verfügbarkeit (inkl. Workshop-Erkennung).
@@ -188,7 +192,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.18...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.18.1...HEAD
+[0.1.18.1]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.18...v0.1.18.1
 [0.1.18]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.17.1...v0.1.18
 [0.1.17.1]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.17...v0.1.17.1
 [0.1.17]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.16...v0.1.17

@@ -147,6 +147,9 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     gridMods.CellMouseDown -= GridMods_CellMouseDown;
                     gridMods.CellMouseDown += GridMods_CellMouseDown;
 
+                    gridMods.CellPainting -= GridMods_CellPainting;
+                    gridMods.CellPainting += GridMods_CellPainting;
+
 #if DEBUG
                     _gridEventsWired = true;
 #endif
@@ -1586,6 +1589,13 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                         }
 
                         ApplyDownloadButtonStyle(btnCell, state, isDarkTheme);
+
+                        // Make missing-link state visible independent from the button text/state.
+                        // Even if a mod is present locally, users want to see if a download link exists.
+                        var isMissingLink = isWorkshopPackage
+                            ? string.IsNullOrWhiteSpace(workshopId)
+                            : !validUrl;
+                        btnCell.Tag = new DownloadCellMeta(state, isMissingLink);
                     }
 
                     // Tooltips für Link-Spalten
@@ -1661,6 +1671,8 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             Present
         }
 
+        private readonly record struct DownloadCellMeta(DownloadButtonState State, bool IsMissingLink);
+
         private static void ApplyDownloadButtonStyle(DataGridViewCell cell, DownloadButtonState state, bool isDarkTheme)
         {
             var style = new DataGridViewCellStyle(cell.Style);
@@ -1682,13 +1694,92 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             }
             else if (state == DownloadButtonState.None)
             {
-                style.ForeColor = isDarkTheme ? Color.Gainsboro : SystemColors.GrayText;
+                // No download link: highlight to make the missing-link state obvious.
+                // Use theme-appropriate contrast.
+                style.ForeColor = isDarkTheme ? Color.Gold : Color.DarkGoldenrod;
+                style.BackColor = isDarkTheme ? Color.FromArgb(70, 60, 0) : Color.FromArgb(255, 249, 196);
             }
 
             // Keep selection readable (don't force colored text on highlight background).
             style.SelectionForeColor = isDarkTheme ? Color.Gainsboro : SystemColors.HighlightText;
 
             cell.Style = style;
+        }
+
+        private void GridMods_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
+        {
+            try
+            {
+                if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+                if (gridMods == null) return;
+
+                var g = e.Graphics;
+                if (g is null) return;
+
+                // DataGridView provides a cell style, but keep this null-safe for analyzers.
+                var cellStyle = e.CellStyle ?? gridMods.DefaultCellStyle;
+
+                var col = gridMods.Columns[e.ColumnIndex];
+                if (col == null || col.Name != "colDownload") return;
+
+                var row = gridMods.Rows[e.RowIndex];
+                var cell = row.Cells[e.ColumnIndex];
+
+                // Determine missing-link state directly from data (robust against theming/refresh issues).
+                var pkg = row.Cells["colPackage"].Value?.ToString();
+                var url = row.Cells["colUrl"].Value?.ToString();
+
+                var isWorkshopPackage = !string.IsNullOrWhiteSpace(pkg)
+                    && pkg.StartsWith("mod_workshop_package.", StringComparison.OrdinalIgnoreCase);
+
+                var validUrl = !string.IsNullOrWhiteSpace(url) && Uri.IsWellFormedUriString(url, UriKind.Absolute);
+                var hasWorkshopLink = false;
+                if (isWorkshopPackage)
+                {
+                    try { hasWorkshopLink = ExtractWorkshopIdCandidates(pkg!).Any(id => !string.IsNullOrWhiteSpace(id)); }
+                    catch { hasWorkshopLink = false; }
+                }
+
+                var isMissingLink = isWorkshopPackage ? !hasWorkshopLink : !validUrl;
+                if (!isMissingLink) return;
+
+                var isDarkTheme = string.Equals(_settings.Current.Theme, "Dark", StringComparison.OrdinalIgnoreCase);
+                var isSelected = (e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected;
+
+                var back = isSelected
+                    ? cellStyle.SelectionBackColor
+                    : (isDarkTheme ? Color.FromArgb(70, 60, 0) : Color.FromArgb(255, 249, 196));
+                var fore = isSelected
+                    ? cellStyle.SelectionForeColor
+                    : (isDarkTheme ? Color.Gold : Color.DarkGoldenrod);
+
+                e.Handled = true;
+
+                using (var backBrush = new SolidBrush(back))
+                    g.FillRectangle(backBrush, e.CellBounds);
+
+                var borderColor = isDarkTheme ? Color.Goldenrod : Color.DarkGoldenrod;
+                using (var borderPen = new Pen(borderColor))
+                {
+                    var r = Rectangle.Inflate(e.CellBounds, -3, -3);
+                    g.DrawRectangle(borderPen, r);
+                }
+
+                var text = cell.FormattedValue?.ToString() ?? "-";
+                var textRect = Rectangle.Inflate(e.CellBounds, -6, -6);
+                TextRenderer.DrawText(
+                    g,
+                    text,
+                    cellStyle.Font,
+                    textRect,
+                    fore,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            }
+            catch
+            {
+                // if custom painting fails, fall back to default rendering
+                e.Handled = false;
+            }
         }
 
         // mod_workshop_package.<HEXID> -> publishedFileId (dezimal)
