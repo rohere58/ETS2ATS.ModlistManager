@@ -12,11 +12,21 @@ obj/
 [Ll]og/
 
 # Release/Artifacts
-# artifacts/ enthält Release Notes (Markdown) und sollte commitbar sein.
-# Große Binärdateien gehören dagegen nicht ins Repo (die hängen als GitHub Release Assets).
-artifacts/**/*.zip
-artifacts/**/*.sha256
+# artifacts/ wird lokal für Builds/Release-Assets genutzt und soll standardmäßig NICHT im Repo landen.
+# Ausnahme: Release Notes (Markdown) dürfen committed werden.
+artifacts/**
+!artifacts/**/RELEASE_BODY.md
+!artifacts/**/RELEASE_NOTES.md
+!artifacts/**/RELEASE_NOTES_EN.md
+!artifacts/**/RELEASE_NOTES_*.md
+!artifacts/**/RELEASE_*.md
+
+# Lokale Audit-Ausgaben
+artifacts/lang-audit-missing.*
+
+# Große Binärdateien gehören nicht ins Repo
 *.zip
+*.sha256
 
 # VS Code
 .vscode/*
