@@ -37,6 +37,9 @@ Vielen Dank für dein Interesse! This project is a .NET 8 WinForms desktop app. 
 - Release-Publish erzeugen (framework-dependent):
   - `dotnet publish ETS2ATS.ModlistManager.csproj -c Release -r win-x64 --self-contained false`
 - ZIP bauen und SHA256 generieren (Dateiname: `ETS2ATS.ModlistManager_vX.Y.Z_win-x64.zip`).
+ - ZIP(s) bauen und SHA256 generieren (Dateinamen):
+   - `modlist-manager-X.Y.Z-win-x64.zip`
+   - `modlist-manager-X.Y.Z-self-contained-win-x64.zip`
 
 5) Commit, Branch, Tag
 - Änderungen committen (inkl. Changelog/Notes).
@@ -47,6 +50,7 @@ Vielen Dank für dein Interesse! This project is a .NET 8 WinForms desktop app. 
 - Release für `vX.Y.Z` anlegen (Titel: „ETS2ATS.ModlistManager vX.Y.Z“).
 - Notes aus `RELEASE_NOTES_vX.Y.Z.md` übernehmen.
 - Assets hochladen: ZIP + `.sha256`.
+ - Assets hochladen: ZIP(s) + `.sha256`.
 
 7) README aktualisieren
 - Direktdownload-Link auf neues Asset (DE/EN Installation) aktualisieren.
@@ -78,7 +82,9 @@ Optional
 4) Build & Publish (win-x64)
 - Create framework-dependent publish:
   - `dotnet publish ETS2ATS.ModlistManager.csproj -c Release -r win-x64 --self-contained false`
-- Create ZIP and SHA256 (name: `ETS2ATS.ModlistManager_vX.Y.Z_win-x64.zip`).
+- Create ZIP(s) and SHA256 (names):
+  - `modlist-manager-X.Y.Z-win-x64.zip`
+  - `modlist-manager-X.Y.Z-self-contained-win-x64.zip`
 
 5) Commit, Branch, Tag
 - Commit changes (incl. changelog/notes).
@@ -89,6 +95,7 @@ Optional
 - Create release for `vX.Y.Z` with title “ETS2ATS.ModlistManager vX.Y.Z”.
 - Use `RELEASE_NOTES_vX.Y.Z.md` as notes.
 - Upload assets: ZIP + `.sha256`.
+- Upload assets: ZIP(s) + `.sha256`.
 
 7) README Update
 - Update direct download link (DE/EN installation sections).
@@ -116,7 +123,12 @@ git push origin vX.Y.Z
 
 # Create release with notes and upload assets
 gh release create vX.Y.Z --title "ETS2ATS.ModlistManager vX.Y.Z" --notes-file "RELEASE_NOTES_vX.Y.Z.md"
-gh release upload vX.Y.Z "publish-vX.Y.Z/ETS2ATS.ModlistManager_vX.Y.Z_win-x64.zip" "publish-vX.Y.Z/ETS2ATS.ModlistManager_vX.Y.Z_win-x64.zip.sha256" --clobber
+gh release upload vX.Y.Z `
+  "artifacts/vX.Y.Z/modlist-manager-X.Y.Z-win-x64.zip" `
+  "artifacts/vX.Y.Z/modlist-manager-X.Y.Z-win-x64.zip.sha256" `
+  "artifacts/vX.Y.Z/modlist-manager-X.Y.Z-self-contained-win-x64.zip" `
+  "artifacts/vX.Y.Z/modlist-manager-X.Y.Z-self-contained-win-x64.zip.sha256" `
+  --clobber
 ```
 
 Bitte halte Releases klein, nachvollziehbar und dokumentiert. Danke! 🙌# Contribution Guide

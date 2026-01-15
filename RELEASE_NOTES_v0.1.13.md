@@ -14,4 +14,4 @@
 - Modlisten liegen standardmäßig unter `Dokumente/<Game>/modlists` oder in dem in den Optionen gewählten Ordner.
 
 ## Assets
-- `ETS2ATS.ModlistManager_v0.1.13.zip`
+- GitHub Release: https://github.com/rohere58/ETS2ATS.ModlistManager/releases/tag/v0.1.13
