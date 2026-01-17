@@ -43,6 +43,19 @@ dotnet restore $csproj
 if ($SingleFile) {
   Write-Host "==> Self-contained Build (SingleFile)" -ForegroundColor Yellow
   dotnet publish $csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o (Join-Path $publishRoot 'pkg')
+
+  # Hinweis: Bei PublishSingleFile werden zusätzliche .exe-Dateien (wie SII_Decrypt.exe) nicht zuverlässig
+  # in den Publish-Output übernommen. Daher kopieren wir die Tools nachträglich in den Output.
+  $toolsSrc = Join-Path $PSScriptRoot 'ModlistManager' 'Tools'
+  $toolsDest = Join-Path $publishRoot 'pkg' 'ModlistManager' 'Tools'
+  if (Test-Path $toolsSrc) {
+    New-Item -ItemType Directory -Path $toolsDest -Force | Out-Null
+    Copy-Item -Path (Join-Path $toolsSrc '*') -Destination $toolsDest -Recurse -Force
+  }
+  if (-not (Test-Path (Join-Path $toolsDest 'SII_Decrypt.exe'))) {
+    Write-Warning "SII_Decrypt.exe fehlt im SingleFile Publish-Ausgabepfad!"
+  }
+
   $zipPath = Join-Path $dist ("modlist-manager-$Version-self-contained-win-x64.zip")
   Write-Host "==> Erzeuge ZIP (SingleFile)" -ForegroundColor Yellow
   Compress-Archive -Path (Join-Path $publishRoot 'pkg' '*') -DestinationPath $zipPath -Force

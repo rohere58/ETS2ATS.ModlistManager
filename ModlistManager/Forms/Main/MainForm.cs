@@ -11,6 +11,7 @@ using System.Globalization;
 using System.IO.Compression;
 using Microsoft.Win32;
 using ETS2ATS.ModlistManager.Forms.Options; // hinzugefügt
+using ETS2ATS.ModlistManager.Forms.Tools;
 
 namespace ETS2ATS.ModlistManager.Forms.Main
 {
@@ -610,6 +611,42 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                     try { Directory.CreateDirectory(root); } catch { }
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(root) { UseShellExecute = true });
                 }
+            }
+            catch { }
+        }
+
+        private void OpenModFolderCleanupDialog()
+        {
+            try
+            {
+                var code = (cbGame.SelectedItem as GameItem)?.Code ?? "ETS2";
+                var norm = NormalizeGameCode(code);
+
+                var modsFolder = GetModsFolderForGame(norm);
+                if (string.IsNullOrWhiteSpace(modsFolder) || !Directory.Exists(modsFolder))
+                {
+                    MessageBox.Show(this,
+                        T("ModCleanup.NoModsFolder", "Der Modordner konnte nicht gefunden werden.\nBitte prüfe den Dokumente-Pfad/Profilpfad (Optionen)."),
+                        T("ModCleanup.Title", "Modordner bereinigen"),
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var modlistsFolder = GetModlistsRootForGame(norm);
+                if (string.IsNullOrWhiteSpace(modlistsFolder) || !Directory.Exists(modlistsFolder))
+                {
+                    MessageBox.Show(this,
+                        T("ModCleanup.NoModlistsFolder", "Der Modlisten-Ordner konnte nicht gefunden werden.\nBitte wähle ggf. einen Modlistenordner im Menü 'Modlisten'."),
+                        T("ModCleanup.Title", "Modordner bereinigen"),
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+
+                using var dlg = new ModFolderCleanupForm(_lang, modsFolder, modlistsFolder, _currentModlistPath);
+                try { _theme.Apply(dlg, _settings.Current.Theme ?? "Light"); } catch { }
+                dlg.ShowDialog(this);
             }
             catch { }
         }
@@ -3076,6 +3113,40 @@ namespace ETS2ATS.ModlistManager.Forms.Main
                         // Stelle sicher, dass Tag und Text korrekt sind (für Lokalisierung und konsistente Anzeige)
                         existing.Tag = "MainForm.Menu.Modlists.SetFolder";
                         existing.Text = T("MainForm.Menu.Modlists.SetFolder", "Modlistenordner wählen…");
+                    }
+
+                    // Modlisten -> Modordner bereinigen… (Abgleich Modlisten vs. Mods-Ordner)
+                    var existingCleanup = miModlists.DropDownItems.Cast<ToolStripItem>()
+                        .FirstOrDefault(i => string.Equals(i.Name, "miModCleanup", StringComparison.OrdinalIgnoreCase));
+                    if (existingCleanup == null)
+                    {
+                        var miCleanup = new ToolStripMenuItem
+                        {
+                            Name = "miModCleanup",
+                            Tag = "MainForm.Menu.Modlists.CleanupMods",
+                            Text = T("MainForm.Menu.Modlists.CleanupMods", "Modordner bereinigen…")
+                        };
+                        miCleanup.Click += (_, __) => { try { OpenModFolderCleanupDialog(); } catch { } };
+
+                        // sinnvoller Platz: direkt nach "Modlistenordner öffnen"
+                        int insertIndex = -1;
+                        for (int i = 0; i < miModlists.DropDownItems.Count; i++)
+                        {
+                            if (string.Equals(miModlists.DropDownItems[i]?.Name, "miModOpen", StringComparison.OrdinalIgnoreCase))
+                            {
+                                insertIndex = i + 1;
+                                break;
+                            }
+                        }
+                        if (insertIndex < 0 || insertIndex > miModlists.DropDownItems.Count)
+                            miModlists.DropDownItems.Add(miCleanup);
+                        else
+                            miModlists.DropDownItems.Insert(insertIndex, miCleanup);
+                    }
+                    else
+                    {
+                        existingCleanup.Tag = "MainForm.Menu.Modlists.CleanupMods";
+                        existingCleanup.Text = T("MainForm.Menu.Modlists.CleanupMods", "Modordner bereinigen…");
                     }
                 }
             }

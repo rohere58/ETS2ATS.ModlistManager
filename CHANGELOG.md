@@ -13,6 +13,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.19] - 2026-01-17
+### Hinzugefügt
+- Menü „Modlisten“: Tool „Modordner bereinigen…“ (findet ungenutzte Mods und kann sie in einen Archivordner verschieben).
+
+### Geändert
+- Lokalisierung: neue Menü-/Tool-Texte in allen mitgelieferten Sprachen ergänzt.
+
 ## [0.1.18.1] - 2026-01-15
 ### Behoben
 - Mod-Grid: Download-Spalte – fehlende Downloadlinks sind wieder sofort erkennbar (deutliche Hervorhebung).
@@ -192,7 +199,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.18.1...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.19...HEAD
+[0.1.19]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.18.1...v0.1.19
 [0.1.18.1]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.18...v0.1.18.1
 [0.1.18]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.17.1...v0.1.18
 [0.1.17.1]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.17...v0.1.17.1

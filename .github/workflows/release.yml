@@ -41,6 +41,17 @@ jobs:
       - name: Publish self-contained single-file (win-x64)
         run: dotnet publish ./ETS2ATS.ModlistManager.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/sc/win-x64
 
+      - name: Ensure Tools included (single-file)
+        shell: pwsh
+        run: |
+          # Bei PublishSingleFile werden zusätzliche .exe-Dateien (wie SII_Decrypt.exe) nicht zuverlässig
+          # in den Publish-Output übernommen. Daher Tools nachträglich in den Output kopieren.
+          $src = 'ModlistManager/Tools'
+          $dest = 'publish/sc/win-x64/ModlistManager/Tools'
+          if (-not (Test-Path $src)) { Write-Error "Tools-Quelle fehlt: $src"; exit 1 }
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          Copy-Item -Path (Join-Path $src '*') -Destination $dest -Recurse -Force
+
       - name: Verify packaged resources
         shell: pwsh
         run: |
@@ -66,6 +77,13 @@ jobs:
             exit 1
           }
           Write-Host "modlists Struktur OK (Variante: $foundVariant)" -ForegroundColor Green
+
+          $toolSc = Join-Path $base 'ModlistManager/Tools/SII_Decrypt.exe'
+          if (-not (Test-Path $toolSc)) {
+            Write-Error "SII_Decrypt.exe nicht gefunden im Single-File Publish: $toolSc"
+            exit 1
+          }
+          Write-Host "Tools OK (Single-File): $toolSc" -ForegroundColor Green
 
           Write-Host 'Verifikation abgeschlossen.' -ForegroundColor Green
 
@@ -94,7 +112,7 @@ jobs:
         shell: pwsh
         run: |
           $tool = 'publish/mf/win-x64/ModlistManager/Tools/SII_Decrypt.exe'
-          if (Test-Path $tool) { Write-Host "Tools OK: $tool" -ForegroundColor Green } else { Write-Warning "SII_Decrypt.exe nicht gefunden im Multi-File Publish!" }
+          if (Test-Path $tool) { Write-Host "Tools OK: $tool" -ForegroundColor Green } else { Write-Error "SII_Decrypt.exe nicht gefunden im Multi-File Publish!"; exit 1 }
 
       - name: Zip multi-file artifact
         shell: pwsh
