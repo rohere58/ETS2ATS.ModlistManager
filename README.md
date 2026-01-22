@@ -12,11 +12,11 @@
 
 > Ein schlanker Windows (.NET 8 / WinForms) Helfer zum Erstellen, Verwalten und Teilen von Modlisten für **Euro Truck Simulator 2** und **American Truck Simulator**.
 
-> Hinweis/Notice: Aktuelle Version 0.1.19 enthält einen Hotfix für die Erkennbarkeit fehlender Download-Links im Mod-Grid.
-> Current version 0.1.19 includes a hotfix to make missing download links in the mods grid immediately visible.
+> Hinweis/Notice: Aktuelle Version 0.1.19.1 enthält einen Hotfix für die Erkennbarkeit fehlender Download-Links im Mod-Grid.
+> Current version 0.1.19.1 includes a hotfix to make missing download links in the mods grid immediately visible.
 > Downloads:
-> - Multi-File (empfohlen / recommended): https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19/modlist-manager-0.1.19-win-x64.zip
-> - Single-File (kompakte Einzel-EXE): https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19/modlist-manager-0.1.19-self-contained-win-x64.zip
+> - Multi-File (empfohlen / recommended): https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19.1/modlist-manager-0.1.19.1-win-x64.zip
+> - Single-File (kompakte Einzel-EXE): https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19.1/modlist-manager-0.1.19.1-self-contained-win-x64.zip
 
 ## Inhaltsverzeichnis / Table of Contents
 **Deutsch**
@@ -78,8 +78,8 @@ Wer viele Profile / Modsets (Konvois, verschiedene Savegames, Test-Konfiguration
 
 ## Installation (Benutzer)
 1. Release (ZIP) herunterladen:
-  - Empfohlen (enthält Tools-Ordner direkt): [Multi-File v0.1.19](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19/modlist-manager-0.1.19-win-x64.zip)
-  - Alternative (eine einzelne EXE): [Single-File v0.1.19](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19/modlist-manager-0.1.19-self-contained-win-x64.zip)
+  - Empfohlen (enthält Tools-Ordner direkt): [Multi-File v0.1.19.1](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19.1/modlist-manager-0.1.19.1-win-x64.zip)
+  - Alternative (eine einzelne EXE): [Single-File v0.1.19.1](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19.1/modlist-manager-0.1.19.1-self-contained-win-x64.zip)
 2. ZIP in einen beliebigen Ordner entpacken (z.B. `D:\Tools\ModlistManager`)
 3. `ETS2ATS.ModlistManager.exe` starten
 4. (Optional) Benutzerrechte: Stelle sicher, dass der Ordner beschreibbar ist (für Modlisten-Dateien)
@@ -201,9 +201,9 @@ Jedes Release enthält zusätzlich eine `.sha256` Datei.
 
 Prüfen unter PowerShell:
 ```powershell
-# Beispiel für v0.1.19 (Dateien aus dem GitHub Release herunterladen)
-Get-FileHash .\modlist-manager-0.1.19-win-x64.zip -Algorithm SHA256
-Get-Content .\modlist-manager-0.1.19-win-x64.zip.sha256
+# Beispiel für v0.1.19.1 (Dateien aus dem GitHub Release herunterladen)
+Get-FileHash .\modlist-manager-0.1.19.1-win-x64.zip -Algorithm SHA256
+Get-Content .\modlist-manager-0.1.19.1-win-x64.zip.sha256
 ```
 Die Hashes müssen identisch sein (Datei enthält Format: `<hash><2 spaces><zipname>`).
 
@@ -216,10 +216,10 @@ Varianten (Beispiele PowerShell):
 pwsh ./build-release.ps1
 
 # Explizite Version Single-File
-pwsh ./build-release.ps1 -Version 0.1.19 -SingleFile:$true
+pwsh ./build-release.ps1 -Version 0.1.19.1 -SingleFile:$true
 
 # Multi-File (mit Tools-Ordner)
-pwsh ./build-release.ps1 -Version 0.1.19 -SingleFile:$false
+pwsh ./build-release.ps1 -Version 0.1.19.1 -SingleFile:$false
 ```
 Ergebnis: Verzeichnis `dist/` mit einem oder zwei ZIPs:
 - `modlist-manager-<Version>-self-contained-win-x64.zip` (Single-File)
@@ -257,8 +257,8 @@ Managing many profiles / convoys / experimental mod setups becomes messy. This t
 
 ## Installation (Users)
 1. Download release (ZIP):
-  - Recommended (includes Tools folder with SII_Decrypt.exe): [Multi-File v0.1.19](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19/modlist-manager-0.1.19-win-x64.zip)
-  - Alternative (single executable): [Single-File v0.1.19](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19/modlist-manager-0.1.19-self-contained-win-x64.zip)
+  - Recommended (includes Tools folder with SII_Decrypt.exe): [Multi-File v0.1.19.1](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19.1/modlist-manager-0.1.19.1-win-x64.zip)
+  - Alternative (single executable): [Single-File v0.1.19.1](https://github.com/rohere58/ETS2ATS.ModlistManager/releases/download/v0.1.19.1/modlist-manager-0.1.19.1-self-contained-win-x64.zip)
 2. Extract to any folder (e.g. `D:\Tools\ModlistManager`)
 3. Launch `ETS2ATS.ModlistManager.exe`
 4. Ensure folder is writable (for modlist files)

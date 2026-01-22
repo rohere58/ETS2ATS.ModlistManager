@@ -8,9 +8,9 @@
     <AssemblyName>ETS2ATS.ModlistManager</AssemblyName>
     <RootNamespace>ETS2ATS.ModlistManager</RootNamespace>
     <ApplicationIcon>ModlistManager\Resources\app.ico</ApplicationIcon>
-  <Version>0.1.19</Version>
-    <AssemblyVersion>0.1.19</AssemblyVersion>
-    <FileVersion>0.1.19</FileVersion>
+  <Version>0.1.19.1</Version>
+    <AssemblyVersion>0.1.19.1</AssemblyVersion>
+    <FileVersion>0.1.19.1</FileVersion>
     <Authors>Community</Authors>
     <Company>
     </Company>

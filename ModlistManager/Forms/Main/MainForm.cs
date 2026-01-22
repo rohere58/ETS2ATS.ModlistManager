@@ -279,6 +279,31 @@ namespace ETS2ATS.ModlistManager.Forms.Main
             }
         }
 
+        private void ApplyLanguageToControlTree(Control? root)
+        {
+            if (root == null) return;
+
+            foreach (Control c in root.Controls)
+            {
+                ApplyLanguageToControl(c);
+                if (c.HasChildren) ApplyLanguageToControlTree(c);
+            }
+        }
+
+        private void ApplyLanguageToControl(Control c)
+        {
+            // Nicht automatisch lokalisieren: Inhalte sind benutzer-/zustandsabhängig
+            if (c is TextBoxBase) return;
+            if (c is ComboBox) return;
+            if (c is ListBox) return;
+            if (c is DataGridView) return;
+
+            if (c.Tag is string key && !string.IsNullOrWhiteSpace(key))
+            {
+                try { c.Text = _lang[key]; } catch { }
+            }
+        }
+
         private void MenuItem_DropDownOpening_Relocalize(object? sender, EventArgs e)
         {
             if (sender is ToolStripMenuItem mi)
@@ -291,7 +316,7 @@ namespace ETS2ATS.ModlistManager.Forms.Main
         private void ApplyLanguage()
         {
             try { this.Text = _lang["MainForm.Title"]; } catch { }
-            // ApplyLanguageToControlTree(this);   // (Helper evtl. nicht vorhanden)
+            ApplyLanguageToControlTree(this);
             ApplyLanguageToAllMenuStrips();     // alle Menüs inkl. Untermenüs und ContextMenus
             // Banner-Texte aktualisieren
             try { this.headerBanner.Title = _lang["MainForm.Title"]; } catch { }

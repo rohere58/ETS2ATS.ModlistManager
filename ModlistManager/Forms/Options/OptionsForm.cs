@@ -169,6 +169,7 @@ namespace ETS2ATS.ModlistManager.Forms.Options
 
         private void ApplyLanguageToControls()
         {
+            Text = _langService["Options.Title"];
             lblLanguage.Text = _langService["Options.Language"];
             lblTheme.Text = _langService["Options.Theme"];
             lblPreferredGame.Text = _langService["Options.PreferredGame"];

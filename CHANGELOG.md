@@ -13,6 +13,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Behoben
 - (Geplant) –
 
+## [0.1.19.1] - 2026-01-22
+### Behoben
+- Lokalisierung: Beschriftungen im Hauptfenster (u.a. Quick-Buttons, Labels vor Comboboxen, Footer-Infos zur Modliste) werden wieder korrekt übersetzt.
+- Lokalisierung: Titel der Dialoge werden per Sprachdatei gesetzt.
+
 ## [0.1.19] - 2026-01-17
 ### Hinzugefügt
 - Menü „Modlisten“: Tool „Modordner bereinigen…“ (findet ungenutzte Mods und kann sie in einen Archivordner verschieben).
@@ -199,7 +204,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Removed
 - Frühere heuristische Mod-Verfügbarkeitsprüfung (vereinfachte UI)
 
-[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.19...HEAD
+[Unreleased]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.19.1...HEAD
+[0.1.19.1]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.19...v0.1.19.1
 [0.1.19]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.18.1...v0.1.19
 [0.1.18.1]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.18...v0.1.18.1
 [0.1.18]: https://github.com/rohere58/ETS2ATS.ModlistManager/compare/v0.1.17.1...v0.1.18

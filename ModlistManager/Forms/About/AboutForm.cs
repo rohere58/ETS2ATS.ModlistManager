@@ -19,6 +19,8 @@ namespace ETS2ATS.ModlistManager.Forms.About
 
         private void ApplyLanguage()
         {
+            try { Text = _lang["About.Title"]; } catch { }
+
             void L(Control c)
             {
                 if (c is null) return;
@@ -54,17 +56,17 @@ namespace ETS2ATS.ModlistManager.Forms.About
                 {
                     try
                     {
-                        // In Single-File Deployments ist asm.Location leer -> Fallback auf AppContext.BaseDirectory
-                        string loc = asm.Location;
-                        bool singleFile = string.IsNullOrEmpty(loc);
-                        if (singleFile)
+                        // In Single-File Deployments ist Assembly.Location leer (und triggert Analyzer-Warnungen).
+                        // Stattdessen: Pfad der laufenden EXE ermitteln.
+                        var exePath = Environment.ProcessPath;
+                        if (string.IsNullOrWhiteSpace(exePath))
                         {
-                            // künstliche Datei im Basisverzeichnis für FileVersionInfo ermitteln
-                            loc = System.IO.Path.Combine(AppContext.BaseDirectory, "ETS2ATS.ModlistManager.exe");
+                            exePath = System.IO.Path.Combine(AppContext.BaseDirectory, "ETS2ATS.ModlistManager.exe");
                         }
-                        if (System.IO.File.Exists(loc))
+
+                        if (!string.IsNullOrWhiteSpace(exePath) && System.IO.File.Exists(exePath))
                         {
-                            var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(loc);
+                            var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(exePath);
                             var pv = fvi.ProductVersion ?? fvi.FileVersion;
                             if (!string.IsNullOrWhiteSpace(pv)) versionString = pv.Split('+')[0];
                         }
